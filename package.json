@@ -8,14 +8,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mediapipe/hands": "^0.4.1646424915",
-    "@mediapipe/camera_utils": "^0.3.1646424915",
     "@dimforge/rapier3d-compat": "^0.11.2",
-    "three": "^0.160.0",
-    "gsap": "^3.12.5"
+    "@mediapipe/camera_utils": "^0.3.1646424915",
+    "@mediapipe/hands": "^0.4.1646424915",
+    "gsap": "^3.12.5",
+    "three": "^0.170.0"
   },
   "devDependencies": {
-    "vite": "^5.0.11",
-    "typescript": "^5.3.3"
+    "@types/three": "^0.182.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11"
   }
 }

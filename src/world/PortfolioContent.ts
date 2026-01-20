@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { NodeMaterialFactory } from '../materials/NodeMaterialFactory';
 
 /**
  * Portfolio-specific content and interactive elements
@@ -22,7 +23,7 @@ export class PortfolioContent {
   private createAboutSection(): void {
     // Central floating bio card
     const cardGeometry = new THREE.BoxGeometry(2, 2.5, 0.1);
-    const cardMaterial = new THREE.MeshStandardMaterial({
+    const cardMaterial = NodeMaterialFactory.createStandardMaterial({
       color: 0x2a2a4e,
       roughness: 0.4,
       metalness: 0.6,
@@ -36,7 +37,7 @@ export class PortfolioContent {
 
     // Add glow effect
     const glowGeometry = new THREE.PlaneGeometry(2.2, 2.7);
-    const glowMaterial = new THREE.MeshBasicMaterial({
+    const glowMaterial = NodeMaterialFactory.createBasicMaterial({
       color: 0x00d4ff,
       transparent: true,
       opacity: 0.1,
@@ -80,7 +81,7 @@ export class PortfolioContent {
 
       // Pedestal
       const pedestalGeometry = new THREE.CylinderGeometry(0.8, 1, 0.3, 8);
-      const pedestalMaterial = new THREE.MeshStandardMaterial({
+      const pedestalMaterial = NodeMaterialFactory.createStandardMaterial({
         color: 0x1e1e2e,
         roughness: 0.5,
         metalness: 0.5,
@@ -93,7 +94,7 @@ export class PortfolioContent {
 
       // Floating project icon (sphere)
       const iconGeometry = new THREE.IcosahedronGeometry(0.4, 1);
-      const iconMaterial = new THREE.MeshStandardMaterial({
+      const iconMaterial = NodeMaterialFactory.createStandardMaterial({
         color: project.color,
         roughness: 0.2,
         metalness: 0.8,
@@ -153,7 +154,7 @@ export class PortfolioContent {
       const y = startY + Math.floor(index / 3) * 0.8;
 
       const cardGeometry = new THREE.PlaneGeometry(1.5, 0.6);
-      const cardMaterial = new THREE.MeshBasicMaterial({
+      const cardMaterial = NodeMaterialFactory.createBasicMaterial({
         color: 0x00d4ff,
         transparent: true,
         opacity: 0.7,
@@ -193,7 +194,7 @@ export class PortfolioContent {
 
       // Timeline node
       const nodeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-      const nodeMaterial = new THREE.MeshStandardMaterial({
+      const nodeMaterial = NodeMaterialFactory.createStandardMaterial({
         color: 0x00d4ff,
         emissive: 0x00d4ff,
         emissiveIntensity: 0.8,
@@ -246,7 +247,7 @@ export class PortfolioContent {
   ): void {
     const width = height * 4;
     const geometry = new THREE.PlaneGeometry(width, height);
-    const material = new THREE.MeshBasicMaterial({
+    const material = NodeMaterialFactory.createBasicMaterial({
       transparent: true,
       opacity: 0,
     });

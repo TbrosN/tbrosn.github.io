@@ -6,6 +6,12 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "three": ["node_modules/@types/three/build/three.module.d.ts"],
+      "three/webgpu": ["node_modules/@types/three/build/three.webgpu.d.ts"],
+      "three/tsl": ["node_modules/@types/three/build/three.tsl.d.ts"]
+    },
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,

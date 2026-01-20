@@ -13,3 +13,6 @@ I found that making new chats for each bug was pretty effective, and was able to
 To make this project mobile-friendly, I created a plan using Cursor Plan mode with GPT-5.2, and then used Cursor Agent Mode with GPT-5.2 to generate the coresponding code. I read carefully through the plan and make a few modifications to make sure the plan made sense before letting the LLM build it.
 
 One key design decision that the LLM was about to mess up: rather than use an interface for mobile support that lets us handle different input methods in a modular way, the LLM was initially planning to do complex casing within our existing code. This would have been a major pain to maintain and debug.
+
+# Optimization
+Using my own research, I realized that similar projects rendering 3d scenes in the web used WebGPU for rendering. I used Gemini 3 Flash to explain how this could be used in my app, then used Sonnet 4.5 to make a plan and implement it.

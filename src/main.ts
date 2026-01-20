@@ -16,6 +16,8 @@ import { UI } from './ui/UI';
 import { HandInteractionSystem } from './handtracking/HandInteractionSystem';
 import { DeviceDetector } from './utils/DeviceDetector';
 import { PerformanceMonitor } from './utils/PerformanceMonitor';
+import { LightingOptimizer } from './lighting/LightingOptimizer';
+import { NodeMaterialFactory } from './materials/NodeMaterialFactory';
 
 /**
  * Main application class
@@ -38,6 +40,7 @@ class App {
   private ui!: UI;
   private handInteraction!: HandInteractionSystem;
   private performanceMonitor!: PerformanceMonitor;
+  private lightingOptimizer!: LightingOptimizer;
   private isRunning: boolean = false;
   private handTrackingMode: boolean = false;
 
@@ -58,19 +61,33 @@ class App {
 
       // Initialize UI
       this.ui = new UI();
-
-      // Initialize performance monitor
-      this.performanceMonitor = new PerformanceMonitor();
-      this.performanceMonitor.setQualityDowngradeCallback(() => {
-        console.warn('⚠️ Auto-downgrading quality due to low FPS');
-        // Could disable shadows, reduce pixel ratio, etc.
-      });
+      this.ui.setRenderer('Initializing...');
 
       // Initialize core systems
       this.time = new Time();
       this.scene = new Scene();
       this.camera = new Camera();
       this.renderer = new Renderer(this.canvas);
+      
+      // Initialize performance monitor (needs renderer)
+      this.performanceMonitor = new PerformanceMonitor();
+      this.performanceMonitor.setRenderer(this.renderer.renderer, this.renderer.isWebGPU);
+      this.performanceMonitor.setQualityDowngradeCallback(() => {
+        console.warn('⚠️ Auto-downgrading quality due to low FPS');
+        // Could disable shadows, reduce pixel ratio, etc.
+      });
+
+      // Initialize lighting optimizer based on renderer type
+      this.lightingOptimizer = new LightingOptimizer(this.renderer.isWebGPU);
+      
+      // Log renderer info
+      const rendererInfo = NodeMaterialFactory.getRendererInfo();
+      console.log(`🎨 Renderer: ${rendererInfo.backend}`);
+      console.log(`🎨 Node Materials: ${rendererInfo.nodeMaterialsSupported ? 'Enabled' : 'Disabled'}`);
+      
+      // Update UI with renderer type
+      this.ui.setRenderer(rendererInfo.backend);
+      
       this.desktopControls = new DesktopControls(this.canvas);
       this.touchControls = new TouchControls();
 
@@ -100,6 +117,13 @@ class App {
       // Build world
       this.world = new World(this.scene, this.physics, this.raycaster);
       this.world.build();
+      
+      // Optimize lighting after world is built
+      this.lightingOptimizer.optimizeSceneLights(this.scene.scene);
+      
+      // Log lighting metrics
+      const lightingMetrics = this.lightingOptimizer.getLightingMetrics(this.scene.scene);
+      console.log(`💡 Lighting Metrics:`, lightingMetrics);
 
       // Initialize hand tracking (best-effort; must not block app startup)
       this.handInteraction = new HandInteractionSystem(
@@ -241,7 +265,7 @@ class App {
     }
   }
 
-  private animate(): void {
+  private async animate(): Promise<void> {
     if (!this.isRunning) return;
 
     requestAnimationFrame(() => this.animate());
@@ -279,8 +303,8 @@ class App {
       }
     }
 
-    // Render
-    this.renderer.render(this.scene.scene, this.camera.camera);
+    // Render (async for WebGPU optimization)
+    await this.renderer.renderAsync(this.scene.scene, this.camera.camera);
   }
 
   private activeControlsTarget(): Controls {

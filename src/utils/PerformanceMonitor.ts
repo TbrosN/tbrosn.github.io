@@ -7,6 +7,8 @@ export class PerformanceMonitor {
   private lowFpsThreshold: number = 30;
   private criticalFpsThreshold: number = 20;
   private onQualityDowngrade?: () => void;
+  private isWebGPU: boolean = false;
+  private renderer?: any;
 
   update(fps: number): void {
     this.fpsHistory.push(fps);
@@ -59,10 +61,34 @@ export class PerformanceMonitor {
     console.log('📊 Performance Stats:');
     console.log('  Average FPS:', Math.round(this.getAverageFPS()));
     console.log('  Performance Good:', this.isPerformanceGood());
+    console.log('  Renderer:', this.isWebGPU ? 'WebGPU' : 'WebGL');
     
     const memory = this.getMemoryUsage();
     if (memory) {
       console.log(`  Memory: ${memory.used}MB / ${memory.total}MB`);
     }
+
+    if (this.renderer?.info) {
+      console.log('  Render Info:', {
+        calls: this.renderer.info.render?.calls || 0,
+        triangles: this.renderer.info.render?.triangles || 0,
+        points: this.renderer.info.render?.points || 0,
+        lines: this.renderer.info.render?.lines || 0,
+      });
+    }
+  }
+
+  setRenderer(renderer: any, isWebGPU: boolean): void {
+    this.renderer = renderer;
+    this.isWebGPU = isWebGPU;
+  }
+
+  getRendererInfo(): { backend: string; info: any } | null {
+    if (!this.renderer) return null;
+    
+    return {
+      backend: this.isWebGPU ? 'WebGPU' : 'WebGL',
+      info: this.renderer.info || null,
+    };
   }
 }

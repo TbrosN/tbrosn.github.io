@@ -9,6 +9,7 @@ export class UI {
   private crosshair: HTMLElement;
   private fpsElement: HTMLElement;
   private modeElement: HTMLElement;
+  private rendererElement: HTMLElement | null;
 
   private onStartCallback?: () => void;
   private onHandTrackingCallback?: () => void;
@@ -21,6 +22,7 @@ export class UI {
     this.crosshair = document.getElementById('crosshair')!;
     this.fpsElement = document.getElementById('fps')!;
     this.modeElement = document.getElementById('mode')!;
+    this.rendererElement = document.getElementById('renderer');
 
     this.setupEventListeners();
   }
@@ -58,6 +60,18 @@ export class UI {
 
   setMode(mode: string): void {
     this.modeElement.textContent = mode;
+  }
+
+  setRenderer(renderer: string): void {
+    if (this.rendererElement) {
+      this.rendererElement.textContent = renderer;
+      // Add a visual indicator for WebGPU
+      if (renderer === 'WebGPU') {
+        this.rendererElement.style.color = '#00ff88';
+      } else {
+        this.rendererElement.style.color = '#ffffff';
+      }
+    }
   }
 
   setCrosshairActive(active: boolean): void {

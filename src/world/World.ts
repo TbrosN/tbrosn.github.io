@@ -5,6 +5,7 @@ import type { Raycaster } from '../interaction/Raycaster';
 import type { GrabbableObject } from '../interaction/GrabSystem';
 import { PortfolioContent } from './PortfolioContent';
 import { CollisionGroups as Groups } from '../physics/PhysicsWorld';
+import { NodeMaterialFactory } from '../materials/NodeMaterialFactory';
 
 /**
  * World building - environment and interactive objects
@@ -38,7 +39,7 @@ export class World {
   private createGround(): void {
     // Visual ground
     const groundGeometry = new THREE.PlaneGeometry(100, 100);
-    const groundMaterial = new THREE.MeshStandardMaterial({
+    const groundMaterial = NodeMaterialFactory.createStandardMaterial({
       color: 0x2a2a3e,
       roughness: 0.8,
       metalness: 0.2,
@@ -59,7 +60,7 @@ export class World {
   }
 
   private createRoom(): void {
-    const wallMaterial = new THREE.MeshStandardMaterial({
+    const wallMaterial = NodeMaterialFactory.createStandardMaterial({
       color: 0x1e1e2e,
       roughness: 0.9,
       metalness: 0.1,
@@ -113,7 +114,7 @@ export class World {
     positions.forEach((pos) => {
       // Light fixture
       const geometry = new THREE.CylinderGeometry(0.3, 0.4, 0.2, 8);
-      const material = new THREE.MeshStandardMaterial({
+      const material = NodeMaterialFactory.createStandardMaterial({
         color: 0xffffff,
         emissive: 0xffffff,
         emissiveIntensity: 2,
@@ -143,7 +144,7 @@ export class World {
     cubePositions.forEach((pos, index) => {
       const size = 0.5;
       const geometry = new THREE.BoxGeometry(size, size, size);
-      const material = new THREE.MeshStandardMaterial({
+      const material = NodeMaterialFactory.createStandardMaterial({
         color: colors[index],
         roughness: 0.3,
         metalness: 0.7,

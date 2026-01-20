@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Results, NormalizedLandmark } from '@mediapipe/hands';
 import type { Camera } from '../core/Camera';
+import { NodeMaterialFactory } from '../materials/NodeMaterialFactory';
 
 /**
  * Maps hand landmarks to 3D world space
@@ -22,7 +23,7 @@ export class HandMapper {
 
     // Create hand cursor
     const cursorGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-    const cursorMaterial = new THREE.MeshBasicMaterial({
+    const cursorMaterial = NodeMaterialFactory.createBasicMaterial({
       color: 0x00ff00,
       transparent: true,
       opacity: 0.7
