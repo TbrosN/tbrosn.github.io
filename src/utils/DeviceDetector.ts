@@ -2,6 +2,33 @@
  * Device and capability detection
  */
 export class DeviceDetector {
+  static hasTouch(): boolean {
+    return navigator.maxTouchPoints > 0;
+  }
+
+  static primaryPointerIsCoarse(): boolean {
+    return window.matchMedia('(pointer: coarse)').matches;
+  }
+
+  static hoverSupported(): boolean {
+    return window.matchMedia('(hover: hover)').matches;
+  }
+
+  static supportsPointerLock(): boolean {
+    return 'pointerLockElement' in document && 'exitPointerLock' in document;
+  }
+
+  static getDefaultControlMode(): 'touch' | 'desktop' {
+    const coarse = this.primaryPointerIsCoarse();
+    const touch = this.hasTouch();
+    const hover = this.hoverSupported();
+
+    if (coarse || (touch && !hover)) {
+      return 'touch';
+    }
+    return 'desktop';
+  }
+
   static isMobile(): boolean {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -111,6 +138,11 @@ export class DeviceDetector {
     console.log('🖥️ Device Info:');
     console.log('  Mobile:', this.isMobile());
     console.log('  Tablet:', this.isTablet());
+    console.log('  Touch:', this.hasTouch());
+    console.log('  Pointer Coarse:', this.primaryPointerIsCoarse());
+    console.log('  Hover:', this.hoverSupported());
+    console.log('  PointerLock:', this.supportsPointerLock());
+    console.log('  Default Controls:', this.getDefaultControlMode());
     console.log('  WebGL2:', this.hasWebGL2());
     console.log('  Camera:', this.hasCamera());
     console.log('  GPU Tier:', this.getGPUTier());
