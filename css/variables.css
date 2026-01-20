@@ -1,0 +1,135 @@
+/* AI-assisted: CSS Custom Properties for theming and design system */
+
+:root {
+    /* Colors - Light Theme */
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f8f9fa;
+    --color-bg-elevated: #ffffff;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #4a5568;
+    --color-text-muted: #718096;
+    --color-accent: #667eea;
+    --color-accent-hover: #5568d3;
+    --color-border: #e2e8f0;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+    
+    /* Music/Creative accent */
+    --color-music: #1DB954;
+    --color-music-hover: #1ed760;
+    
+    /* Status colors */
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    
+    /* Spacing System */
+    --spacing-unit: 8px;
+    --spacing-xs: calc(var(--spacing-unit) * 1);    /* 8px */
+    --spacing-sm: calc(var(--spacing-unit) * 2);    /* 16px */
+    --spacing-md: calc(var(--spacing-unit) * 3);    /* 24px */
+    --spacing-lg: calc(var(--spacing-unit) * 4);    /* 32px */
+    --spacing-xl: calc(var(--spacing-unit) * 6);    /* 48px */
+    --spacing-2xl: calc(var(--spacing-unit) * 8);   /* 64px */
+    --spacing-3xl: calc(var(--spacing-unit) * 12);  /* 96px */
+    --spacing-4xl: calc(var(--spacing-unit) * 16);  /* 128px */
+    
+    /* Typography */
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+    --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    
+    --font-size-xs: 0.75rem;      /* 12px */
+    --font-size-sm: 0.875rem;     /* 14px */
+    --font-size-base: 1rem;       /* 16px */
+    --font-size-lg: 1.125rem;     /* 18px */
+    --font-size-xl: 1.25rem;      /* 20px */
+    --font-size-2xl: 1.5rem;      /* 24px */
+    --font-size-3xl: 1.875rem;    /* 30px */
+    --font-size-4xl: 2.25rem;     /* 36px */
+    --font-size-5xl: 3rem;        /* 48px */
+    
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    
+    /* Sizing */
+    --container-max-width: 1280px;
+    --container-padding: clamp(1rem, 5vw, 3rem);
+    --nav-height: 80px;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Transitions */
+    --transition-speed-fast: 150ms;
+    --transition-speed-normal: 200ms;
+    --transition-speed-slow: 300ms;
+    --transition-speed-slower: 600ms;
+    
+    --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --transition-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --transition-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    
+    /* Z-index Scale */
+    --z-dropdown: 1000;
+    --z-sticky: 1100;
+    --z-fixed: 1200;
+    --z-modal-backdrop: 1300;
+    --z-modal: 1400;
+    --z-popover: 1500;
+    --z-tooltip: 1600;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --color-bg-primary: #0a0a0a;
+    --color-bg-secondary: #1a1a1a;
+    --color-bg-elevated: #262626;
+    --color-text-primary: #e0e0e0;
+    --color-text-secondary: #a0aec0;
+    --color-text-muted: #718096;
+    --color-accent: #818cf8;
+    --color-accent-hover: #6366f1;
+    --color-border: #2d3748;
+    --color-shadow: rgba(0, 0, 0, 0.3);
+    
+    --color-music: #1ed760;
+    --color-music-hover: #1fdf64;
+}
+
+/* Apply theme with smooth transitions */
+body {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+    transition: background-color var(--transition-speed-slow) var(--transition-ease),
+                color var(--transition-speed-slow) var(--transition-ease);
+}
+
+/* Prevent flash of unstyled theme */
+body.theme-loading {
+    visibility: hidden;
+}
+
+body.theme-loaded {
+    visibility: visible;
+}
