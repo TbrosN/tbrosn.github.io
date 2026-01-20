@@ -1,34 +1,63 @@
-import * as MPHands from '@mediapipe/hands';
 import type { Results } from '@mediapipe/hands';
-import { Camera as MediaPipeCamera } from '@mediapipe/camera_utils';
+import type { CameraOptions } from '@mediapipe/camera_utils';
+
+const MEDIAPIPE_HANDS_VERSION = '0.4.1675469240';
+const MEDIAPIPE_CAMERA_UTILS_VERSION = '0.3.1675466862';
+
+const HANDS_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/hands@${MEDIAPIPE_HANDS_VERSION}/`;
+const CAMERA_UTILS_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@${MEDIAPIPE_CAMERA_UTILS_VERSION}/camera_utils.js`;
 
 /**
  * MediaPipe hand tracking wrapper
  */
 export class HandTracker {
   private hands!: any;
-  private camera!: MediaPipeCamera;
+  private camera!: any;
   private videoElement!: HTMLVideoElement;
   private isInitialized: boolean = false;
   private isTracking: boolean = false;
   private onResultsCallback?: (results: Results) => void;
 
+  private static scriptPromises: Map<string, Promise<void>> = new Map();
+
+  private loadScriptOnce(src: string): Promise<void> {
+    const existing = HandTracker.scriptPromises.get(src);
+    if (existing) return existing;
+
+    const promise = new Promise<void>((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+      document.head.appendChild(script);
+    });
+
+    HandTracker.scriptPromises.set(src, promise);
+    return promise;
+  }
+
+  private async ensureMediapipeLoaded(): Promise<void> {
+    // MediaPipe packages are distributed as UMD bundles that attach globals.
+    // Loading them via <script> is the most reliable approach across Vite dev/prod.
+    await this.loadScriptOnce(`${HANDS_BASE}hands.js`);
+    await this.loadScriptOnce(CAMERA_UTILS_URL);
+  }
+
   private resolveHandsCtor(): any {
-    // @mediapipe/hands ships as a UMD-style bundle. In dev, Vite can synthesize
-    // named exports, but in prod the shape can differ depending on interop.
-    const anyMod = MPHands as any;
-    const ctor =
-      anyMod.Hands ??
-      anyMod.default?.Hands ??
-      anyMod.default ??
-      (globalThis as any).Hands;
-
+    const ctor = (globalThis as any).Hands;
     if (typeof ctor !== 'function') {
-      throw new Error(
-        `MediaPipe Hands constructor not found. Module keys: ${Object.keys(anyMod).join(', ')}`
-      );
+      throw new Error('MediaPipe Hands constructor not found on globalThis.Hands');
     }
+    return ctor;
+  }
 
+  private resolveCameraCtor(): any {
+    const ctor = (globalThis as any).Camera;
+    if (typeof ctor !== 'function') {
+      throw new Error('MediaPipe Camera constructor not found on globalThis.Camera');
+    }
     return ctor;
   }
 
@@ -38,11 +67,13 @@ export class HandTracker {
     this.videoElement.style.display = 'none';
     document.body.appendChild(this.videoElement);
 
+    await this.ensureMediapipeLoaded();
+
     // Initialize MediaPipe Hands
     const HandsCtor = this.resolveHandsCtor();
     this.hands = new HandsCtor({
       locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        return `${HANDS_BASE}${file}`;
       }
     });
 
@@ -77,8 +108,9 @@ export class HandTracker {
       this.videoElement.srcObject = stream;
       await this.videoElement.play();
 
-      // Start MediaPipe camera
-      this.camera = new MediaPipeCamera(this.videoElement, {
+      // Start MediaPipe camera (from global)
+      const CameraCtor = this.resolveCameraCtor();
+      const options: CameraOptions = {
         onFrame: async () => {
           if (this.isTracking) {
             await this.hands.send({ image: this.videoElement });
@@ -86,9 +118,10 @@ export class HandTracker {
         },
         width: 640,
         height: 480
-      });
+      };
+      this.camera = new CameraCtor(this.videoElement, options);
 
-      this.camera.start();
+      await this.camera.start();
       this.isTracking = true;
 
       console.log('✅ Hand tracking started');
