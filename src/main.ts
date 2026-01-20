@@ -37,90 +37,109 @@ class App {
   private handTrackingMode: boolean = false;
 
   async init(): Promise<void> {
-    // Log device info
-    DeviceDetector.logDeviceInfo();
-    const settings = DeviceDetector.getRecommendedSettings();
-    console.log('📱 Recommended Settings:', settings);
+    try {
+      // Log device info
+      DeviceDetector.logDeviceInfo();
+      const settings = DeviceDetector.getRecommendedSettings();
+      console.log('📱 Recommended Settings:', settings);
 
-    // Create canvas (ensure we don't accumulate multiple canvases across re-init/HMR)
-    const appRoot = document.getElementById('app')!;
-    const existingCanvas = appRoot.querySelector('canvas');
-    if (existingCanvas) existingCanvas.remove();
+      // Create canvas (ensure we don't accumulate multiple canvases across re-init/HMR)
+      const appRoot = document.getElementById('app')!;
+      const existingCanvas = appRoot.querySelector('canvas');
+      if (existingCanvas) existingCanvas.remove();
 
-    this.canvas = document.createElement('canvas');
-    appRoot.appendChild(this.canvas);
+      this.canvas = document.createElement('canvas');
+      appRoot.appendChild(this.canvas);
 
-    // Initialize UI
-    this.ui = new UI();
+      // Initialize UI
+      this.ui = new UI();
 
-    // Initialize performance monitor
-    this.performanceMonitor = new PerformanceMonitor();
-    this.performanceMonitor.setQualityDowngradeCallback(() => {
-      console.warn('⚠️ Auto-downgrading quality due to low FPS');
-      // Could disable shadows, reduce pixel ratio, etc.
-    });
+      // Initialize performance monitor
+      this.performanceMonitor = new PerformanceMonitor();
+      this.performanceMonitor.setQualityDowngradeCallback(() => {
+        console.warn('⚠️ Auto-downgrading quality due to low FPS');
+        // Could disable shadows, reduce pixel ratio, etc.
+      });
 
-    // Initialize core systems
-    this.time = new Time();
-    this.scene = new Scene();
-    this.camera = new Camera();
-    this.renderer = new Renderer(this.canvas);
-    this.input = new InputManager(this.canvas);
+      // Initialize core systems
+      this.time = new Time();
+      this.scene = new Scene();
+      this.camera = new Camera();
+      this.renderer = new Renderer(this.canvas);
+      this.input = new InputManager(this.canvas);
 
-    // Initialize physics
-    this.physics = new PhysicsWorld();
-    await this.physics.init();
+      // Initialize physics
+      this.physics = new PhysicsWorld();
+      await this.physics.init();
 
-    // Initialize interaction systems
-    this.raycaster = new Raycaster(this.camera);
-    this.grabSystem = new GrabSystem(this.camera, this.physics);
-    
-    // Initialize player
-    this.player = new PlayerController(this.camera, this.input, this.physics);
-    this.player.setupPhysics();
+      // Initialize interaction systems
+      this.raycaster = new Raycaster(this.camera);
+      this.grabSystem = new GrabSystem(this.camera, this.physics);
+      
+      // Initialize player
+      this.player = new PlayerController(this.camera, this.input, this.physics);
+      this.player.setupPhysics();
 
-    // Build world
-    this.world = new World(this.scene, this.physics, this.raycaster);
-    this.world.build();
+      // Build world
+      this.world = new World(this.scene, this.physics, this.raycaster);
+      this.world.build();
 
-    // Initialize hand tracking
-    this.handInteraction = new HandInteractionSystem(
-      this.camera,
-      this.scene.scene,
-      this.physics,
-      this.grabSystem,
-      this.world
-    );
-    await this.handInteraction.init();
+      // Initialize hand tracking (best-effort; must not block app startup)
+      this.handInteraction = new HandInteractionSystem(
+        this.camera,
+        this.scene.scene,
+        this.physics,
+        this.grabSystem,
+        this.world
+      );
+      try {
+        await this.handInteraction.init();
+      } catch (error) {
+        console.warn('🖐️ Hand tracking unavailable in this environment:', error);
+        const handTrackingBtn = document.getElementById('hand-tracking-btn');
+        if (handTrackingBtn) handTrackingBtn.style.display = 'none';
+      }
 
-    // Setup UI callbacks
-    this.ui.onStart(() => {
-      this.start();
-    });
+      // Setup UI callbacks
+      this.ui.onStart(() => {
+        this.start();
+      });
 
-    this.ui.onHandTracking(() => {
-      this.enableHandTracking();
-    });
+      this.ui.onHandTracking(() => {
+        this.enableHandTracking();
+      });
 
-    // Hide hand tracking button on mobile
-    if (DeviceDetector.isMobile() || !DeviceDetector.hasCamera()) {
-      const handTrackingBtn = document.getElementById('hand-tracking-btn');
-      if (handTrackingBtn) {
-        handTrackingBtn.style.display = 'none';
+      // Hide hand tracking button on mobile
+      if (DeviceDetector.isMobile() || !DeviceDetector.hasCamera()) {
+        const handTrackingBtn = document.getElementById('hand-tracking-btn');
+        if (handTrackingBtn) {
+          handTrackingBtn.style.display = 'none';
+        }
+      }
+
+      // Setup mouse click for grabbing
+      this.canvas.addEventListener('click', () => {
+        if (this.input.getPointerLocked()) {
+          this.handleGrabClick();
+        }
+      });
+
+      console.log('✅ App initialized - Click "Enter Experience" to start');
+    } catch (error) {
+      console.error('❌ App initialization failed:', error);
+      const loading = document.getElementById('loading');
+      if (loading) {
+        loading.innerHTML = '<div style="max-width:520px;text-align:center;line-height:1.4;">Failed to load. Open DevTools Console for details.</div>';
+      }
+      throw error;
+    } finally {
+      // Ensure we never get stuck on the loading overlay
+      try {
+        this.ui?.hideLoading();
+      } catch {
+        // ignore
       }
     }
-
-    // Setup mouse click for grabbing
-    this.canvas.addEventListener('click', () => {
-      if (this.input.getPointerLocked()) {
-        this.handleGrabClick();
-      }
-    });
-
-    // Hide loading
-    this.ui.hideLoading();
-
-    console.log('✅ App initialized - Click "Enter Experience" to start');
   }
 
   private start(): void {

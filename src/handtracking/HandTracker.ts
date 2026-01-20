@@ -1,16 +1,36 @@
-import { Hands, Results } from '@mediapipe/hands';
+import * as MPHands from '@mediapipe/hands';
+import type { Results } from '@mediapipe/hands';
 import { Camera as MediaPipeCamera } from '@mediapipe/camera_utils';
 
 /**
  * MediaPipe hand tracking wrapper
  */
 export class HandTracker {
-  private hands!: Hands;
+  private hands!: any;
   private camera!: MediaPipeCamera;
   private videoElement!: HTMLVideoElement;
   private isInitialized: boolean = false;
   private isTracking: boolean = false;
   private onResultsCallback?: (results: Results) => void;
+
+  private resolveHandsCtor(): any {
+    // @mediapipe/hands ships as a UMD-style bundle. In dev, Vite can synthesize
+    // named exports, but in prod the shape can differ depending on interop.
+    const anyMod = MPHands as any;
+    const ctor =
+      anyMod.Hands ??
+      anyMod.default?.Hands ??
+      anyMod.default ??
+      (globalThis as any).Hands;
+
+    if (typeof ctor !== 'function') {
+      throw new Error(
+        `MediaPipe Hands constructor not found. Module keys: ${Object.keys(anyMod).join(', ')}`
+      );
+    }
+
+    return ctor;
+  }
 
   async init(): Promise<void> {
     // Create video element
@@ -19,7 +39,8 @@ export class HandTracker {
     document.body.appendChild(this.videoElement);
 
     // Initialize MediaPipe Hands
-    this.hands = new Hands({
+    const HandsCtor = this.resolveHandsCtor();
+    this.hands = new HandsCtor({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
       }
