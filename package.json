@@ -1,0 +1,21 @@
+{
+  "name": "xr-portfolio",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mediapipe/hands": "^0.4.1646424915",
+    "@mediapipe/camera_utils": "^0.3.1646424915",
+    "@dimforge/rapier3d-compat": "^0.11.2",
+    "three": "^0.160.0",
+    "gsap": "^3.12.5"
+  },
+  "devDependencies": {
+    "vite": "^5.0.11",
+    "typescript": "^5.3.3"
+  }
+}
