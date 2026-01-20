@@ -12,6 +12,7 @@ export class TouchControls implements Controls {
   private moveAxis: MoveAxis = { x: 0, y: 0 };
   private lookDelta: LookDelta = { x: 0, y: 0 };
   private active: boolean = false;
+  private readonly lookSensitivity: number = 5;
 
   private movePointerId: number | null = null;
   private lookPointerId: number | null = null;
@@ -58,8 +59,8 @@ export class TouchControls implements Controls {
     if (event.pointerId !== this.lookPointerId || !this.lookLast) return;
     event.preventDefault();
 
-    const deltaX = event.clientX - this.lookLast.x;
-    const deltaY = event.clientY - this.lookLast.y;
+    const deltaX = (event.clientX - this.lookLast.x) * this.lookSensitivity;
+    const deltaY = (event.clientY - this.lookLast.y) * this.lookSensitivity;
     this.lookLast = { x: event.clientX, y: event.clientY };
 
     this.lookDelta.x += deltaX;
