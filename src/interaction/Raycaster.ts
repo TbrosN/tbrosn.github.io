@@ -44,21 +44,37 @@ export class Raycaster {
       this.currentHoveredObject = null;
     }
 
-    if (intersects.length > 0) {
-      // Find the root interactable object
-      let targetObject = intersects[0].object;
-      while (targetObject.parent && !this.interactables.includes(targetObject)) {
-        targetObject = targetObject.parent;
-      }
-      
-      if (this.interactables.includes(targetObject)) {
-        this.currentHoveredObject = targetObject;
-        this.applyHover(targetObject);
-        return targetObject;
-      }
+    const targetObject = this.getRootInteractable(intersects);
+    if (targetObject) {
+      this.currentHoveredObject = targetObject;
+      this.applyHover(targetObject);
+      return targetObject;
     }
 
     return null;
+  }
+
+  raycastFromScreenPoint(clientX: number, clientY: number): THREE.Object3D | null {
+    const ndc = new THREE.Vector2(
+      (clientX / window.innerWidth) * 2 - 1,
+      -(clientY / window.innerHeight) * 2 + 1
+    );
+    this.raycaster.setFromCamera(ndc, this.camera.camera);
+    const intersects = this.raycaster.intersectObjects(this.interactables, true);
+    return this.getRootInteractable(intersects);
+  }
+
+  private getRootInteractable(
+    intersects: THREE.Intersection[]
+  ): THREE.Object3D | null {
+    if (intersects.length === 0) return null;
+
+    let targetObject = intersects[0].object;
+    while (targetObject.parent && !this.interactables.includes(targetObject)) {
+      targetObject = targetObject.parent;
+    }
+
+    return this.interactables.includes(targetObject) ? targetObject : null;
   }
 
   private applyHover(object: THREE.Object3D): void {

@@ -4,7 +4,9 @@ import { Time } from './core/Time';
 import { Renderer } from './core/Renderer';
 import { Camera } from './core/Camera';
 import { Scene } from './core/Scene';
-import { InputManager } from './player/InputManager';
+import type { Controls } from './player/Controls';
+import { DesktopControls } from './player/DesktopControls';
+import { TouchControls } from './player/TouchControls';
 import { PlayerController } from './player/PlayerController';
 import { PhysicsWorld } from './physics/PhysicsWorld';
 import { Raycaster } from './interaction/Raycaster';
@@ -24,7 +26,10 @@ class App {
   private scene!: Scene;
   private camera!: Camera;
   private time!: Time;
-  private input!: InputManager;
+  private desktopControls!: DesktopControls;
+  private touchControls!: TouchControls;
+  private activeControls!: Controls;
+  private controlMode: 'desktop' | 'touch' = 'desktop';
   private player!: PlayerController;
   private physics!: PhysicsWorld;
   private raycaster!: Raycaster;
@@ -66,7 +71,19 @@ class App {
       this.scene = new Scene();
       this.camera = new Camera();
       this.renderer = new Renderer(this.canvas);
-      this.input = new InputManager(this.canvas);
+      this.desktopControls = new DesktopControls(this.canvas);
+      this.touchControls = new TouchControls();
+
+      this.activeControls = {
+        isActive: () => this.activeControlsTarget().isActive(),
+        getMoveAxis: () => this.activeControlsTarget().getMoveAxis(),
+        getLookDelta: () => this.activeControlsTarget().getLookDelta(),
+        dispose: () => {
+          this.desktopControls.dispose();
+          this.touchControls.dispose();
+        },
+      };
+      this.setControlMode(DeviceDetector.getDefaultControlMode());
 
       // Initialize physics
       this.physics = new PhysicsWorld();
@@ -77,7 +94,7 @@ class App {
       this.grabSystem = new GrabSystem(this.camera, this.physics);
       
       // Initialize player
-      this.player = new PlayerController(this.camera, this.input, this.physics);
+      this.player = new PlayerController(this.camera, this.activeControls, this.physics);
       this.player.setupPhysics();
 
       // Build world
@@ -109,8 +126,11 @@ class App {
         this.enableHandTracking();
       });
 
-      // Hide hand tracking button on mobile
-      if (DeviceDetector.isMobile() || !DeviceDetector.hasCamera()) {
+      // Hand tracking is desktop-only (touch users need hands for controls)
+      if (
+        DeviceDetector.getDefaultControlMode() !== 'desktop' ||
+        !DeviceDetector.hasCamera()
+      ) {
         const handTrackingBtn = document.getElementById('hand-tracking-btn');
         if (handTrackingBtn) {
           handTrackingBtn.style.display = 'none';
@@ -119,10 +139,34 @@ class App {
 
       // Setup mouse click for grabbing
       this.canvas.addEventListener('click', () => {
-        if (this.input.getPointerLocked()) {
+        if (this.controlMode === 'desktop' && this.desktopControls.getPointerLocked()) {
           this.handleGrabClick();
         }
       });
+
+      this.desktopControls.setPointerLockCallback(() => {
+        if (this.desktopControls.getPointerLocked()) {
+          this.setControlMode('desktop');
+        }
+      });
+
+      this.canvas.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'touch') {
+          this.setControlMode('touch');
+        }
+      }, { passive: true });
+
+      this.canvas.addEventListener('pointerup', (event) => {
+        if (event.pointerType !== 'touch') return;
+        if (!this.isRunning || this.controlMode !== 'touch') return;
+        if (this.handTrackingMode) return;
+
+        const tappedObject = this.raycaster.raycastFromScreenPoint(
+          event.clientX,
+          event.clientY
+        );
+        this.handleGrabTarget(tappedObject);
+      }, { passive: true });
 
       console.log('✅ App initialized - Click "Enter Experience" to start');
     } catch (error) {
@@ -144,7 +188,11 @@ class App {
 
   private start(): void {
     this.isRunning = true;
-    this.input.requestPointerLock();
+    if (this.controlMode === 'desktop') {
+      this.desktopControls.requestPointerLock();
+    } else {
+      this.touchControls.setActive(true);
+    }
     this.animate();
   }
 
@@ -152,15 +200,20 @@ class App {
     // Only handle mouse clicks if not in hand tracking mode
     if (this.handTrackingMode) return;
 
-    const hoveredObject = this.raycaster.getCurrentHovered();
-    
+    this.handleGrabTarget(this.raycaster.getCurrentHovered());
+  }
+
+  private handleGrabTarget(target: THREE.Object3D | null): void {
     if (this.grabSystem.isGrabbing()) {
       // Release currently grabbed object
       this.grabSystem.release();
       this.ui.setCrosshairActive(false);
-    } else if (hoveredObject) {
-      // Grab hovered object
-      const grabbable = this.world.getInteractiveObject(hoveredObject);
+      return;
+    }
+
+    if (target) {
+      // Grab tapped/hovered object
+      const grabbable = this.world.getInteractiveObject(target);
       if (grabbable) {
         this.grabSystem.grab(grabbable);
         this.ui.setCrosshairActive(true);
@@ -230,11 +283,23 @@ class App {
     this.renderer.render(this.scene.scene, this.camera.camera);
   }
 
+  private activeControlsTarget(): Controls {
+    return this.controlMode === 'desktop' ? this.desktopControls : this.touchControls;
+  }
+
+  private setControlMode(mode: 'desktop' | 'touch'): void {
+    if (this.controlMode === mode) return;
+    this.controlMode = mode;
+    this.touchControls.setActive(mode === 'touch' && this.isRunning);
+    this.ui.setMode(mode === 'touch' ? 'Touch' : 'Mouse');
+  }
+
   dispose(): void {
     this.isRunning = false;
     this.renderer.dispose();
     this.camera.dispose();
-    this.input.dispose();
+    this.desktopControls.dispose();
+    this.touchControls.dispose();
   }
 }
 

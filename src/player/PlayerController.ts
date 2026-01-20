@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Camera } from '../core/Camera';
-import type { InputManager } from './InputManager';
+import type { Controls } from './Controls';
 import type { PhysicsWorld } from '../physics/PhysicsWorld';
 import { CollisionGroups } from '../physics/PhysicsWorld';
 
@@ -9,7 +9,7 @@ import { CollisionGroups } from '../physics/PhysicsWorld';
  */
 export class PlayerController {
   private camera: Camera;
-  private input: InputManager;
+  private controls: Controls;
   private physics: PhysicsWorld;
   
   private velocity: THREE.Vector3 = new THREE.Vector3();
@@ -20,9 +20,9 @@ export class PlayerController {
   public collider: any; // Rapier collider
   public rigidBody: any; // Rapier rigid body
 
-  constructor(camera: Camera, input: InputManager, physics: PhysicsWorld) {
+  constructor(camera: Camera, controls: Controls, physics: PhysicsWorld) {
     this.camera = camera;
-    this.input = input;
+    this.controls = controls;
     this.physics = physics;
   }
 
@@ -57,11 +57,11 @@ export class PlayerController {
    * feedback loop (and visible jitter) if physics is stepped earlier in the frame.
    */
   prePhysics(delta: number): void {
-    if (!this.input.getPointerLocked()) return;
+    if (!this.controls.isActive()) return;
 
     // Mouse look
-    const mouseMovement = this.input.getMouseMovement();
-    this.camera.updateRotation(mouseMovement.x, mouseMovement.y);
+    const lookDelta = this.controls.getLookDelta();
+    this.camera.updateRotation(lookDelta.x, lookDelta.y);
 
     // Movement
     const moveSpeed = this.speed * delta;
@@ -69,14 +69,19 @@ export class PlayerController {
     const right = this.camera.getRightVector();
 
     const moveDirection = new THREE.Vector3();
-
-    if (this.input.isKeyPressed('KeyW')) moveDirection.add(forward);
-    if (this.input.isKeyPressed('KeyS')) moveDirection.sub(forward);
-    if (this.input.isKeyPressed('KeyD')) moveDirection.add(right);
-    if (this.input.isKeyPressed('KeyA')) moveDirection.sub(right);
+    const axis = this.controls.getMoveAxis();
+    if (axis.y !== 0) {
+      moveDirection.add(forward.multiplyScalar(axis.y));
+    }
+    if (axis.x !== 0) {
+      moveDirection.add(right.multiplyScalar(axis.x));
+    }
 
     if (moveDirection.lengthSq() > 0) {
-      moveDirection.normalize().multiplyScalar(moveSpeed);
+      if (moveDirection.lengthSq() > 1) {
+        moveDirection.normalize();
+      }
+      moveDirection.multiplyScalar(moveSpeed);
     }
 
     // Apply movement

@@ -8,3 +8,8 @@ The initial prototype was essentially vibe-coded, using an llm to generate a det
 - I continued to use Cursor Agent Mode with new chats of GPT-5.2 to debug certain issues I found with rendering and deployments
 
 I found that making new chats for each bug was pretty effective, and was able to resolve most issues with just a few messages.
+
+# Mobile Support
+To make this project mobile-friendly, I created a plan using Cursor Plan mode with GPT-5.2, and then used Cursor Agent Mode with GPT-5.2 to generate the coresponding code. I read carefully through the plan and make a few modifications to make sure the plan made sense before letting the LLM build it.
+
+One key design decision that the LLM was about to mess up: rather than use an interface for mobile support that lets us handle different input methods in a modular way, the LLM was initially planning to do complex casing within our existing code. This would have been a major pain to maintain and debug.

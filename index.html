@@ -30,6 +30,8 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       overflow: hidden;
       background: #000;
+      touch-action: none;
+      overscroll-behavior: none;
     }
 
     #app {
@@ -41,6 +43,68 @@
     canvas {
       display: block;
       outline: none;
+      touch-action: none;
+    }
+
+    /* Mobile controls */
+    #mobile-controls {
+      position: absolute;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      pointer-events: none;
+    }
+
+    #mobile-controls.active {
+      display: block;
+    }
+
+    #move-stick {
+      position: absolute;
+      left: calc(20px + env(safe-area-inset-left, 0px));
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      width: 160px;
+      height: 160px;
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    #look-zone {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 50%;
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    .stick-base {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 120px;
+      height: 120px;
+      margin-left: -60px;
+      margin-top: -60px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .stick-thumb {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 60px;
+      height: 60px;
+      margin-left: -30px;
+      margin-top: -30px;
+      border-radius: 50%;
+      background: rgba(0, 212, 255, 0.35);
+      border: 2px solid rgba(0, 212, 255, 0.6);
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.05s linear;
     }
 
     /* Onboarding UI */
@@ -268,6 +332,15 @@
     <div id="hud">
       <div class="hud-item">FPS: <span id="fps">60</span></div>
       <div class="hud-item">Mode: <span id="mode">Mouse</span></div>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div id="mobile-controls">
+      <div id="move-stick">
+        <div class="stick-base"></div>
+        <div class="stick-thumb" id="move-thumb"></div>
+      </div>
+      <div id="look-zone"></div>
     </div>
   </div>
 
