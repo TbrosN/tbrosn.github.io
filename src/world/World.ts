@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import type { Scene } from '../core/Scene';
-import type { PhysicsWorld } from '../physics/PhysicsWorld';
+import type { PhysicsWorld, CollisionGroups } from '../physics/PhysicsWorld';
 import type { Raycaster } from '../interaction/Raycaster';
 import type { GrabbableObject } from '../interaction/GrabSystem';
 import { PortfolioContent } from './PortfolioContent';
+import { CollisionGroups as Groups } from '../physics/PhysicsWorld';
 
 /**
  * World building - environment and interactive objects
@@ -14,6 +15,7 @@ export class World {
   private raycaster: Raycaster;
   public interactiveObjects: Map<THREE.Object3D, GrabbableObject> = new Map();
   private portfolioContent: PortfolioContent;
+  private built: boolean = false;
 
   constructor(scene: Scene, physics: PhysicsWorld, raycaster: Raycaster) {
     this.scene = scene;
@@ -23,6 +25,10 @@ export class World {
   }
 
   build(): void {
+    // Guard against accidental double-builds (e.g., during hot reload / re-init)
+    if (this.built) return;
+    this.built = true;
+
     this.createGround();
     this.createRoom();
     this.createInteractiveObjects();
@@ -60,32 +66,37 @@ export class World {
     });
 
     // Back wall
-    const backWall = this.createWall(20, 6, 0.2, wallMaterial);
-    backWall.position.set(0, 3, -10);
+    this.createWall(20, 6, 0.2, wallMaterial, { x: 0, y: 3, z: -10 });
     
     // Side walls
-    const leftWall = this.createWall(0.2, 6, 20, wallMaterial);
-    leftWall.position.set(-10, 3, 0);
+    this.createWall(0.2, 6, 20, wallMaterial, { x: -10, y: 3, z: 0 });
     
-    const rightWall = this.createWall(0.2, 6, 20, wallMaterial);
-    rightWall.position.set(10, 3, 0);
+    this.createWall(0.2, 6, 20, wallMaterial, { x: 10, y: 3, z: 0 });
 
     // Ceiling lights
     this.createCeilingLights();
   }
 
-  private createWall(width: number, height: number, depth: number, material: THREE.Material): THREE.Mesh {
+  private createWall(
+    width: number,
+    height: number,
+    depth: number,
+    material: THREE.Material,
+    position: { x: number; y: number; z: number }
+  ): THREE.Mesh {
     const geometry = new THREE.BoxGeometry(width, height, depth);
     const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(position.x, position.y, position.z);
     mesh.receiveShadow = true;
     mesh.castShadow = true;
     this.scene.add(mesh);
 
-    // Physics
+    // Physics - walls are environment
     this.physics.createBox(
-      { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
+      { x: position.x, y: position.y, z: position.z },
       { x: width, y: height, z: depth },
-      false
+      false,
+      Groups.ENVIRONMENT
     );
 
     return mesh;
@@ -143,11 +154,12 @@ export class World {
       mesh.receiveShadow = true;
       this.scene.add(mesh);
 
-      // Physics
+      // Physics - interactive objects don't collide with player
       const { rigidBody } = this.physics.createBox(
         { x: pos.x, y: pos.y, z: pos.z },
         { x: size, y: size, z: size },
-        true
+        true,
+        Groups.INTERACTIVE
       );
 
       // Register as interactable
@@ -163,14 +175,18 @@ export class World {
   }
 
   update(delta: number): void {
-    // Sync physics bodies with meshes
+    // Sync physics bodies with meshes (skip kinematic bodies - they're controlled elsewhere)
     this.interactiveObjects.forEach((grabbable) => {
       if (grabbable.rigidBody) {
-        const translation = grabbable.rigidBody.translation();
-        grabbable.mesh.position.set(translation.x, translation.y, translation.z);
-        
-        const rotation = grabbable.rigidBody.rotation();
-        grabbable.mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+        // Only sync dynamic bodies (not grabbed/kinematic ones)
+        const bodyType = grabbable.rigidBody.bodyType();
+        if (bodyType === this.physics.RAPIER.RigidBodyType.Dynamic) {
+          const translation = grabbable.rigidBody.translation();
+          grabbable.mesh.position.set(translation.x, translation.y, translation.z);
+          
+          const rotation = grabbable.rigidBody.rotation();
+          grabbable.mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+        }
       }
     });
   }

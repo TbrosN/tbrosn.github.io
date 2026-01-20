@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { Camera } from '../core/Camera';
 import type { InputManager } from './InputManager';
 import type { PhysicsWorld } from '../physics/PhysicsWorld';
+import { CollisionGroups } from '../physics/PhysicsWorld';
 
 /**
  * First-person player controller with physics-based movement
@@ -42,10 +43,20 @@ export class PlayerController {
     const colliderDesc = RAPIER.ColliderDesc.capsule(0.8, 0.3)
       .setTranslation(0, -0.8, 0); // Offset so top is at eye level
     
+    // Player only collides with ENVIRONMENT (walls, floor), not with INTERACTIVE objects
+    colliderDesc.setCollisionGroups(
+      (CollisionGroups.PLAYER << 16) | CollisionGroups.ENVIRONMENT
+    );
+    
     this.collider = this.physics.world.createCollider(colliderDesc, this.rigidBody);
   }
 
-  update(delta: number): void {
+  /**
+   * Apply input to the kinematic player body BEFORE the physics step.
+   * We intentionally avoid reading back `rigidBody.translation()` here; that creates a 1-frame
+   * feedback loop (and visible jitter) if physics is stepped earlier in the frame.
+   */
+  prePhysics(delta: number): void {
     if (!this.input.getPointerLocked()) return;
 
     // Mouse look
@@ -56,45 +67,40 @@ export class PlayerController {
     const moveSpeed = this.speed * delta;
     const forward = this.camera.getForwardVector();
     const right = this.camera.getRightVector();
-    
+
     const moveDirection = new THREE.Vector3();
 
-    if (this.input.isKeyPressed('KeyW')) {
-      moveDirection.add(forward);
-    }
-    if (this.input.isKeyPressed('KeyS')) {
-      moveDirection.sub(forward);
-    }
-    if (this.input.isKeyPressed('KeyD')) {
-      moveDirection.add(right);
-    }
-    if (this.input.isKeyPressed('KeyA')) {
-      moveDirection.sub(right);
-    }
+    if (this.input.isKeyPressed('KeyW')) moveDirection.add(forward);
+    if (this.input.isKeyPressed('KeyS')) moveDirection.sub(forward);
+    if (this.input.isKeyPressed('KeyD')) moveDirection.add(right);
+    if (this.input.isKeyPressed('KeyA')) moveDirection.sub(right);
 
-    if (moveDirection.length() > 0) {
-      moveDirection.normalize();
-      moveDirection.multiplyScalar(moveSpeed);
+    if (moveDirection.lengthSq() > 0) {
+      moveDirection.normalize().multiplyScalar(moveSpeed);
     }
 
     // Apply movement
     const currentPos = this.camera.camera.position;
     const newPos = currentPos.clone().add(moveDirection);
 
-    // Update physics body
     if (this.rigidBody) {
       this.rigidBody.setNextKinematicTranslation({
         x: newPos.x,
         y: newPos.y,
-        z: newPos.z
+        z: newPos.z,
       });
-
-      // Sync camera with physics body
-      const translation = this.rigidBody.translation();
-      this.camera.camera.position.set(translation.x, translation.y, translation.z);
     } else {
       // Fallback without physics
       this.camera.camera.position.copy(newPos);
     }
+  }
+
+  /**
+   * Sync the camera to the physics body AFTER the physics step.
+   */
+  postPhysics(): void {
+    if (!this.rigidBody) return;
+    const translation = this.rigidBody.translation();
+    this.camera.camera.position.set(translation.x, translation.y, translation.z);
   }
 }

@@ -5,6 +5,7 @@ import * as THREE from 'three';
  */
 export class Renderer {
   public renderer: THREE.WebGLRenderer;
+  private readonly onResizeHandler: () => void;
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({
@@ -23,7 +24,8 @@ export class Renderer {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     // Handle resize
-    window.addEventListener('resize', this.onResize.bind(this));
+    this.onResizeHandler = this.onResize.bind(this);
+    window.addEventListener('resize', this.onResizeHandler);
   }
 
   private onResize(): void {
@@ -36,7 +38,7 @@ export class Renderer {
   }
 
   dispose(): void {
-    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('resize', this.onResizeHandler);
     this.renderer.dispose();
   }
 }

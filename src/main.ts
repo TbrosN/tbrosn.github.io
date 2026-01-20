@@ -42,9 +42,13 @@ class App {
     const settings = DeviceDetector.getRecommendedSettings();
     console.log('📱 Recommended Settings:', settings);
 
-    // Create canvas
+    // Create canvas (ensure we don't accumulate multiple canvases across re-init/HMR)
+    const appRoot = document.getElementById('app')!;
+    const existingCanvas = appRoot.querySelector('canvas');
+    if (existingCanvas) existingCanvas.remove();
+
     this.canvas = document.createElement('canvas');
-    document.getElementById('app')!.appendChild(this.canvas);
+    appRoot.appendChild(this.canvas);
 
     // Initialize UI
     this.ui = new UI();
@@ -175,8 +179,10 @@ class App {
     const delta = this.time.delta;
 
     // Update systems
+    // Apply input before stepping physics, then sync camera from physics afterwards.
+    this.player.prePhysics(delta);
     this.physics.update(delta);
-    this.player.update(delta);
+    this.player.postPhysics();
     
     // Only update raycaster in mouse mode
     if (!this.handTrackingMode) {
