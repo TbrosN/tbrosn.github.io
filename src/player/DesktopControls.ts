@@ -12,9 +12,6 @@ export class DesktopControls implements Controls {
 
   private readonly handleKeyDown = (event: KeyboardEvent): void => {
     this.keys.set(event.code, true);
-    if (event.code === 'Escape') {
-      this.exitPointerLock();
-    }
   };
 
   private readonly handleKeyUp = (event: KeyboardEvent): void => {

@@ -315,6 +315,276 @@
       z-index: 999;
     }
 
+    /* Pause Menu */
+    #pause-menu {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1050;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: opacity 0.15s ease;
+    }
+
+    #pause-menu.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .pause-panel {
+      width: min(820px, calc(100vw - 28px));
+      max-height: min(720px, calc(100vh - 28px));
+      background: linear-gradient(135deg, rgba(10, 14, 20, 0.95), rgba(20, 10, 30, 0.95));
+      border: 1px solid rgba(0, 212, 255, 0.35);
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.25), 0 0 80px rgba(200, 0, 255, 0.15), 0 20px 60px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .pause-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+      gap: 12px;
+    }
+
+    .pause-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pause-tab {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 650;
+      opacity: 0.92;
+      transition: all 0.2s ease;
+    }
+
+    .pause-tab:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.20);
+    }
+
+    .pause-tab[aria-selected="true"] {
+      background: rgba(0, 212, 255, 0.20);
+      border-color: rgba(0, 212, 255, 0.6);
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+      color: #00e6ff;
+    }
+
+    .pause-body {
+      padding: 16px;
+      overflow: auto;
+      min-height: 0;
+    }
+
+    .pause-header {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .pause-profile {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pause-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: rgba(0, 212, 255, 0.10);
+      border: 2px solid transparent;
+      background-image: linear-gradient(rgba(10, 14, 20, 0.95), rgba(10, 14, 20, 0.95)), 
+                        linear-gradient(135deg, #00d4ff, #c800ff);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .pause-avatar:hover {
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6), 0 0 50px rgba(200, 0, 255, 0.4);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.6), 0 0 50px rgba(200, 0, 255, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.8), 0 0 70px rgba(200, 0, 255, 0.6);
+      }
+    }
+
+    .pause-name {
+      font-weight: 800;
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .pause-tagline {
+      opacity: 0.85;
+      font-size: 13px;
+      margin-top: 4px;
+      line-height: 1.35;
+    }
+
+    .pause-cta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pause-btn {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pause-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.10);
+      border-color: rgba(255, 255, 255, 0.22);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .pause-btn.primary {
+      background: linear-gradient(135deg, #00d4ff, #00b8e6);
+      color: #000;
+      border-color: rgba(0, 212, 255, 0.8);
+      font-weight: 700;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .pause-btn.primary:hover {
+      background: linear-gradient(135deg, #00e6ff, #00d4ff);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .pause-section h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      margin-top: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: rgba(0, 212, 255, 0.9);
+    }
+
+    .pause-section p {
+      opacity: 0.88;
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+
+    .pause-bio {
+      margin: 16px 0 20px 0;
+    }
+
+    .pause-bio p {
+      font-size: 15px;
+      line-height: 1.7;
+      opacity: 0.92;
+      margin-bottom: 0;
+    }
+
+
+    .pause-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pause-icon-btn {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .pause-icon-btn:hover {
+      transform: translateY(-2px) scale(1.1);
+      background: rgba(0, 212, 255, 0.15);
+      border-color: rgba(0, 212, 255, 0.5);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+      color: #00e6ff;
+    }
+
+    .pause-icon-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    /* Mobile: menu button */
+    #pause-btn {
+      position: absolute;
+      top: calc(14px + env(safe-area-inset-top, 0px));
+      right: calc(14px + env(safe-area-inset-right, 0px));
+      z-index: 300;
+      pointer-events: auto;
+      display: none;
+    }
+
+    #mobile-controls.active #pause-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
     .spinner {
       border: 4px solid rgba(255, 255, 255, 0.1);
       border-left-color: #00d4ff;
@@ -367,8 +637,98 @@
       <div class="hud-item">Renderer: <span id="renderer">WebGL</span></div>
     </div>
 
+    <!-- Pause Menu -->
+    <div id="pause-menu" class="hidden" aria-hidden="true">
+      <div class="pause-panel" role="dialog" aria-modal="true" aria-label="Pause menu">
+        <div class="pause-topbar">
+          <div class="pause-tabs" role="tablist" aria-label="Pause menu tabs">
+            <button class="pause-tab" type="button" data-tab="about" role="tab" aria-selected="true">About</button>
+            <button class="pause-tab" type="button" data-tab="controls" role="tab" aria-selected="false">Controls</button>
+          </div>
+          <button class="pause-btn" id="pause-close-btn" type="button">Close</button>
+        </div>
+
+        <div class="pause-body">
+          <section class="pause-section" data-tab-panel="about">
+            <div class="pause-header">
+              <div class="pause-profile">
+                <img class="pause-avatar" id="pause-photo" src="/profile-placeholder.jpg" alt="Profile photo placeholder" />
+                <div>
+                  <div class="pause-name">Trey Brosnan</div>
+                  <div class="pause-tagline">CS at Carnegie Mellon (Math minor). I build interactive systems, AI tooling, and real-time 3D.</div>
+                </div>
+              </div>
+              <div class="pause-cta-row">
+                <button class="pause-btn primary" id="pause-resume-btn" type="button">Resume experience</button>
+              </div>
+            </div>
+
+            <div class="pause-bio">
+              <p>I'm a Computer Science student at Carnegie Mellon University (expected May 2026) specializing in interactive XR-style experiences, AI systems, and real-time 3D graphics. I've built AI coding tools used by 100k+ creators, shipped production backends with robust validation and retry logic, and developed immersive web experiences using Three.js, WebGL, and physics engines. I work across Python, TypeScript, Go, and C/C#, with a focus on performance-minded engineering and systems that actually ship.</p>
+            </div>
+
+            <h2>Connect</h2>
+            <div class="pause-links">
+              <a class="pause-icon-btn" href="mailto:YOUR_EMAIL_HERE" target="_blank" rel="noreferrer" aria-label="Email" title="Email">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v.3l8 5 8-5V7H4zm16 10v-7l-7.4 4.6a1 1 0 0 1-1.2 0L4 10v7h16z"/>
+                </svg>
+                <span class="sr-only">Email</span>
+              </a>
+              <a class="pause-icon-btn" href="https://github.com/YOUR_GITHUB" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2a10 10 0 0 0-3.16 19.48c.5.1.68-.22.68-.48v-1.7c-2.8.6-3.38-1.2-3.38-1.2-.46-1.16-1.12-1.46-1.12-1.46-.92-.64.07-.63.07-.63 1.02.07 1.56 1.04 1.56 1.04.9 1.54 2.36 1.1 2.94.84.1-.66.36-1.1.64-1.36-2.24-.26-4.6-1.12-4.6-5a3.9 3.9 0 0 1 1.04-2.72 3.6 3.6 0 0 1 .1-2.68s.84-.27 2.76 1.04a9.5 9.5 0 0 1 5 0c1.92-1.31 2.76-1.04 2.76-1.04.54 1.4.2 2.44.1 2.68a3.9 3.9 0 0 1 1.04 2.72c0 3.9-2.36 4.74-4.6 5 .36.3.7.9.7 1.84v2.72c0 .26.18.58.7.48A10 10 0 0 0 12 2z"/>
+                </svg>
+                <span class="sr-only">GitHub</span>
+              </a>
+              <a class="pause-icon-btn" href="https://linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 8.75h3.96V21H3V8.75zM9.5 8.75h3.8v1.67h.06c.53-.98 1.82-2.02 3.75-2.02 4 0 4.75 2.56 4.75 5.88V21H17.9v-5.8c0-1.38-.03-3.16-1.95-3.16-1.95 0-2.25 1.5-2.25 3.05V21H9.5V8.75z"/>
+                </svg>
+                <span class="sr-only">LinkedIn</span>
+              </a>
+              <a class="pause-icon-btn" href="https://open.spotify.com/YOUR_SPOTIFY" target="_blank" rel="noreferrer" aria-label="Spotify" title="Spotify">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm4.62 14.45a.75.75 0 0 1-1.03.24c-2.84-1.74-6.42-2.13-10.65-1.17a.75.75 0 0 1-.34-1.46c4.64-1.06 8.63-.62 11.82 1.36.35.21.46.67.2 1.03zM17.8 12.3a.9.9 0 0 1-1.24.3c-3.24-2-8.17-2.58-11.98-1.42a.9.9 0 1 1-.52-1.72c4.23-1.28 9.54-.63 13.2 1.66.43.27.56.84.32 1.2zM17.95 8.98c-3.72-2.2-9.85-2.4-13.4-1.32a1 1 0 0 1-.58-1.9c4.06-1.24 10.8-1 15 1.5a1 1 0 0 1-1.02 1.72z"/>
+                </svg>
+                <span class="sr-only">Spotify</span>
+              </a>
+            </div>
+          </section>
+
+          <section class="pause-section" data-tab-panel="controls" style="display:none;">
+            <h2>How to play</h2>
+            <div class="pause-grid-2">
+              <div class="pause-card">
+                <h3>Desktop</h3>
+                <ul class="pause-bullets" style="margin-top:0;">
+                  <li><strong>WASD</strong>: move</li>
+                  <li><strong>Mouse</strong>: look (pointer lock)</li>
+                  <li><strong>Click</strong>: grab or release</li>
+                  <li><strong>ESC</strong>: pause menu</li>
+                </ul>
+              </div>
+              <div class="pause-card">
+                <h3>Touch</h3>
+                <ul class="pause-bullets" style="margin-top:0;">
+                  <li><strong>Left stick</strong>: move</li>
+                  <li><strong>Right side</strong>: look</li>
+                  <li><strong>Tap</strong>: interact</li>
+                  <li><strong>Menu</strong>: pause menu</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pause-hint" style="margin-top:12px;">
+              Hand tracking is optional. Use the button on the onboarding screen to enable it.
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
     <!-- Mobile Controls -->
     <div id="mobile-controls">
+      <button class="pause-btn" id="pause-btn" type="button">Menu</button>
       <div id="move-stick">
         <div class="stick-base"></div>
         <div class="stick-thumb" id="move-thumb"></div>

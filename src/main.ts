@@ -42,7 +42,9 @@ class App {
   private performanceMonitor!: PerformanceMonitor;
   private lightingOptimizer!: LightingOptimizer;
   private isRunning: boolean = false;
+  private isPaused: boolean = false;
   private handTrackingMode: boolean = false;
+  private wasTouchControlsActiveBeforePause: boolean = false;
 
   async init(): Promise<void> {
     try {
@@ -150,6 +152,17 @@ class App {
         this.enableHandTracking();
       });
 
+      this.ui.onPauseRequested(() => {
+        // Mobile Menu button
+        if (!this.isRunning) return;
+        if (!this.isPaused) this.pause();
+      });
+
+      this.ui.onResumeRequested(() => {
+        if (!this.isRunning) return;
+        if (this.isPaused) this.resume();
+      });
+
       // Hand tracking is desktop-only (touch users need hands for controls)
       if (
         DeviceDetector.getDefaultControlMode() !== 'desktop' ||
@@ -174,6 +187,25 @@ class App {
         }
       });
 
+      // ESC toggles pause menu (desktop) and resume.
+      // We handle pointer lock explicitly, so DesktopControls does not own ESC behavior.
+      window.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.code !== 'Escape') return;
+          if (!this.isRunning) return;
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (this.isPaused) {
+            this.resume();
+          } else {
+            this.pause();
+          }
+        },
+        { capture: true }
+      );
+
       this.canvas.addEventListener('pointerdown', (event) => {
         if (event.pointerType === 'touch') {
           this.setControlMode('touch');
@@ -183,6 +215,7 @@ class App {
       this.canvas.addEventListener('pointerup', (event) => {
         if (event.pointerType !== 'touch') return;
         if (!this.isRunning || this.controlMode !== 'touch') return;
+        if (this.isPaused) return;
         if (this.handTrackingMode) return;
 
         const tappedObject = this.raycaster.raycastFromScreenPoint(
@@ -220,9 +253,44 @@ class App {
     this.animate();
   }
 
+  private pause(): void {
+    this.isPaused = true;
+
+    // Avoid weird states: release any grabbed object and hide crosshair.
+    if (this.grabSystem?.isGrabbing()) {
+      this.grabSystem.release();
+    }
+    this.ui.setCrosshairActive(false);
+
+    // Stop touch controls while paused so the user can interact with the menu.
+    this.wasTouchControlsActiveBeforePause = this.controlMode === 'touch' && this.touchControls.isActive();
+    if (this.controlMode === 'touch') {
+      this.touchControls.setActive(false);
+    }
+
+    // On desktop, exiting pointer lock makes the pause state obvious and keeps the cursor usable.
+    if (this.controlMode === 'desktop' && this.desktopControls.getPointerLocked()) {
+      this.desktopControls.exitPointerLock();
+    }
+
+    this.ui.showPauseMenu();
+  }
+
+  private resume(): void {
+    this.isPaused = false;
+    this.ui.hidePauseMenu();
+
+    if (this.controlMode === 'desktop') {
+      this.desktopControls.requestPointerLock();
+    } else if (this.wasTouchControlsActiveBeforePause) {
+      this.touchControls.setActive(true);
+    }
+  }
+
   private handleGrabClick(): void {
     // Only handle mouse clicks if not in hand tracking mode
     if (this.handTrackingMode) return;
+    if (this.isPaused) return;
 
     this.handleGrabTarget(this.raycaster.getCurrentHovered());
   }
@@ -273,6 +341,13 @@ class App {
     // Update time
     this.time.update();
     const delta = this.time.delta;
+
+    // While paused, keep rendering (nice backdrop), but stop gameplay systems.
+    if (this.isPaused) {
+      this.ui.setFPS(this.time.fps);
+      await this.renderer.renderAsync(this.scene.scene, this.camera.camera);
+      return;
+    }
 
     // Update systems
     // Apply input before stepping physics, then sync camera from physics afterwards.

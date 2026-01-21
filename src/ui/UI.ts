@@ -11,8 +11,17 @@ export class UI {
   private modeElement: HTMLElement;
   private rendererElement: HTMLElement | null;
 
+  private pauseMenu: HTMLElement;
+  private pauseTabs: HTMLButtonElement[];
+  private pausePanels: HTMLElement[];
+  private pauseResumeBtn: HTMLButtonElement;
+  private pauseCloseBtn: HTMLButtonElement;
+  private pauseMobileBtn: HTMLButtonElement | null;
+
   private onStartCallback?: () => void;
   private onHandTrackingCallback?: () => void;
+  private onPauseRequestedCallback?: () => void;
+  private onResumeRequestedCallback?: () => void;
 
   constructor() {
     this.onboarding = document.getElementById('onboarding')!;
@@ -23,6 +32,18 @@ export class UI {
     this.fpsElement = document.getElementById('fps')!;
     this.modeElement = document.getElementById('mode')!;
     this.rendererElement = document.getElementById('renderer');
+
+    this.pauseMenu = document.getElementById('pause-menu')!;
+    this.pauseResumeBtn = document.getElementById('pause-resume-btn') as HTMLButtonElement;
+    this.pauseCloseBtn = document.getElementById('pause-close-btn') as HTMLButtonElement;
+    this.pauseMobileBtn = document.getElementById('pause-btn') as HTMLButtonElement | null;
+
+    this.pauseTabs = Array.from(
+      this.pauseMenu.querySelectorAll<HTMLButtonElement>('.pause-tab')
+    );
+    this.pausePanels = Array.from(
+      this.pauseMenu.querySelectorAll<HTMLElement>('[data-tab-panel]')
+    );
 
     this.setupEventListeners();
   }
@@ -40,6 +61,38 @@ export class UI {
         this.onHandTrackingCallback();
       }
     });
+
+    // Pause menu: resume/close
+    this.pauseResumeBtn.addEventListener('click', () => {
+      if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
+    });
+    this.pauseCloseBtn.addEventListener('click', () => {
+      if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
+    });
+
+    // Pause menu: mobile button
+    if (this.pauseMobileBtn) {
+      this.pauseMobileBtn.addEventListener('click', () => {
+        if (this.onPauseRequestedCallback) this.onPauseRequestedCallback();
+      });
+    }
+
+    // Pause menu: tab switching
+    this.pauseTabs.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        if (tab) this.setPauseTab(tab);
+      });
+    });
+
+    // Click outside the panel closes (optional, feels good)
+    this.pauseMenu.addEventListener('mousedown', (event) => {
+      const panel = this.pauseMenu.querySelector('.pause-panel');
+      if (!panel) return;
+      if (event.target instanceof Node && !panel.contains(event.target)) {
+        if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
+      }
+    });
   }
 
   hideLoading(): void {
@@ -52,6 +105,34 @@ export class UI {
 
   showOnboarding(): void {
     this.onboarding.classList.remove('hidden');
+  }
+
+  showPauseMenu(): void {
+    this.pauseMenu.classList.remove('hidden');
+    this.pauseMenu.setAttribute('aria-hidden', 'false');
+    // Default to About each time (keeps it predictable)
+    this.setPauseTab('about');
+  }
+
+  hidePauseMenu(): void {
+    this.pauseMenu.classList.add('hidden');
+    this.pauseMenu.setAttribute('aria-hidden', 'true');
+  }
+
+  isPauseMenuVisible(): boolean {
+    return !this.pauseMenu.classList.contains('hidden');
+  }
+
+  private setPauseTab(tab: string): void {
+    this.pauseTabs.forEach((btn) => {
+      const selected = btn.dataset.tab === tab;
+      btn.setAttribute('aria-selected', selected ? 'true' : 'false');
+    });
+
+    this.pausePanels.forEach((panel) => {
+      const panelTab = panel.dataset.tabPanel;
+      panel.style.display = panelTab === tab ? '' : 'none';
+    });
   }
 
   setFPS(fps: number): void {
@@ -88,5 +169,13 @@ export class UI {
 
   onHandTracking(callback: () => void): void {
     this.onHandTrackingCallback = callback;
+  }
+
+  onPauseRequested(callback: () => void): void {
+    this.onPauseRequestedCallback = callback;
+  }
+
+  onResumeRequested(callback: () => void): void {
+    this.onResumeRequestedCallback = callback;
   }
 }
