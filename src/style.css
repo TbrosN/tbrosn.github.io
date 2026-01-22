@@ -458,6 +458,45 @@ canvas {
   justify-content: center;
 }
 
+/* Mobile: make pause menu content scroll instead of clipping */
+@media (pointer: coarse) {
+  #pause-menu {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .pause-panel {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .pause-topbar {
+    padding: 16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+
+  .pause-body {
+    padding: 16px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .pause-section {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+}
+
 .about-container,
 .controls-container {
   max-width: 700px;
