@@ -1,7 +1,7 @@
 import './style.css';
 import * as THREE from 'three';
 import { Time } from './core/Time';
-import { Renderer } from './core/Renderer';
+import { Renderer, WebGLContextError } from './core/Renderer';
 import { Camera } from './core/Camera';
 import { Scene } from './core/Scene';
 import type { Controls } from './player/Controls';
@@ -42,9 +42,7 @@ class App {
   private performanceMonitor!: PerformanceMonitor;
   private lightingOptimizer!: LightingOptimizer;
   private isRunning: boolean = false;
-  private isPaused: boolean = false;
   private handTrackingMode: boolean = false;
-  private wasTouchControlsActiveBeforePause: boolean = false;
 
   async init(): Promise<void> {
     try {
@@ -152,17 +150,6 @@ class App {
         this.enableHandTracking();
       });
 
-      this.ui.onPauseRequested(() => {
-        // Mobile Menu button
-        if (!this.isRunning) return;
-        if (!this.isPaused) this.pause();
-      });
-
-      this.ui.onResumeRequested(() => {
-        if (!this.isRunning) return;
-        if (this.isPaused) this.resume();
-      });
-
       // Hand tracking is desktop-only (touch users need hands for controls)
       if (
         DeviceDetector.getDefaultControlMode() !== 'desktop' ||
@@ -174,37 +161,57 @@ class App {
         }
       }
 
-      // Setup mouse click for grabbing
-      this.canvas.addEventListener('click', () => {
-        if (this.controlMode === 'desktop' && this.desktopControls.getPointerLocked()) {
+      // Auto-start: skip onboarding and go straight into the scene
+      this.ui.hideOnboarding();
+      this.start();
+
+      // Show pause menu initially for desktop users (no pointer lock yet)
+      if (DeviceDetector.getDefaultControlMode() === 'desktop') {
+        this.ui.showPauseMenu();
+      }
+
+      // Setup mouse click for pointer lock and grabbing
+      this.canvas.addEventListener('click', async () => {
+        // First click: try to acquire pointer lock (requires user gesture)
+        if (this.controlMode === 'desktop' && !this.desktopControls.getPointerLocked() && this.isRunning) {
+          await this.desktopControls.requestPointerLock();
+        }
+        // Subsequent clicks: handle grabbing
+        else if (this.controlMode === 'desktop' && this.desktopControls.getPointerLocked()) {
           this.handleGrabClick();
         }
       });
 
-      this.desktopControls.setPointerLockCallback(() => {
-        if (this.desktopControls.getPointerLocked()) {
-          this.setControlMode('desktop');
+      // Pause menu: clicking anywhere requests pointer lock (for desktop)
+      this.ui.onResumeRequested(async () => {
+        if (this.controlMode === 'desktop' && !this.desktopControls.getPointerLocked()) {
+          await this.desktopControls.requestPointerLock();
+        } else if (this.controlMode === 'touch') {
+          this.touchControls.setActive(true);
+          this.ui.hidePauseMenu();
         }
       });
 
-      // ESC toggles pause menu (desktop) and resume.
-      // We handle pointer lock explicitly, so DesktopControls does not own ESC behavior.
-      window.addEventListener(
-        'keydown',
-        (event) => {
-          if (event.code !== 'Escape') return;
-          if (!this.isRunning) return;
-          event.preventDefault();
-          event.stopPropagation();
+      // Pause menu: when on mobile, pause button should show menu
+      this.ui.onPauseRequested(() => {
+        if (this.isRunning && this.controlMode === 'touch') {
+          this.touchControls.setActive(false);
+          this.ui.showPauseMenu();
+        }
+      });
 
-          if (this.isPaused) {
-            this.resume();
-          } else {
-            this.pause();
+      // Pointer lock callback: show/hide pause menu based on lock state
+      this.desktopControls.setPointerLockCallback(() => {
+        if (this.desktopControls.getPointerLocked()) {
+          this.setControlMode('desktop');
+          this.ui.hidePauseMenu();
+        } else {
+          // Show pause menu when pointer lock is lost
+          if (this.isRunning && this.controlMode === 'desktop') {
+            this.ui.showPauseMenu();
           }
-        },
-        { capture: true }
-      );
+        }
+      });
 
       this.canvas.addEventListener('pointerdown', (event) => {
         if (event.pointerType === 'touch') {
@@ -215,8 +222,9 @@ class App {
       this.canvas.addEventListener('pointerup', (event) => {
         if (event.pointerType !== 'touch') return;
         if (!this.isRunning || this.controlMode !== 'touch') return;
-        if (this.isPaused) return;
         if (this.handTrackingMode) return;
+        // Don't handle grab if pause menu is visible
+        if (this.ui.isPauseMenuVisible()) return;
 
         const tappedObject = this.raycaster.raycastFromScreenPoint(
           event.clientX,
@@ -230,7 +238,27 @@ class App {
       console.error('❌ App initialization failed:', error);
       const loading = document.getElementById('loading');
       if (loading) {
-        loading.innerHTML = '<div style="max-width:520px;text-align:center;line-height:1.4;">Failed to load. Open DevTools Console for details.</div>';
+        if (error instanceof WebGLContextError) {
+          // Show user-friendly GPU/WebGL error
+          loading.innerHTML = `
+            <div style="max-width:480px;text-align:center;line-height:1.6;padding:2rem;">
+              <div style="font-size:3rem;margin-bottom:1rem;">🔌</div>
+              <h2 style="margin:0 0 1rem;font-size:1.5rem;color:#fff;">GPU Unavailable</h2>
+              <p style="margin:0 0 1.5rem;color:#aaa;font-size:1rem;">
+                This site requires WebGL to render 3D graphics, but your GPU is currently unavailable.
+              </p>
+              <p style="margin:0 0 1.5rem;color:#fff;font-size:1.1rem;font-weight:500;">
+                Please plug in your device to restore GPU access.
+              </p>
+              <p style="margin:0;color:#666;font-size:0.85rem;">
+                If you're already plugged in, try enabling hardware acceleration in your browser settings
+                or restarting your browser.
+              </p>
+            </div>
+          `;
+        } else {
+          loading.innerHTML = '<div style="max-width:520px;text-align:center;line-height:1.4;">Failed to load. Open DevTools Console for details.</div>';
+        }
       }
       throw error;
     } finally {
@@ -243,54 +271,21 @@ class App {
     }
   }
 
-  private start(): void {
+  private async start(): Promise<void> {
     this.isRunning = true;
-    if (this.controlMode === 'desktop') {
-      this.desktopControls.requestPointerLock();
-    } else {
+    // For touch controls, activate immediately and hide pause menu
+    // For desktop, pointer lock will be requested on user click (pause menu shows until then)
+    if (this.controlMode === 'touch') {
       this.touchControls.setActive(true);
+      this.ui.hidePauseMenu();
     }
     this.animate();
   }
 
-  private pause(): void {
-    this.isPaused = true;
-
-    // Avoid weird states: release any grabbed object and hide crosshair.
-    if (this.grabSystem?.isGrabbing()) {
-      this.grabSystem.release();
-    }
-    this.ui.setCrosshairActive(false);
-
-    // Stop touch controls while paused so the user can interact with the menu.
-    this.wasTouchControlsActiveBeforePause = this.controlMode === 'touch' && this.touchControls.isActive();
-    if (this.controlMode === 'touch') {
-      this.touchControls.setActive(false);
-    }
-
-    // On desktop, exiting pointer lock makes the pause state obvious and keeps the cursor usable.
-    if (this.controlMode === 'desktop' && this.desktopControls.getPointerLocked()) {
-      this.desktopControls.exitPointerLock();
-    }
-
-    this.ui.showPauseMenu();
-  }
-
-  private resume(): void {
-    this.isPaused = false;
-    this.ui.hidePauseMenu();
-
-    if (this.controlMode === 'desktop') {
-      this.desktopControls.requestPointerLock();
-    } else if (this.wasTouchControlsActiveBeforePause) {
-      this.touchControls.setActive(true);
-    }
-  }
 
   private handleGrabClick(): void {
     // Only handle mouse clicks if not in hand tracking mode
     if (this.handTrackingMode) return;
-    if (this.isPaused) return;
 
     this.handleGrabTarget(this.raycaster.getCurrentHovered());
   }
@@ -342,8 +337,8 @@ class App {
     this.time.update();
     const delta = this.time.delta;
 
-    // While paused, keep rendering (nice backdrop), but stop gameplay systems.
-    if (this.isPaused) {
+    // While pause menu is visible, keep rendering (nice backdrop), but stop gameplay systems.
+    if (this.ui.isPauseMenuVisible()) {
       this.ui.setFPS(this.time.fps);
       await this.renderer.renderAsync(this.scene.scene, this.camera.camera);
       return;

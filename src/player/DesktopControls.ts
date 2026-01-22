@@ -44,8 +44,12 @@ export class DesktopControls implements Controls {
     document.addEventListener('pointerlockchange', this.handlePointerLockChange);
   }
 
-  requestPointerLock(): void {
-    this.canvas.requestPointerLock();
+  async requestPointerLock(): Promise<void> {
+    try {
+      await this.canvas.requestPointerLock();
+    } catch (error) {
+      console.warn('⚠️ Failed to acquire pointer lock:', error);
+    }
   }
 
   exitPointerLock(): void {

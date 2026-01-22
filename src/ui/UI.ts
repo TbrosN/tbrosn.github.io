@@ -14,8 +14,7 @@ export class UI {
   private pauseMenu: HTMLElement;
   private pauseTabs: HTMLButtonElement[];
   private pausePanels: HTMLElement[];
-  private pauseResumeBtn: HTMLButtonElement;
-  private pauseCloseBtn: HTMLButtonElement;
+  private pauseCloseBtn: HTMLButtonElement | null;
   private pauseMobileBtn: HTMLButtonElement | null;
 
   private onStartCallback?: () => void;
@@ -34,8 +33,7 @@ export class UI {
     this.rendererElement = document.getElementById('renderer');
 
     this.pauseMenu = document.getElementById('pause-menu')!;
-    this.pauseResumeBtn = document.getElementById('pause-resume-btn') as HTMLButtonElement;
-    this.pauseCloseBtn = document.getElementById('pause-close-btn') as HTMLButtonElement;
+    this.pauseCloseBtn = document.getElementById('pause-close-btn') as HTMLButtonElement | null;
     this.pauseMobileBtn = document.getElementById('pause-btn') as HTMLButtonElement | null;
 
     this.pauseTabs = Array.from(
@@ -63,12 +61,11 @@ export class UI {
     });
 
     // Pause menu: resume/close
-    this.pauseResumeBtn.addEventListener('click', () => {
-      if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
-    });
-    this.pauseCloseBtn.addEventListener('click', () => {
-      if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
-    });
+    if (this.pauseCloseBtn) {
+      this.pauseCloseBtn.addEventListener('click', () => {
+        if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
+      });
+    }
 
     // Pause menu: mobile button
     if (this.pauseMobileBtn) {
@@ -85,11 +82,19 @@ export class UI {
       });
     });
 
-    // Click outside the panel closes (optional, feels good)
-    this.pauseMenu.addEventListener('mousedown', (event) => {
-      const panel = this.pauseMenu.querySelector('.pause-panel');
-      if (!panel) return;
-      if (event.target instanceof Node && !panel.contains(event.target)) {
+    // Device tab switching in controls
+    const deviceTabs = document.querySelectorAll<HTMLButtonElement>('.device-tab');
+    deviceTabs.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const device = btn.dataset.device;
+        if (device) this.setDeviceTab(device);
+      });
+    });
+
+    // Click on background (outside panel) triggers resume
+    this.pauseMenu.addEventListener('click', (event) => {
+      // If clicking directly on the pause menu background (not the panel)
+      if (event.target === this.pauseMenu) {
         if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
       }
     });
@@ -132,6 +137,26 @@ export class UI {
     this.pausePanels.forEach((panel) => {
       const panelTab = panel.dataset.tabPanel;
       panel.style.display = panelTab === tab ? '' : 'none';
+    });
+  }
+
+  private setDeviceTab(device: string): void {
+    // Update device tab buttons
+    const deviceTabs = document.querySelectorAll<HTMLButtonElement>('.device-tab');
+    deviceTabs.forEach((btn) => {
+      const isActive = btn.dataset.device === device;
+      if (isActive) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Update device controls visibility
+    const controlsLists = document.querySelectorAll<HTMLElement>('[data-device-controls]');
+    controlsLists.forEach((list) => {
+      const listDevice = list.dataset.deviceControls;
+      list.style.display = listDevice === device ? '' : 'none';
     });
   }
 

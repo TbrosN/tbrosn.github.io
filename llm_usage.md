@@ -20,4 +20,4 @@ Using my own research, I realized that similar projects rendering 3d scenes in t
 # Pause Menu
 For the pause menu, I used Ask Mode with GPT-5.2 and gave it my resume and the requirements for the about page, since I wanted to include that info in the pause menu. I also gave some general guidance on what I wanted the pause menu to look like. After planning, I used Agent Mode to implement it.
 
-This was a bit unsatisfactory, so I made a new plan (in Ask mode) to make adjustments and switched to Sonnet 4.5 to implement it to see if that would be better. But this was still pretty unsatisfactory.
+This was a bit unsatisfactory, so I made a new plan (in Ask mode) to make adjustments and switched to Sonnet 4.5 to implement it to see if that would be better. I was able to make it look a lot better but was having some bugs that the llm really struggled to fix.
