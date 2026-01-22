@@ -6,7 +6,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
   background: #000;
   touch-action: none;
@@ -67,8 +67,8 @@ canvas {
   margin-left: -60px;
   margin-top: -60px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .stick-thumb {
@@ -80,10 +80,11 @@ canvas {
   margin-left: -30px;
   margin-top: -30px;
   border-radius: 50%;
-  background: rgba(0, 212, 255, 0.35);
-  border: 2px solid rgba(0, 212, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
   transform: translate3d(0, 0, 0);
   transition: transform 0.05s linear;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Onboarding UI */
@@ -124,11 +125,15 @@ canvas {
 #orientation-warning .message h2 {
   font-size: 28px;
   margin-bottom: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 #orientation-warning .message p {
-  font-size: 16px;
-  opacity: 0.85;
+  font-size: 15px;
+  opacity: 0.8;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 @media (pointer: coarse) and (orientation: portrait) {
@@ -156,70 +161,80 @@ canvas {
   }
 
   .onboarding-content h1 {
-    font-size: 28px;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
   .onboarding-content p {
-    font-size: 14px;
+    font-size: 15px;
     margin-bottom: 12px;
+    font-weight: 400;
   }
 
   .btn-primary {
-    padding: 12px 28px;
-    font-size: 16px;
+    padding: 11px 28px;
+    font-size: 15px;
+    font-weight: 500;
   }
 
   .btn-secondary {
-    padding: 8px 24px;
-    font-size: 13px;
+    padding: 9px 24px;
+    font-size: 14px;
+    font-weight: 400;
   }
 }
 
 .onboarding-content h1 {
   font-size: 48px;
   margin-bottom: 20px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .onboarding-content p {
-  font-size: 18px;
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.47;
   margin-bottom: 30px;
-  opacity: 0.9;
+  opacity: 0.8;
+  font-weight: 400;
 }
 
 
 .btn-primary {
-  padding: 15px 40px;
-  font-size: 18px;
-  background: #00d4ff;
-  color: #000;
+  padding: 12px 32px;
+  font-size: 17px;
+  background: #0071e3;
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.2s, background 0.2s;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #00b8e6;
-  transform: scale(1.05);
+  background: #0077ed;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  margin-top: 15px;
-  padding: 10px 30px;
-  font-size: 14px;
+  margin-top: 12px;
+  padding: 10px 28px;
+  font-size: 15px;
   background: transparent;
-  color: #00d4ff;
-  border: 2px solid #00d4ff;
-  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  font-weight: 400;
+  transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
 }
 
 
@@ -280,7 +295,7 @@ canvas {
 
 #crosshair.active::before,
 #crosshair.active::after {
-  background: #00d4ff;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 /* Loading */
@@ -303,9 +318,9 @@ canvas {
   justify-content: center;
   z-index: 1050;
   color: #fff;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
   transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
   cursor: default;
 }
@@ -353,23 +368,23 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 10px;
   border: none;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .pause-tab:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .pause-tab[aria-selected="true"] {
-  background: rgba(0, 212, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
   box-shadow: none;
-  color: #00e6ff;
+  color: #fff;
 }
 
 .pause-close-btn {
@@ -379,18 +394,17 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 10px;
   border: none;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .pause-close-btn:hover {
-  background: rgba(255, 0, 100, 0.2);
-  color: #ff3366;
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .pause-body {
@@ -408,33 +422,33 @@ canvas {
   padding: 10px 12px;
   border-radius: 10px;
   border: none;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
   cursor: pointer;
-  font-weight: 650;
+  font-weight: 500;
   font-size: 13px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   position: relative;
   overflow: hidden;
 }
 
 .pause-btn:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .pause-btn.primary {
-  background: linear-gradient(135deg, #00d4ff, #00b8e6);
-  color: #000;
-  font-weight: 700;
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+  background: #0071e3;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: none;
 }
 
 .pause-btn.primary:hover {
-  background: linear-gradient(135deg, #00e6ff, #00d4ff);
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
-  transform: translateY(-2px) scale(1.02);
+  background: #0077ed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
 }
 
 .pause-section {
@@ -454,15 +468,11 @@ canvas {
 
 .portfolio-title {
   font-size: 48px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   text-align: center;
   margin-bottom: 32px;
-  background: linear-gradient(135deg, #00e6ff, #00d4ff, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
+  color: #fff;
 }
 
 .welcome-text {
@@ -470,17 +480,18 @@ canvas {
 }
 
 .intro-line {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 500;
   margin-bottom: 12px;
-  color: #00d4ff;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .welcome-text p {
-  font-size: 16px;
-  line-height: 1.7;
-  opacity: 0.92;
+  font-size: 15px;
+  line-height: 1.5;
+  opacity: 0.8;
   margin-bottom: 8px;
+  font-weight: 400;
 }
 
 .about-content {
@@ -489,14 +500,15 @@ canvas {
 
 .about-content p {
   font-size: 15px;
-  line-height: 1.7;
-  opacity: 0.88;
+  line-height: 1.5;
+  opacity: 0.8;
   margin-bottom: 16px;
+  font-weight: 400;
 }
 
 .about-content strong {
-  color: #00d4ff;
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
 }
 
 .connect-section {
@@ -504,12 +516,12 @@ canvas {
 }
 
 .connect-label {
-  font-size: 14px;
-  opacity: 0.7;
+  font-size: 13px;
+  opacity: 0.6;
   margin-bottom: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-weight: 500;
 }
 
 .resume-btn {
@@ -517,8 +529,9 @@ canvas {
   max-width: 280px;
   display: block;
   margin: 0 auto;
-  padding: 14px 24px;
+  padding: 12px 24px;
   font-size: 15px;
+  font-weight: 500;
 }
 
 
@@ -538,17 +551,17 @@ canvas {
   justify-content: center;
   border-radius: 12px;
   border: none;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .pause-icon-btn:hover {
-  transform: translateY(-2px) scale(1.08);
-  background: rgba(0, 212, 255, 0.2);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-  color: #00e6ff;
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: #fff;
 }
 
 /* Controls Section Styles */
@@ -563,25 +576,25 @@ canvas {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 9px 16px;
   border-radius: 10px;
   border: none;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
 .device-tab:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .device-tab.active {
-  background: rgba(0, 212, 255, 0.25);
-  color: #00d4ff;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 .controls-list {
@@ -608,16 +621,16 @@ kbd.key {
   min-width: 42px;
   height: 42px;
   padding: 0 12px;
-  border-radius: 8px;
-  border: none;
-  background: rgba(0, 212, 255, 0.2);
-  box-shadow: none;
-  color: #00e6ff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, monospace;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
 }
 
 kbd.key.wide {
@@ -627,16 +640,18 @@ kbd.key.wide {
 
 .control-desc {
   font-size: 15px;
-  opacity: 0.88;
+  opacity: 0.8;
   line-height: 1.5;
+  font-weight: 400;
 }
 
 .controls-hint {
   margin-top: 32px;
   text-align: center;
   font-size: 13px;
-  opacity: 0.65;
+  opacity: 0.6;
   line-height: 1.5;
+  font-weight: 400;
 }
 
 .pause-icon-btn svg {
@@ -674,11 +689,11 @@ kbd.key.wide {
 }
 
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-left-color: #00d4ff;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
 }
