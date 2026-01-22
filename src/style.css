@@ -654,10 +654,20 @@ kbd.key.wide {
   font-weight: 400;
 }
 
-.pause-icon-btn svg {
+.pause-icon-btn svg,
+.pause-icon-btn img {
   width: 20px;
   height: 20px;
   fill: currentColor;
+  transition: opacity 0.15s ease;
+}
+
+.pause-icon-btn img {
+  opacity: 0.7;
+}
+
+.pause-icon-btn:hover img {
+  opacity: 1;
 }
 
 .sr-only {
