@@ -2,9 +2,6 @@
  * UI management - onboarding, HUD, and controls
  */
 export class UI {
-  private onboarding: HTMLElement;
-  private startBtn: HTMLButtonElement;
-  private handTrackingBtn: HTMLButtonElement;
   private loading: HTMLElement;
   private crosshair: HTMLElement;
   private fpsElement: HTMLElement;
@@ -17,15 +14,10 @@ export class UI {
   private pauseCloseBtn: HTMLButtonElement | null;
   private pauseMobileBtn: HTMLButtonElement | null;
 
-  private onStartCallback?: () => void;
-  private onHandTrackingCallback?: () => void;
   private onPauseRequestedCallback?: () => void;
   private onResumeRequestedCallback?: () => void;
 
   constructor() {
-    this.onboarding = document.getElementById('onboarding')!;
-    this.startBtn = document.getElementById('start-btn') as HTMLButtonElement;
-    this.handTrackingBtn = document.getElementById('hand-tracking-btn') as HTMLButtonElement;
     this.loading = document.getElementById('loading')!;
     this.crosshair = document.getElementById('crosshair')!;
     this.fpsElement = document.getElementById('fps')!;
@@ -47,19 +39,6 @@ export class UI {
   }
 
   private setupEventListeners(): void {
-    this.startBtn.addEventListener('click', () => {
-      this.hideOnboarding();
-      if (this.onStartCallback) {
-        this.onStartCallback();
-      }
-    });
-
-    this.handTrackingBtn.addEventListener('click', () => {
-      if (this.onHandTrackingCallback) {
-        this.onHandTrackingCallback();
-      }
-    });
-
     // Pause menu: resume/close
     if (this.pauseCloseBtn) {
       this.pauseCloseBtn.addEventListener('click', () => {
@@ -102,14 +81,6 @@ export class UI {
 
   hideLoading(): void {
     this.loading.style.display = 'none';
-  }
-
-  hideOnboarding(): void {
-    this.onboarding.classList.add('hidden');
-  }
-
-  showOnboarding(): void {
-    this.onboarding.classList.remove('hidden');
   }
 
   showPauseMenu(): void {
@@ -186,14 +157,6 @@ export class UI {
     } else {
       this.crosshair.classList.remove('active');
     }
-  }
-
-  onStart(callback: () => void): void {
-    this.onStartCallback = callback;
-  }
-
-  onHandTracking(callback: () => void): void {
-    this.onHandTrackingCallback = callback;
   }
 
   onPauseRequested(callback: () => void): void {

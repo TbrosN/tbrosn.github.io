@@ -141,15 +141,6 @@ class App {
         if (handTrackingBtn) handTrackingBtn.style.display = 'none';
       }
 
-      // Setup UI callbacks
-      this.ui.onStart(() => {
-        this.start();
-      });
-
-      this.ui.onHandTracking(() => {
-        this.enableHandTracking();
-      });
-
       // Hand tracking is desktop-only (touch users need hands for controls)
       if (
         DeviceDetector.getDefaultControlMode() !== 'desktop' ||
@@ -162,7 +153,6 @@ class App {
       }
 
       // Auto-start: skip onboarding and go straight into the scene
-      this.ui.hideOnboarding();
       this.start();
 
       // Show pause menu initially for desktop users (no pointer lock yet)
@@ -232,8 +222,6 @@ class App {
         );
         this.handleGrabTarget(tappedObject);
       }, { passive: true });
-
-      console.log('✅ App initialized - Click "Enter Experience" to start');
     } catch (error) {
       console.error('❌ App initialization failed:', error);
       const loading = document.getElementById('loading');
@@ -304,26 +292,6 @@ class App {
       if (grabbable) {
         this.grabSystem.grab(grabbable);
         this.ui.setCrosshairActive(true);
-      }
-    }
-  }
-
-  private async enableHandTracking(): Promise<void> {
-    if (this.handTrackingMode) {
-      // Disable hand tracking
-      this.handInteraction.stop();
-      this.handTrackingMode = false;
-      this.ui.setMode('Mouse');
-      console.log('🖐️ Hand tracking disabled');
-    } else {
-      // Enable hand tracking
-      try {
-        await this.handInteraction.start();
-        this.handTrackingMode = true;
-        this.ui.setMode('Hand Tracking');
-        console.log('🖐️ Hand tracking enabled');
-      } catch (error) {
-        console.error('Failed to enable hand tracking:', error);
       }
     }
   }
