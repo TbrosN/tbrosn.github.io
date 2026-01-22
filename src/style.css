@@ -296,18 +296,18 @@ canvas {
 
 /* Pause Menu */
 #pause-menu {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1050;
   color: #fff;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  transition: opacity 0.2s ease;
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+  cursor: default;
 }
 
 #pause-menu.hidden {
@@ -316,13 +316,15 @@ canvas {
 }
 
 .pause-panel {
-  width: min(820px, calc(100vw - 28px));
-  max-height: min(720px, calc(100vh - 28px));
-  background: linear-gradient(135deg, rgba(10, 14, 20, 0.92), rgba(20, 10, 30, 0.92));
-  border: 1px solid rgba(0, 212, 255, 0.35);
-  border-radius: 16px;
-  box-shadow: 0 0 40px rgba(0, 212, 255, 0.25), 0 0 80px rgba(200, 0, 255, 0.15), 0 20px 60px rgba(0, 0, 0, 0.55);
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -333,8 +335,8 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 24px 32px;
+  border-bottom: none;
   gap: 12px;
 }
 
@@ -352,7 +354,7 @@ canvas {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: none;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
@@ -360,15 +362,13 @@ canvas {
 }
 
 .pause-tab:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.20);
+  background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.9);
 }
 
 .pause-tab[aria-selected="true"] {
-  background: rgba(0, 212, 255, 0.20);
-  border-color: rgba(0, 212, 255, 0.6);
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+  background: rgba(0, 212, 255, 0.25);
+  box-shadow: none;
   color: #00e6ff;
 }
 
@@ -380,7 +380,7 @@ canvas {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: none;
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
@@ -388,23 +388,26 @@ canvas {
 }
 
 .pause-close-btn:hover {
-  background: rgba(255, 0, 100, 0.15);
-  border-color: rgba(255, 0, 100, 0.5);
+  background: rgba(255, 0, 100, 0.2);
   color: #ff3366;
   transform: translateY(-1px);
 }
 
 .pause-body {
-  padding: 16px;
+  padding: 32px;
   overflow: auto;
   min-height: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 
 .pause-btn {
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: none;
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   cursor: pointer;
@@ -417,15 +420,13 @@ canvas {
 
 .pause-btn:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .pause-btn.primary {
   background: linear-gradient(135deg, #00d4ff, #00b8e6);
   color: #000;
-  border-color: rgba(0, 212, 255, 0.8);
   font-weight: 700;
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
 }
@@ -438,17 +439,21 @@ canvas {
 
 .pause-section {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .about-container,
 .controls-container {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
-  padding: 24px 8px;
+  padding: 0;
+  width: 100%;
 }
 
 .portfolio-title {
-  font-size: 42px;
+  font-size: 48px;
   font-weight: 900;
   letter-spacing: 0.02em;
   text-align: center;
@@ -457,7 +462,7 @@ canvas {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+  filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.5));
 }
 
 .welcome-text {
@@ -532,7 +537,7 @@ canvas {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: none;
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   text-decoration: none;
@@ -541,8 +546,7 @@ canvas {
 
 .pause-icon-btn:hover {
   transform: translateY(-2px) scale(1.08);
-  background: rgba(0, 212, 255, 0.15);
-  border-color: rgba(0, 212, 255, 0.5);
+  background: rgba(0, 212, 255, 0.2);
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
   color: #00e6ff;
 }
@@ -561,7 +565,7 @@ canvas {
   gap: 8px;
   padding: 10px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: none;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
@@ -571,13 +575,12 @@ canvas {
 }
 
 .device-tab:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.9);
 }
 
 .device-tab.active {
-  background: rgba(0, 212, 255, 0.15);
-  border-color: rgba(0, 212, 255, 0.5);
+  background: rgba(0, 212, 255, 0.25);
   color: #00d4ff;
 }
 
@@ -606,9 +609,9 @@ kbd.key {
   height: 42px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid rgba(0, 212, 255, 0.4);
-  background: linear-gradient(180deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.08));
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: none;
+  background: rgba(0, 212, 255, 0.2);
+  box-shadow: none;
   color: #00e6ff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
   font-size: 13px;
