@@ -16,319 +16,10 @@
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#00d4ff">
+  <meta name="theme-color" content="#000000">
+  <link rel="stylesheet" href="/src/style.css">
   
   <title>Interactive XR Portfolio</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      overflow: hidden;
-      background: #000;
-      touch-action: none;
-      overscroll-behavior: none;
-    }
-
-    #app {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-
-    canvas {
-      display: block;
-      outline: none;
-      touch-action: none;
-    }
-
-    /* Mobile controls */
-    #mobile-controls {
-      position: absolute;
-      inset: 0;
-      z-index: 200;
-      display: none;
-      pointer-events: none;
-    }
-
-    #mobile-controls.active {
-      display: block;
-    }
-
-    #move-stick {
-      position: absolute;
-      left: calc(20px + env(safe-area-inset-left, 0px));
-      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-      width: 160px;
-      height: 160px;
-      pointer-events: auto;
-      touch-action: none;
-    }
-
-    #look-zone {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 50%;
-      pointer-events: auto;
-      touch-action: none;
-    }
-
-    .stick-base {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 120px;
-      height: 120px;
-      margin-left: -60px;
-      margin-top: -60px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    .stick-thumb {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 60px;
-      height: 60px;
-      margin-left: -30px;
-      margin-top: -30px;
-      border-radius: 50%;
-      background: rgba(0, 212, 255, 0.35);
-      border: 2px solid rgba(0, 212, 255, 0.6);
-      transform: translate3d(0, 0, 0);
-      transition: transform 0.05s linear;
-    }
-
-    /* Onboarding UI */
-    #onboarding {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      color: white;
-      transition: opacity 0.5s;
-    }
-
-    /* Orientation prompt (mobile) */
-    #orientation-warning {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 1100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      text-align: center;
-      padding: 24px;
-    }
-
-    #orientation-warning .message {
-      max-width: 420px;
-    }
-
-    #orientation-warning .message h2 {
-      font-size: 28px;
-      margin-bottom: 12px;
-    }
-
-    #orientation-warning .message p {
-      font-size: 16px;
-      opacity: 0.85;
-    }
-
-    @media (pointer: coarse) and (orientation: portrait) {
-      #orientation-warning {
-        display: flex;
-      }
-    }
-
-    #onboarding.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .onboarding-content {
-      max-width: 600px;
-      padding: 40px;
-      text-align: center;
-    }
-
-    @media (pointer: coarse) and (max-height: 500px) {
-      .onboarding-content {
-        max-height: 90vh;
-        overflow-y: auto;
-        padding: 20px;
-      }
-
-      .onboarding-content h1 {
-        font-size: 28px;
-      }
-
-      .onboarding-content p {
-        font-size: 14px;
-        margin-bottom: 12px;
-      }
-
-      .btn-primary {
-        padding: 12px 28px;
-        font-size: 16px;
-      }
-
-      .btn-secondary {
-        padding: 8px 24px;
-        font-size: 13px;
-      }
-    }
-
-    .onboarding-content h1 {
-      font-size: 48px;
-      margin-bottom: 20px;
-      font-weight: 700;
-    }
-
-    .onboarding-content p {
-      font-size: 18px;
-      line-height: 1.6;
-      margin-bottom: 30px;
-      opacity: 0.9;
-    }
-
-
-    .btn-primary {
-      padding: 15px 40px;
-      font-size: 18px;
-      background: #00d4ff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: transform 0.2s, background 0.2s;
-    }
-
-    .btn-primary:hover {
-      background: #00b8e6;
-      transform: scale(1.05);
-    }
-
-    .btn-secondary {
-      margin-top: 15px;
-      padding: 10px 30px;
-      font-size: 14px;
-      background: transparent;
-      color: #00d4ff;
-      border: 2px solid #00d4ff;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(0, 212, 255, 0.1);
-    }
-
-
-    /* HUD */
-    #hud {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: white;
-      font-size: 14px;
-      z-index: 100;
-      pointer-events: none;
-    }
-
-    .hud-item {
-      margin-bottom: 5px;
-      opacity: 0.7;
-    }
-
-    /* Crosshair */
-    #crosshair {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 20px;
-      height: 20px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 50;
-    }
-
-    #crosshair::before,
-    #crosshair::after {
-      content: '';
-      position: absolute;
-      background: rgba(255, 255, 255, 0.5);
-    }
-
-    #crosshair::before {
-      top: 50%;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      transform: translateY(-50%);
-    }
-
-    #crosshair::after {
-      left: 50%;
-      top: 0;
-      width: 2px;
-      height: 100%;
-      transform: translateX(-50%);
-    }
-
-    #crosshair.active {
-      opacity: 1;
-    }
-
-    #crosshair.active::before,
-    #crosshair.active::after {
-      background: #00d4ff;
-    }
-
-    /* Loading */
-    #loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 24px;
-      z-index: 999;
-    }
-
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.1);
-      border-left-color: #00d4ff;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
 </head>
 <body>
   <div id="app">
@@ -346,17 +37,6 @@
       </div>
     </div>
 
-    <!-- Onboarding -->
-    <div id="onboarding">
-      <div class="onboarding-content">
-        <h1>Hi, I'm Trey.</h1>
-        <p>Welcome to my portfolio.</p>
-
-        <button class="btn-primary" id="start-btn">Enter Experience</button>
-        <button class="btn-secondary" id="hand-tracking-btn">Enable Hand Tracking (Beta)</button>
-      </div>
-    </div>
-
     <!-- Crosshair -->
     <div id="crosshair"></div>
 
@@ -367,8 +47,157 @@
       <div class="hud-item">Renderer: <span id="renderer">WebGL</span></div>
     </div>
 
+    <!-- Pause Menu -->
+    <div id="pause-menu" class="hidden" aria-hidden="true">
+      <div class="pause-panel" role="dialog" aria-modal="true" aria-label="Pause menu">
+        <div class="pause-topbar">
+          <div class="pause-tabs" role="tablist" aria-label="Pause menu tabs">
+            <button class="pause-tab" type="button" data-tab="about" role="tab" aria-selected="true" title="About">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+              <span class="sr-only">About</span>
+            </button>
+            <button class="pause-tab" type="button" data-tab="controls" role="tab" aria-selected="false" title="Controls">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>
+              </svg>
+              <span class="sr-only">Controls</span>
+            </button>
+          </div>
+          <button class="pause-close-btn" id="pause-close-btn" type="button" title="Close">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            <span class="sr-only">Close</span>
+          </button>
+        </div>
+
+        <div class="pause-body">
+          <section class="pause-section" data-tab-panel="about">
+            <div class="about-container">
+              <h1 class="portfolio-title">Hi, I'm Trey.</h1>
+              
+              <div class="welcome-text">
+                <p>I'm a fourth-year undergraduate at <strong>Carnegie Mellon University</strong> studying computer science and math.</p>
+                <p>I'm also a Software Engineer at <strong>CreativeMode (YC S24)</strong>, where I'm building coding agents for video games.<p>
+              </div>
+
+              <div class="about-content">
+                <p>I'm passionate about using <strong>AI to lower barriers for creative expression.</strong></p>
+              </div>
+
+              <div class="skills-section">
+                <div class="connect-label">Skills</div>
+                <div class="skill-tags">
+                  <span class="skill-tag">React / Next.js / TypeScript</span>
+                  <span class="skill-tag">Python</span>
+                  <span class="skill-tag">Unity</span>
+                  <span class="skill-tag">C / C++</span>
+                </div>
+              </div>
+
+              <div class="connect-section">
+                <div class="pause-links">
+                  <a class="pause-icon-btn" href="mailto:treyb@cmu.edu" target="_blank" rel="noreferrer" aria-label="Email" title="Email">
+                    <img src="https://api.iconify.design/lucide:mail.svg?color=white" alt="" aria-hidden="true" />
+                    <span class="sr-only">Email</span>
+                  </a>
+                  <a class="pause-icon-btn" href="https://github.com/tbrosn" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
+                    <img src="https://api.iconify.design/simple-icons:github.svg?color=white" alt="" aria-hidden="true" />
+                    <span class="sr-only">GitHub</span>
+                  </a>
+                  <a class="pause-icon-btn" href="https://linkedin.com/in/trey-brosnan" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
+                    <img src="https://api.iconify.design/simple-icons:linkedin.svg?color=white" alt="" aria-hidden="true" />
+                    <span class="sr-only">LinkedIn</span>
+                  </a>
+                  <a class="pause-icon-btn" href="https://open.spotify.com/artist/50K7zuQx7W5vF9B6o6ABY1?si=SCy7Kdu5RIaHhWJrE8RALg" target="_blank" rel="noreferrer" aria-label="Spotify" title="Spotify">
+                    <img src="https://api.iconify.design/simple-icons:spotify.svg?color=white" alt="" aria-hidden="true" />
+                    <span class="sr-only">Spotify</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="pause-section" data-tab-panel="controls" style="display:none;">
+            <div class="controls-container">
+              <h1 class="portfolio-title">Controls</h1>
+
+              <div class="device-tabs">
+                <button class="device-tab active" data-device="desktop">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
+                  </svg>
+                  <span>Desktop</span>
+                </button>
+                <button class="device-tab" data-device="mobile">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                  </svg>
+                  <span>Mobile</span>
+                </button>
+              </div>
+
+              <div class="controls-list" data-device-controls="desktop">
+                <div class="control-item">
+                  <div class="key-group">
+                    <kbd class="key">W</kbd>
+                    <kbd class="key">A</kbd>
+                    <kbd class="key">S</kbd>
+                    <kbd class="key">D</kbd>
+                  </div>
+                  <span class="control-desc">Move around</span>
+                </div>
+
+                <div class="control-item">
+                  <kbd class="key wide">MOUSE</kbd>
+                  <span class="control-desc">Look around (pointer lock)</span>
+                </div>
+
+                <div class="control-item">
+                  <kbd class="key">CLICK</kbd>
+                  <span class="control-desc">Grab or release objects</span>
+                </div>
+
+                <div class="control-item">
+                  <kbd class="key">ESC</kbd>
+                  <span class="control-desc">Open pause menu</span>
+                </div>
+              </div>
+
+              <div class="controls-list" data-device-controls="mobile" style="display:none;">
+                <div class="control-item">
+                  <kbd class="key wide">LEFT STICK</kbd>
+                  <span class="control-desc">Move around</span>
+                </div>
+
+                <div class="control-item">
+                  <kbd class="key wide">RIGHT SIDE</kbd>
+                  <span class="control-desc">Look around</span>
+                </div>
+
+                <div class="control-item">
+                  <kbd class="key">TAP</kbd>
+                  <span class="control-desc">Interact with objects</span>
+                </div>
+
+                <div class="control-item">
+                  <kbd class="key">MENU</kbd>
+                  <span class="control-desc">Open pause menu</span>
+                </div>
+              </div>
+
+              <p class="controls-hint">Hand tracking is optional. Enable it from the onboarding screen.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
     <!-- Mobile Controls -->
     <div id="mobile-controls">
+      <button class="pause-btn" id="pause-btn" type="button">Menu</button>
       <div id="move-stick">
         <div class="stick-base"></div>
         <div class="stick-thumb" id="move-thumb"></div>

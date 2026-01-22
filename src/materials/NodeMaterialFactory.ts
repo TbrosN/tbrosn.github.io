@@ -45,16 +45,18 @@ export class NodeMaterialFactory {
   static createStandardMaterial(params: StandardMaterialParams): THREE.Material {
     // WebGPU renderer in Three.js r170 can use standard materials directly
     // The renderer automatically converts them to the appropriate backend
-    return new THREE.MeshStandardMaterial({
-      color: params.color,
-      roughness: params.roughness,
-      metalness: params.metalness,
-      emissive: params.emissive,
-      emissiveIntensity: params.emissiveIntensity,
-      transparent: params.transparent,
-      opacity: params.opacity,
-      side: params.side,
-    });
+    const materialParams: THREE.MeshStandardMaterialParameters = {};
+    if (params.color !== undefined) materialParams.color = params.color;
+    if (params.roughness !== undefined) materialParams.roughness = params.roughness;
+    if (params.metalness !== undefined) materialParams.metalness = params.metalness;
+    if (params.emissive !== undefined) materialParams.emissive = params.emissive;
+    if (params.emissiveIntensity !== undefined) {
+      materialParams.emissiveIntensity = params.emissiveIntensity;
+    }
+    if (params.transparent !== undefined) materialParams.transparent = params.transparent;
+    if (params.opacity !== undefined) materialParams.opacity = params.opacity;
+    if (params.side !== undefined) materialParams.side = params.side;
+    return new THREE.MeshStandardMaterial(materialParams);
   }
 
   /**
@@ -64,13 +66,13 @@ export class NodeMaterialFactory {
   static createBasicMaterial(params: BasicMaterialParams): THREE.Material {
     // For now, we'll use standard MeshBasicMaterial for both
     // MeshBasicNodeMaterial requires more specific node setup
-    return new THREE.MeshBasicMaterial({
-      color: params.color,
-      transparent: params.transparent,
-      opacity: params.opacity,
-      side: params.side,
-      map: params.map,
-    });
+    const materialParams: THREE.MeshBasicMaterialParameters = {};
+    if (params.color !== undefined) materialParams.color = params.color;
+    if (params.transparent !== undefined) materialParams.transparent = params.transparent;
+    if (params.opacity !== undefined) materialParams.opacity = params.opacity;
+    if (params.side !== undefined) materialParams.side = params.side;
+    if (params.map !== undefined) materialParams.map = params.map;
+    return new THREE.MeshBasicMaterial(materialParams);
   }
 
   /**
