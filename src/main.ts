@@ -15,6 +15,7 @@ import { World } from './world/World';
 import { UI } from './ui/UI';
 import { SpeechBubble } from './ui/SpeechBubble';
 import { HandInteractionSystem } from './handtracking/HandInteractionSystem';
+import type { NPC } from './interaction/NPCSystem';
 import { DeviceDetector } from './utils/DeviceDetector';
 import { PerformanceMonitor } from './utils/PerformanceMonitor';
 import { LightingOptimizer } from './lighting/LightingOptimizer';
@@ -45,6 +46,7 @@ class App {
   private lightingOptimizer!: LightingOptimizer;
   private isRunning: boolean = false;
   private handTrackingMode: boolean = false;
+  private lastInteractedNPC: NPC | null = null;
 
   async init(): Promise<void> {
     try {
@@ -230,6 +232,26 @@ class App {
         );
         this.handleGrabTarget(tappedObject);
       }, { passive: true });
+
+      // Listen for spacebar to open NPC links
+      window.addEventListener('keydown', (event) => {
+        if (event.code === 'Space') {
+          if (this.lastInteractedNPC) {
+            const isLast = this.world.npcSystem.isOnLastMessage(this.lastInteractedNPC);
+            const hasLink = this.lastInteractedNPC.link;
+            
+            console.log('🔍 Spacebar pressed - Last message:', isLast, 'Has link:', hasLink);
+            
+            // Check if we're on the last message and the NPC has a link
+            if (isLast && hasLink) {
+              event.preventDefault();
+              event.stopPropagation();
+              window.open(this.lastInteractedNPC.link, '_blank');
+              console.log('📄 Opening paper:', this.lastInteractedNPC.link);
+            }
+          }
+        }
+      });
     } catch (error) {
       console.error('❌ App initialization failed:', error);
       const loading = document.getElementById('loading');
@@ -299,6 +321,7 @@ class App {
       const npc = this.world.getNPC(target);
       if (npc) {
         // Interact with NPC
+        this.lastInteractedNPC = npc;
         this.world.npcSystem.interact(npc);
         return;
       }

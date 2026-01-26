@@ -5,6 +5,7 @@ import gsap from 'gsap';
 export interface NPCDialogue {
   messages: string[];
   currentIndex: number;
+  lastShownIndex: number;
 }
 
 export interface NPC {
@@ -12,6 +13,7 @@ export interface NPC {
   position: THREE.Vector3;
   dialogue: NPCDialogue;
   name: string;
+  link?: string;
   onInteract?: (npc: NPC) => void;
 }
 
@@ -33,7 +35,8 @@ export class NPCSystem {
     position: THREE.Vector3,
     dialogue: string[],
     name: string,
-    scale: number = 1
+    scale: number = 1,
+    link?: string
   ): Promise<NPC> {
     try {
       const gltf = await this.loader.loadAsync(modelPath);
@@ -67,8 +70,10 @@ export class NPCSystem {
         dialogue: {
           messages: dialogue,
           currentIndex: 0,
+          lastShownIndex: -1,
         },
         name,
+        link,
       };
 
       this.npcs.set(id, npc);
@@ -96,6 +101,9 @@ export class NPCSystem {
   interact(npc: NPC): void {
     // Get current message
     const message = npc.dialogue.messages[npc.dialogue.currentIndex];
+    
+    // Store the index of the message we're showing
+    npc.dialogue.lastShownIndex = npc.dialogue.currentIndex;
     
     // Trigger callback with the message
     if (this.onDialogueCallback) {
@@ -133,6 +141,10 @@ export class NPCSystem {
 
   onDialogue(callback: (npc: NPC, message: string) => void): void {
     this.onDialogueCallback = callback;
+  }
+
+  isOnLastMessage(npc: NPC): boolean {
+    return npc.dialogue.lastShownIndex === npc.dialogue.messages.length - 1;
   }
 
   update(delta: number): void {

@@ -80,15 +80,14 @@ export class World {
         "/npc.glb",
         npcPosition,
         [
-          "Hey there! Welcome to the carnival! 🎪",
-          "I'm working on some cool AI projects in my spare time.",
-          "Check out my AI Drum Generator - it uses machine learning to create sick drum patterns!",
-          "The AI analyzes rhythm patterns and generates new beats in real-time.",
-          "Pretty neat, right? I trained it on thousands of drum loops.",
-          "Want to hear more? Just keep clicking to chat!",
+          "Hey there! Welcome to the carnival! 🎪 I'm working on a music AI research project called DARC - Drum Accompaniment generation with Rhythm Control.",
+          "It's my 15-798 final project at CMU. The cool part? It lets you control BOTH musical context and fine-grained rhythm at the same time - you can condition on other stems while using rhythm prompts like beatboxing or tapping tracks!",
+          "I used parameter-efficient fine-tuning to augment STAGE, a state-of-the-art drum stem generator. Prior tools could do stem-to-stem generation OR timbre transfer, but DARC bridges that gap with precise rhythm control AND musical context awareness.",
+          "It's published on arXiv! Want to read the paper? Press SPACE BAR to open it! 📄",
         ],
         "Vendor",
         npcScale,
+        "https://arxiv.org/abs/2601.02357"
       );
 
       // Add the NPC model to the scene
