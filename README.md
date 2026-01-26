@@ -11,17 +11,17 @@ I’m also a Software Engineer at [**CreativeMode (YC S24)**](https://creativemo
 I’m passionate about using **AI to lower barriers for creative expression.**
 
 <p align="left">
-  <a href="mailto:treyb@cmu.edu" target="_blank" rel="noreferrer" title="Email">
-    <img src="https://api.iconify.design/material-symbols:mail.svg?color=%23D14836&width=32&height=32" alt="Email" />
+  <a href="mailto:treyb@cmu.edu" target="_blank" rel="noreferrer" title="Email" style="text-decoration: none; margin-right: 8px;">
+    <img src="https://api.iconify.design/material-symbols:mail.svg?color=%23D14836&width=32&height=32" alt="Email" style="vertical-align: middle;" />
   </a>
-  <a href="https://github.com/tbrosn" target="_blank" rel="noreferrer" title="GitHub">
-    <img src="https://api.iconify.design/simple-icons:github.svg?color=%23181717&width=32&height=32" alt="GitHub" />
+  <a href="https://github.com/tbrosn" target="_blank" rel="noreferrer" title="GitHub" style="text-decoration: none; margin-right: 8px;">
+    <img src="https://api.iconify.design/simple-icons:github.svg?color=%23181717&width=32&height=32" alt="GitHub" style="vertical-align: middle;" />
   </a>
-  <a href="https://linkedin.com/in/trey-brosnan" target="_blank" rel="noreferrer" title="LinkedIn">
-    <img src="https://api.iconify.design/simple-icons:linkedin.svg?color=%230A66C2&width=32&height=32" alt="LinkedIn" />
+  <a href="https://linkedin.com/in/trey-brosnan" target="_blank" rel="noreferrer" title="LinkedIn" style="text-decoration: none; margin-right: 8px;">
+    <img src="https://api.iconify.design/simple-icons:linkedin.svg?color=%230A66C2&width=32&height=32" alt="LinkedIn" style="vertical-align: middle;" />
   </a>
-  <a href="https://open.spotify.com/artist/50K7zuQx7W5vF9B6o6ABY1?si=SCy7Kdu5RIaHhWJrE8RALg" target="_blank" rel="noreferrer" title="Spotify">
-    <img src="https://api.iconify.design/simple-icons:spotify.svg?color=%231DB954&width=32&height=32" alt="Spotify" />
+  <a href="https://open.spotify.com/artist/50K7zuQx7W5vF9B6o6ABY1?si=SCy7Kdu5RIaHhWJrE8RALg" target="_blank" rel="noreferrer" title="Spotify" style="text-decoration: none;">
+    <img src="https://api.iconify.design/simple-icons:spotify.svg?color=%231DB954&width=32&height=32" alt="Spotify" style="vertical-align: middle;" />
   </a>
 </p>
 
