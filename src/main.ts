@@ -116,7 +116,7 @@ class App {
 
       // Build world
       this.world = new World(this.scene, this.physics, this.raycaster);
-      this.world.build();
+      await this.world.build();
       
       // Optimize lighting after world is built
       this.lightingOptimizer.optimizeSceneLights(this.scene.scene);

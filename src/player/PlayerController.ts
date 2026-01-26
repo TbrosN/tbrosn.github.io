@@ -13,7 +13,7 @@ export class PlayerController {
   private physics: PhysicsWorld;
   
   private velocity: THREE.Vector3 = new THREE.Vector3();
-  private speed: number = 5.0;
+  private speed: number = 3.0; // Adjusted for scaled carnival scene
   private jumpForce: number = 6.0;
   private isGrounded: boolean = true;
   
