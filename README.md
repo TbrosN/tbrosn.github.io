@@ -4,11 +4,11 @@ You can visit my portfolio website at https://treybrosnan.com.
 
 ### About me
 
-I’m a fourth-year undergraduate at [**Carnegie Mellon University**](https://www.cmu.edu/) studying computer science and math.
+I'm a fourth-year undergraduate at <a href="https://www.cmu.edu/" target="_blank" rel="noreferrer"><strong>Carnegie Mellon University</strong></a> studying computer science and math.
 
-I’m also a Software Engineer at [**CreativeMode (YC S24)**](https://creativemode.net/), where I’m building coding agents for gaming.
+I'm also a Software Engineer at <a href="https://creativemode.net/" target="_blank" rel="noreferrer"><strong>CreativeMode (YC S24)</strong></a>, where I'm building coding agents for gaming.
 
-I’m passionate about using **AI to lower barriers for creative expression.**
+I'm passionate about using **AI to lower barriers for creative expression.**
 
 <p align="left">
   <a href="mailto:treyb@cmu.edu" target="_blank" rel="noreferrer" title="Email" style="text-decoration: none; margin-right: 8px;">
@@ -37,7 +37,7 @@ Core code lives in `src/` (rendering, player controls, interactions, and world c
 
 ### Acknowledgments
 
-- **Inspiration**: This project was inspired by Bruno Simon’s amazing portfolio, [bruno-simon.com](https://bruno-simon.com/).
+- **Inspiration**: This project was inspired by Bruno Simon's amazing portfolio, <a href="https://bruno-simon.com/" target="_blank" rel="noreferrer">bruno-simon.com</a>.
 - **AI**: I used **Cursor** to assist with building this site.
 
 ### Development
