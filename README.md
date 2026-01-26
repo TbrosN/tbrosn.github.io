@@ -10,7 +10,7 @@ I'm also a Software Engineer at **[CreativeMode (YC S24)](https://creativemode.n
 
 I'm passionate about using **AI to lower barriers for creative expression.**
 
-Links:
+### Contact
 
 - **Email**: [treyb [at] cmu [dot] edu](mailto:treyb@cmu.edu)
 - **LinkedIn**: [trey-brosnan](https://linkedin.com/in/trey-brosnan)
