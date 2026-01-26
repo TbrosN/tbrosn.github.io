@@ -1,11 +1,11 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { Scene } from "../core/Scene";
-import type { PhysicsWorld, CollisionGroups } from "../physics/PhysicsWorld";
+import type { PhysicsWorld } from "../physics/PhysicsWorld";
 import type { Raycaster } from "../interaction/Raycaster";
 import type { GrabbableObject } from "../interaction/GrabSystem";
-import { CollisionGroups as Groups } from "../physics/PhysicsWorld";
 import { NodeMaterialFactory } from "../materials/NodeMaterialFactory";
+import { NPCSystem, type NPC } from "../interaction/NPCSystem";
 
 /**
  * World building - environment and interactive objects
@@ -15,12 +15,14 @@ export class World {
   private physics: PhysicsWorld;
   private raycaster: Raycaster;
   public interactiveObjects: Map<THREE.Object3D, GrabbableObject> = new Map();
+  public npcSystem: NPCSystem;
   private built: boolean = false;
 
   constructor(scene: Scene, physics: PhysicsWorld, raycaster: Raycaster) {
     this.scene = scene;
     this.physics = physics;
     this.raycaster = raycaster;
+    this.npcSystem = new NPCSystem();
   }
 
   async build(): Promise<void> {
@@ -29,6 +31,7 @@ export class World {
     this.built = true;
 
     await this.loadCarnivalScene();
+    await this.loadNPCs();
   }
 
   private async loadCarnivalScene(): Promise<void> {
@@ -64,6 +67,42 @@ export class World {
     }
   }
 
+  private async loadNPCs(): Promise<void> {
+    try {
+      // Load the NPC inside the food stand
+      // Position is scaled to match the carnival scene (scaled to 0.2x)
+      // Adjust these coordinates based on where the food stand is in your carnival model
+      const npcPosition = new THREE.Vector3(2, 1, 1.5); // Adjust based on your food stand location
+      const npcScale = 2.5; // Adjust to match the scene scale
+
+      const npc = await this.npcSystem.loadNPC(
+        "food-stand-vendor",
+        "/npc.glb",
+        npcPosition,
+        [
+          "Hey there! Welcome to the carnival! 🎪",
+          "I'm working on some cool AI projects in my spare time.",
+          "Check out my AI Drum Generator - it uses machine learning to create sick drum patterns!",
+          "The AI analyzes rhythm patterns and generates new beats in real-time.",
+          "Pretty neat, right? I trained it on thousands of drum loops.",
+          "Want to hear more? Just keep clicking to chat!",
+        ],
+        "Vendor",
+        npcScale,
+      );
+
+      // Add the NPC model to the scene
+      this.scene.add(npc.model);
+
+      // Register the NPC as an interactable object
+      this.raycaster.registerInteractable(npc.model);
+
+      console.log("🎪 NPC loaded and ready for interaction!");
+    } catch (error) {
+      console.error("❌ Failed to load NPC:", error);
+    }
+  }
+
   private createFallbackScene(): void {
     // Simple fallback ground if the model fails to load
     const groundGeometry = new THREE.PlaneGeometry(100, 100);
@@ -87,6 +126,16 @@ export class World {
 
   getInteractiveObject(mesh: THREE.Object3D): GrabbableObject | undefined {
     return this.interactiveObjects.get(mesh);
+  }
+
+  getNPC(mesh: THREE.Object3D): NPC | undefined {
+    // Check if the mesh is an NPC model
+    for (const npc of this.npcSystem.getAllNPCs()) {
+      if (npc.model === mesh || npc.model.children.includes(mesh as any)) {
+        return npc;
+      }
+    }
+    return undefined;
   }
 
   update(delta: number): void {
@@ -113,5 +162,8 @@ export class World {
         }
       }
     });
+
+    // Update NPC system
+    this.npcSystem.update(delta);
   }
 }

@@ -13,6 +13,7 @@ import { Raycaster } from './interaction/Raycaster';
 import { GrabSystem } from './interaction/GrabSystem';
 import { World } from './world/World';
 import { UI } from './ui/UI';
+import { SpeechBubble } from './ui/SpeechBubble';
 import { HandInteractionSystem } from './handtracking/HandInteractionSystem';
 import { DeviceDetector } from './utils/DeviceDetector';
 import { PerformanceMonitor } from './utils/PerformanceMonitor';
@@ -38,6 +39,7 @@ class App {
   private grabSystem!: GrabSystem;
   private world!: World;
   private ui!: UI;
+  private speechBubble!: SpeechBubble;
   private handInteraction!: HandInteractionSystem;
   private performanceMonitor!: PerformanceMonitor;
   private lightingOptimizer!: LightingOptimizer;
@@ -61,6 +63,7 @@ class App {
 
       // Initialize UI
       this.ui = new UI();
+      this.speechBubble = new SpeechBubble();
       this.ui.setRenderer('Initializing...');
 
       // Initialize core systems
@@ -117,6 +120,11 @@ class App {
       // Build world
       this.world = new World(this.scene, this.physics, this.raycaster);
       await this.world.build();
+      
+      // Set up NPC dialogue callback
+      this.world.npcSystem.onDialogue((npc, message) => {
+        this.speechBubble.show(npc.name, message);
+      });
       
       // Optimize lighting after world is built
       this.lightingOptimizer.optimizeSceneLights(this.scene.scene);
@@ -287,7 +295,15 @@ class App {
     }
 
     if (target) {
-      // Grab tapped/hovered object
+      // Check if it's an NPC first
+      const npc = this.world.getNPC(target);
+      if (npc) {
+        // Interact with NPC
+        this.world.npcSystem.interact(npc);
+        return;
+      }
+
+      // Otherwise, try to grab it
       const grabbable = this.world.getInteractiveObject(target);
       if (grabbable) {
         this.grabSystem.grab(grabbable);
