@@ -147,6 +147,11 @@ export class NPCSystem {
     return npc.dialogue.lastShownIndex === npc.dialogue.messages.length - 1;
   }
 
+  resetDialogue(npc: NPC): void {
+    npc.dialogue.currentIndex = 0;
+    npc.dialogue.lastShownIndex = -1;
+  }
+
   update(delta: number): void {
     // Update NPC animations or behaviors if needed
     // Currently animations are handled by GSAP

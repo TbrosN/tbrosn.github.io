@@ -309,6 +309,18 @@ class App {
   }
 
   private handleGrabTarget(target: THREE.Object3D | null): void {
+    // If dialogue is showing and the user clicks/taps anywhere that is NOT an NPC,
+    // close the dialogue to avoid trapping them in a long message.
+    const clickedNPC = target ? this.world.getNPC(target) : undefined;
+    if (this.speechBubble.isShowing() && !clickedNPC) {
+      if (this.lastInteractedNPC) {
+        this.world.npcSystem.resetDialogue(this.lastInteractedNPC);
+      }
+      this.speechBubble.hide();
+      this.lastInteractedNPC = null;
+      return;
+    }
+
     if (this.grabSystem.isGrabbing()) {
       // Release currently grabbed object
       this.grabSystem.release();
@@ -318,7 +330,7 @@ class App {
 
     if (target) {
       // Check if it's an NPC first
-      const npc = this.world.getNPC(target);
+      const npc = clickedNPC;
       if (npc) {
         // Interact with NPC
         this.lastInteractedNPC = npc;
