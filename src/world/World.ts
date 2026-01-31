@@ -69,16 +69,15 @@ export class World {
 
   private async loadNPCs(): Promise<void> {
     try {
-      // Load the NPC inside the food stand
+      // Load the first NPC - DARC project vendor
       // Position is scaled to match the carnival scene (scaled to 0.2x)
-      // Adjust these coordinates based on where the food stand is in your carnival model
-      const npcPosition = new THREE.Vector3(2, 1, 1.5); // Adjust based on your food stand location
-      const npcScale = 2.5; // Adjust to match the scene scale
+      const npcPosition1 = new THREE.Vector3(2, 1, 1.5);
+      const npcScale = 2.5;
 
-      const npc = await this.npcSystem.loadNPC(
+      const npc1 = await this.npcSystem.loadNPC(
         "food-stand-vendor",
         "/npc.glb",
-        npcPosition,
+        npcPosition1,
         [
           "Hey there! Welcome to the carnival! 🎪 I'm working on a music AI research project called DARC - Drum Accompaniment generation with Rhythm Control.",
           "It's my 15-798 final project at CMU. The cool part? It lets you control BOTH musical context and fine-grained rhythm at the same time - you can condition on other stems while using rhythm prompts like beatboxing or tapping tracks!",
@@ -90,15 +89,35 @@ export class World {
         "https://arxiv.org/abs/2601.02357"
       );
 
-      // Add the NPC model to the scene
-      this.scene.add(npc.model);
+      // Add the first NPC to the scene
+      this.scene.add(npc1.model);
+      this.raycaster.registerInteractable(npc1.model);
 
-      // Register the NPC as an interactable object
-      this.raycaster.registerInteractable(npc.model);
+      // Load the second NPC - Crossy Road project
+      const npcPosition2 = new THREE.Vector3(-2, 1, 1.5);
 
-      console.log("🎪 NPC loaded and ready for interaction!");
+      const npc2 = await this.npcSystem.loadNPC(
+        "crossy-road-dev",
+        "/npc.glb",
+        npcPosition2,
+        [
+          "What's up! 🎮 Check out my Crossy Road clone I built for 15-113 at CMU - it's a Python implementation made with AI on a 1-hour timer!",
+          "Time crunch was REAL! I had to move fast and be strategic with my approach. I used Cursor with a mix of prompting techniques to maximize efficiency.",
+          "Started with plan-then-build for the MVP architecture, then switched to new chat + choose context + one-shot prompts for debugging and smaller features. The strategic context selection made all the difference!",
+          "Got procedural terrain, collision detection, and score tracking all working in under an hour. Pretty wild! Press SPACE BAR to check out the code on GitHub! 🐍",
+        ],
+        "Game Dev",
+        npcScale,
+        "https://github.com/TbrosN/crossy-road"
+      );
+
+      // Add the second NPC to the scene
+      this.scene.add(npc2.model);
+      this.raycaster.registerInteractable(npc2.model);
+
+      console.log("🎪 NPCs loaded and ready for interaction!");
     } catch (error) {
-      console.error("❌ Failed to load NPC:", error);
+      console.error("❌ Failed to load NPCs:", error);
     }
   }
 
