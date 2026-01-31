@@ -14,7 +14,6 @@ import { GrabSystem } from './interaction/GrabSystem';
 import { World } from './world/World';
 import { UI } from './ui/UI';
 import { SpeechBubble } from './ui/SpeechBubble';
-import { HandInteractionSystem } from './handtracking/HandInteractionSystem';
 import type { NPC } from './interaction/NPCSystem';
 import { DeviceDetector } from './utils/DeviceDetector';
 import { PerformanceMonitor } from './utils/PerformanceMonitor';
@@ -41,11 +40,9 @@ class App {
   private world!: World;
   private ui!: UI;
   private speechBubble!: SpeechBubble;
-  private handInteraction!: HandInteractionSystem;
   private performanceMonitor!: PerformanceMonitor;
   private lightingOptimizer!: LightingOptimizer;
   private isRunning: boolean = false;
-  private handTrackingMode: boolean = false;
   private lastInteractedNPC: NPC | null = null;
 
   async init(): Promise<void> {
@@ -135,33 +132,6 @@ class App {
       const lightingMetrics = this.lightingOptimizer.getLightingMetrics(this.scene.scene);
       console.log(`💡 Lighting Metrics:`, lightingMetrics);
 
-      // Initialize hand tracking (best-effort; must not block app startup)
-      this.handInteraction = new HandInteractionSystem(
-        this.camera,
-        this.scene.scene,
-        this.physics,
-        this.grabSystem,
-        this.world
-      );
-      try {
-        await this.handInteraction.init();
-      } catch (error) {
-        console.warn('🖐️ Hand tracking unavailable in this environment:', error);
-        const handTrackingBtn = document.getElementById('hand-tracking-btn');
-        if (handTrackingBtn) handTrackingBtn.style.display = 'none';
-      }
-
-      // Hand tracking is desktop-only (touch users need hands for controls)
-      if (
-        DeviceDetector.getDefaultControlMode() !== 'desktop' ||
-        !DeviceDetector.hasCamera()
-      ) {
-        const handTrackingBtn = document.getElementById('hand-tracking-btn');
-        if (handTrackingBtn) {
-          handTrackingBtn.style.display = 'none';
-        }
-      }
-
       // Auto-start: skip onboarding and go straight into the scene
       this.start();
 
@@ -222,7 +192,6 @@ class App {
       this.canvas.addEventListener('pointerup', (event) => {
         if (event.pointerType !== 'touch') return;
         if (!this.isRunning || this.controlMode !== 'touch') return;
-        if (this.handTrackingMode) return;
         // Don't handle grab if pause menu is visible
         if (this.ui.isPauseMenuVisible()) return;
 
@@ -302,9 +271,6 @@ class App {
 
 
   private handleGrabClick(): void {
-    // Only handle mouse clicks if not in hand tracking mode
-    if (this.handTrackingMode) return;
-
     this.handleGrabTarget(this.raycaster.getCurrentHovered());
   }
 
@@ -369,13 +335,8 @@ class App {
     this.physics.update(delta);
     this.player.postPhysics();
     
-    // Only update raycaster in mouse mode
-    if (!this.handTrackingMode) {
-      this.raycaster.update();
-    }
-    
+    this.raycaster.update();
     this.grabSystem.update(delta);
-    this.handInteraction.update();
     this.world.update(delta);
 
     // Update performance monitor
@@ -384,12 +345,10 @@ class App {
     // Update UI
     this.ui.setFPS(this.time.fps);
     
-    // Update crosshair based on hover (only in mouse mode)
-    if (!this.handTrackingMode) {
-      const isHovering = this.raycaster.getCurrentHovered() !== null;
-      if (!this.grabSystem.isGrabbing()) {
-        this.ui.setCrosshairActive(isHovering);
-      }
+    // Update crosshair based on hover
+    const isHovering = this.raycaster.getCurrentHovered() !== null;
+    if (!this.grabSystem.isGrabbing()) {
+      this.ui.setCrosshairActive(isHovering);
     }
 
     // Render (async for WebGPU optimization)
