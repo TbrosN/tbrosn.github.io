@@ -10,8 +10,8 @@ export class Scene {
 
   constructor() {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x1a1a2e);
-    this.scene.fog = new THREE.Fog(0x1a1a2e, 20, 100);
+    this.scene.background = new THREE.Color(0x87CEEB); // Bright sky blue
+    this.scene.fog = new THREE.Fog(0x87CEEB, 20, 100);
 
     this.setupLighting();
   }
