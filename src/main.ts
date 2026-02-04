@@ -21,6 +21,15 @@ import { LightingOptimizer } from './lighting/LightingOptimizer';
 import { NodeMaterialFactory } from './materials/NodeMaterialFactory';
 
 /**
+ * Application state enum
+ */
+enum AppState {
+  PLAYING = 'PLAYING',           // Pointer locked, game active
+  PAUSED = 'PAUSED',            // Pause menu visible
+  CARICATURE_UI = 'CARICATURE_UI', // Caricature overlay active
+}
+
+/**
  * Main application class
  */
 class App {
@@ -44,6 +53,7 @@ class App {
   private lightingOptimizer!: LightingOptimizer;
   private isRunning: boolean = false;
   private lastInteractedNPC: NPC | null = null;
+  private appState: AppState = AppState.PAUSED;
 
   async init(): Promise<void> {
     try {
@@ -118,6 +128,13 @@ class App {
 
       // Build world
       this.world = new World(this.scene, this.physics, this.raycaster);
+      
+      // Set up caricature UI state callbacks
+      this.world.setCaricatureCallbacks(
+        () => this.enterCaricatureMode(),
+        () => this.exitCaricatureMode()
+      );
+      
       await this.world.build();
       
       // Set up NPC dialogue callback
@@ -156,9 +173,11 @@ class App {
       this.ui.onResumeRequested(async () => {
         if (this.controlMode === 'desktop' && !this.desktopControls.getPointerLocked()) {
           await this.desktopControls.requestPointerLock();
+          this.setAppState(AppState.PLAYING);
         } else if (this.controlMode === 'touch') {
           this.touchControls.setActive(true);
           this.ui.hidePauseMenu();
+          this.setAppState(AppState.PLAYING);
         }
       });
 
@@ -167,6 +186,7 @@ class App {
         if (this.isRunning && this.controlMode === 'touch') {
           this.touchControls.setActive(false);
           this.ui.showPauseMenu();
+          this.setAppState(AppState.PAUSED);
         }
       });
 
@@ -175,10 +195,12 @@ class App {
         if (this.desktopControls.getPointerLocked()) {
           this.setControlMode('desktop');
           this.ui.hidePauseMenu();
+          this.setAppState(AppState.PLAYING);
         } else {
-          // Show pause menu when pointer lock is lost
-          if (this.isRunning && this.controlMode === 'desktop') {
+          // Only show pause menu if we're not in a special UI mode (like caricature)
+          if (this.isRunning && this.controlMode === 'desktop' && this.appState !== AppState.CARICATURE_UI) {
             this.ui.showPauseMenu();
+            this.setAppState(AppState.PAUSED);
           }
         }
       });
@@ -265,6 +287,10 @@ class App {
     if (this.controlMode === 'touch') {
       this.touchControls.setActive(true);
       this.ui.hidePauseMenu();
+      this.setAppState(AppState.PLAYING);
+    } else {
+      // Desktop starts in paused state until user clicks
+      this.setAppState(AppState.PAUSED);
     }
     this.animate();
   }
@@ -364,6 +390,37 @@ class App {
     this.controlMode = mode;
     this.touchControls.setActive(mode === 'touch' && this.isRunning);
     this.ui.setMode(mode === 'touch' ? 'Touch' : 'Mouse');
+  }
+
+  private setAppState(state: AppState): void {
+    console.log(`🎮 App state: ${this.appState} → ${state}`);
+    this.appState = state;
+  }
+
+  private enterCaricatureMode(): void {
+    console.log('🎨 Entering caricature mode...');
+    this.setAppState(AppState.CARICATURE_UI);
+    
+    // Exit pointer lock to allow mouse interaction with UI
+    if (this.controlMode === 'desktop') {
+      this.desktopControls.exitPointerLock();
+    }
+    
+    // Hide pause menu if it's showing
+    this.ui.hidePauseMenu();
+  }
+
+  private exitCaricatureMode(): void {
+    console.log('🎨 Exiting caricature mode...');
+    this.setAppState(AppState.PLAYING);
+    
+    // Re-request pointer lock for desktop users
+    if (this.controlMode === 'desktop' && this.isRunning) {
+      // Small delay to avoid immediate re-lock issues
+      setTimeout(() => {
+        this.desktopControls.requestPointerLock();
+      }, 100);
+    }
   }
 
   dispose(): void {

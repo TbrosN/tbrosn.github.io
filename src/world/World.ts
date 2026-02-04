@@ -6,6 +6,7 @@ import type { Raycaster } from "../interaction/Raycaster";
 import type { GrabbableObject } from "../interaction/GrabSystem";
 import { NodeMaterialFactory } from "../materials/NodeMaterialFactory";
 import { NPCSystem, type NPC } from "../interaction/NPCSystem";
+import { CaricatureArtist } from "../interaction/CaricatureArtist";
 
 /**
  * World building - environment and interactive objects
@@ -16,6 +17,7 @@ export class World {
   private raycaster: Raycaster;
   public interactiveObjects: Map<THREE.Object3D, GrabbableObject> = new Map();
   public npcSystem: NPCSystem;
+  private caricatureArtist: CaricatureArtist;
   private built: boolean = false;
   private carnivalModel?: THREE.Group;
 
@@ -24,6 +26,11 @@ export class World {
     this.physics = physics;
     this.raycaster = raycaster;
     this.npcSystem = new NPCSystem();
+    this.caricatureArtist = new CaricatureArtist();
+  }
+
+  setCaricatureCallbacks(onStart: () => void, onEnd: () => void): void {
+    this.caricatureArtist.setCallbacks(onStart, onEnd);
   }
 
   async build(): Promise<void> {
@@ -198,6 +205,29 @@ export class World {
       }
 
       console.log(`🎪 Total NPCs registered: ${npcObjects.size}`);
+
+      // Load the third NPC - Caricature Artist
+      const npcPosition3 = new THREE.Vector3(0, 1, 4);
+      
+      const npc3 = await this.npcSystem.loadNPC(
+        "caricature-artist",
+        "/npc.glb",
+        npcPosition3,
+        [
+          "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of Puter.js AI!",
+          "Just let me know if you want one! It only takes a second. (Press SPACE to generate)",
+        ],
+        "Artist",
+        npcScale
+      );
+
+      // Set up interaction handler
+      npc3.onInteract = () => {
+        this.caricatureArtist.generateCaricature();
+      };
+
+      this.scene.add(npc3.model);
+      this.raycaster.registerInteractable(npc3.model);
 
       console.log("🎪 NPCs loaded and ready for interaction!");
     } catch (error) {
