@@ -201,7 +201,22 @@ export class CaricatureArtist {
       const prompt =
         "caricature drawn with a black sharpie marker on a white paper";
 
-      const options = inputImage ? { input_image: inputImage } : undefined;
+      // Build options with Gemini model for image-to-image support
+      const options: {
+        model: string;
+        input_image?: string;
+        input_image_mime_type?: string;
+      } = {
+        model: "gemini-2.5-flash-image-preview",
+      };
+
+      // If we have an input image, extract base64 and MIME type from data URL
+      if (inputImage) {
+        const { base64, mimeType } = this.parseDataUrl(inputImage);
+        options.input_image = base64;
+        options.input_image_mime_type = mimeType;
+      }
+
       const image = await puter.ai.txt2img(prompt, options);
 
       const imageUrl = image.src || URL.createObjectURL(image);
@@ -219,5 +234,23 @@ export class CaricatureArtist {
       this.state = CaricatureState.IDLE;
       alert("Oh no! My easel fell over. (Failed to generate image)");
     }
+  }
+
+  // Parse a data URL into its base64 content and MIME type
+  private parseDataUrl(dataUrl: string): { base64: string; mimeType: string } {
+    // Data URL format: data:image/jpeg;base64,iVBORw0K...
+    const matches = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+    if (matches && matches.length === 3) {
+      return {
+        mimeType: matches[1],
+        base64: matches[2],
+      };
+    }
+    // Fallback: assume it's already raw base64 with jpeg type
+    console.warn("⚠️ Could not parse data URL, assuming raw base64 JPEG");
+    return {
+      mimeType: "image/jpeg",
+      base64: dataUrl,
+    };
   }
 }
