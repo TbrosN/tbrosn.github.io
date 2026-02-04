@@ -1,8 +1,8 @@
-import type { Results } from '@mediapipe/hands';
-import type { CameraOptions } from '@mediapipe/camera_utils';
+import type { Results } from "@mediapipe/hands";
+import type { CameraOptions } from "@mediapipe/camera_utils";
 
-const MEDIAPIPE_HANDS_VERSION = '0.4.1675469240';
-const MEDIAPIPE_CAMERA_UTILS_VERSION = '0.3.1675466862';
+const MEDIAPIPE_HANDS_VERSION = "0.4.1675469240";
+const MEDIAPIPE_CAMERA_UTILS_VERSION = "0.3.1675466862";
 
 const HANDS_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/hands@${MEDIAPIPE_HANDS_VERSION}/`;
 const CAMERA_UTILS_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@${MEDIAPIPE_CAMERA_UTILS_VERSION}/camera_utils.js`;
@@ -25,10 +25,10 @@ export class HandTracker {
     if (existing) return existing;
 
     const promise = new Promise<void>((resolve, reject) => {
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.src = src;
       script.async = true;
-      script.crossOrigin = 'anonymous';
+      script.crossOrigin = "anonymous";
       script.onload = () => resolve();
       script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
       document.head.appendChild(script);
@@ -47,24 +47,28 @@ export class HandTracker {
 
   private resolveHandsCtor(): any {
     const ctor = (globalThis as any).Hands;
-    if (typeof ctor !== 'function') {
-      throw new Error('MediaPipe Hands constructor not found on globalThis.Hands');
+    if (typeof ctor !== "function") {
+      throw new Error(
+        "MediaPipe Hands constructor not found on globalThis.Hands",
+      );
     }
     return ctor;
   }
 
   private resolveCameraCtor(): any {
     const ctor = (globalThis as any).Camera;
-    if (typeof ctor !== 'function') {
-      throw new Error('MediaPipe Camera constructor not found on globalThis.Camera');
+    if (typeof ctor !== "function") {
+      throw new Error(
+        "MediaPipe Camera constructor not found on globalThis.Camera",
+      );
     }
     return ctor;
   }
 
   async init(): Promise<void> {
     // Create video element
-    this.videoElement = document.createElement('video');
-    this.videoElement.style.display = 'none';
+    this.videoElement = document.createElement("video");
+    this.videoElement.style.display = "none";
     document.body.appendChild(this.videoElement);
 
     await this.ensureMediapipeLoaded();
@@ -74,14 +78,14 @@ export class HandTracker {
     this.hands = new HandsCtor({
       locateFile: (file) => {
         return `${HANDS_BASE}${file}`;
-      }
+      },
     });
 
     this.hands.setOptions({
       maxNumHands: 2,
       modelComplexity: 1,
       minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
+      minTrackingConfidence: 0.5,
     });
 
     this.hands.onResults((results) => {
@@ -91,18 +95,17 @@ export class HandTracker {
     });
 
     this.isInitialized = true;
-    console.log('✅ Hand tracking initialized');
   }
 
   async start(): Promise<void> {
     if (!this.isInitialized) {
-      throw new Error('HandTracker not initialized. Call init() first.');
+      throw new Error("HandTracker not initialized. Call init() first.");
     }
 
     try {
       // Request camera permission
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' }
+        video: { facingMode: "user" },
       });
 
       this.videoElement.srcObject = stream;
@@ -117,33 +120,29 @@ export class HandTracker {
           }
         },
         width: 640,
-        height: 480
+        height: 480,
       };
       this.camera = new CameraCtor(this.videoElement, options);
 
       await this.camera.start();
       this.isTracking = true;
-
-      console.log('✅ Hand tracking started');
     } catch (error) {
-      console.error('❌ Failed to start hand tracking:', error);
+      console.error("❌ Failed to start hand tracking:", error);
       throw error;
     }
   }
 
   stop(): void {
     this.isTracking = false;
-    
+
     if (this.videoElement.srcObject) {
       const stream = this.videoElement.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
     }
 
     if (this.camera) {
       this.camera.stop();
     }
-
-    console.log('Hand tracking stopped');
   }
 
   onResults(callback: (results: Results) => void): void {

@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import gsap from 'gsap';
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import gsap from "gsap";
 
 export interface NPCDialogue {
   messages: string[];
@@ -36,7 +36,7 @@ export class NPCSystem {
     dialogue: string[],
     name: string,
     scale: number = 1,
-    link?: string
+    link?: string,
   ): Promise<NPC> {
     try {
       const gltf = await this.loader.loadAsync(modelPath);
@@ -51,12 +51,13 @@ export class NPCSystem {
         if (child instanceof THREE.Mesh) {
           child.castShadow = true;
           child.receiveShadow = true;
-          
+
           // Make sure the NPC is visible by setting up materials properly
           if (child.material) {
             // Store original material properties for hover effects
             child.userData.originalEmissive = child.material.emissive?.clone();
-            child.userData.originalEmissiveIntensity = child.material.emissiveIntensity;
+            child.userData.originalEmissiveIntensity =
+              child.material.emissiveIntensity;
           }
         }
       });
@@ -77,7 +78,6 @@ export class NPCSystem {
       };
 
       this.npcs.set(id, npc);
-      console.log(`👤 NPC "${name}" loaded successfully at`, position);
 
       return npc;
     } catch (error) {
@@ -152,17 +152,18 @@ export class NPCSystem {
   interact(npc: NPC): void {
     // Get current message
     const message = npc.dialogue.messages[npc.dialogue.currentIndex];
-    
+
     // Store the index of the message we're showing
     npc.dialogue.lastShownIndex = npc.dialogue.currentIndex;
-    
+
     // Trigger callback with the message
     if (this.onDialogueCallback) {
       this.onDialogueCallback(npc, message);
     }
 
     // Advance to next message (loop back to start)
-    npc.dialogue.currentIndex = (npc.dialogue.currentIndex + 1) % npc.dialogue.messages.length;
+    npc.dialogue.currentIndex =
+      (npc.dialogue.currentIndex + 1) % npc.dialogue.messages.length;
 
     // Play interaction animation
     this.playInteractionAnimation(npc.model);
@@ -179,12 +180,12 @@ export class NPCSystem {
     gsap.to(model.rotation, {
       y: originalRotation + Math.PI * 0.25,
       duration: 0.3,
-      ease: 'back.out(2)',
+      ease: "back.out(2)",
       onComplete: () => {
         gsap.to(model.rotation, {
           y: originalRotation,
           duration: 0.3,
-          ease: 'back.out(2)',
+          ease: "back.out(2)",
         });
       },
     });

@@ -8,7 +8,6 @@ export class LightingOptimizer {
 
   constructor(isWebGPU: boolean) {
     this.isWebGPU = isWebGPU;
-    console.log(`💡 Lighting Optimizer initialized for ${isWebGPU ? 'WebGPU' : 'WebGL'}`);
   }
 
   /**
@@ -55,8 +54,6 @@ export class LightingOptimizer {
       }
     });
 
-    console.log(`💡 Optimizing ${lights.length} lights...`);
-
     lights.forEach((light) => {
       // Optimize shadows
       if (light.castShadow) {
@@ -71,8 +68,6 @@ export class LightingOptimizer {
         }
       }
     });
-
-    console.log(`✅ Lighting optimization complete`);
   }
 
   /**

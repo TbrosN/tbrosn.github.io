@@ -135,17 +135,6 @@ export class DeviceDetector {
   }
 
   static logDeviceInfo(): void {
-    console.log('🖥️ Device Info:');
-    console.log('  Mobile:', this.isMobile());
-    console.log('  Tablet:', this.isTablet());
-    console.log('  Touch:', this.hasTouch());
-    console.log('  Pointer Coarse:', this.primaryPointerIsCoarse());
-    console.log('  Hover:', this.hoverSupported());
-    console.log('  PointerLock:', this.supportsPointerLock());
-    console.log('  Default Controls:', this.getDefaultControlMode());
-    console.log('  WebGL2:', this.hasWebGL2());
-    console.log('  Camera:', this.hasCamera());
-    console.log('  GPU Tier:', this.getGPUTier());
-    console.log('  User Agent:', navigator.userAgent);
+    // Device info logging removed - re-enable for debugging if needed
   }
 }

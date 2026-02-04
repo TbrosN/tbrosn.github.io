@@ -34,20 +34,17 @@ export class World {
   }
 
   setCaricatureCallbacks(onUIOpen: () => void, onUIClose: () => void): void {
-    const caricatureNPC = this.npcSystem.getNPC('caricature-artist');
-    
+    const caricatureNPC = this.npcSystem.getNPC("caricature-artist");
+
     if (!caricatureNPC) {
-      console.error('❌ Caricature NPC not found! Cannot set callbacks.');
+      console.error("❌ Caricature NPC not found! Cannot set callbacks.");
       return;
     }
-    
-    console.log('✅ Setting caricature callbacks for NPC:', caricatureNPC.name);
-    
+
     this.caricatureArtist.setCallbacks(
       // On generation started
       () => {
-        console.log('🎨 Generation started - updating NPC dialogue');
-        const npc = this.npcSystem.getNPC('caricature-artist');
+        const npc = this.npcSystem.getNPC("caricature-artist");
         if (npc) {
           // Update dialogue to show we're drawing
           npc.dialogue.messages = [
@@ -56,15 +53,13 @@ export class World {
           ];
           npc.dialogue.currentIndex = 0;
           npc.dialogue.lastShownIndex = -1;
-          console.log('✅ NPC dialogue updated to GENERATING state');
         } else {
-          console.error('❌ NPC not found when trying to update dialogue!');
+          console.error("❌ NPC not found when trying to update dialogue!");
         }
       },
       // On generation completed
       () => {
-        console.log('✅ Generation completed - updating NPC dialogue');
-        const npc = this.npcSystem.getNPC('caricature-artist');
+        const npc = this.npcSystem.getNPC("caricature-artist");
         if (npc) {
           // Update dialogue to show it's ready
           npc.dialogue.messages = [
@@ -73,15 +68,14 @@ export class World {
           ];
           npc.dialogue.currentIndex = 0;
           npc.dialogue.lastShownIndex = -1;
-          console.log('✅ NPC dialogue updated to READY state');
         } else {
-          console.error('❌ NPC not found when trying to update dialogue!');
+          console.error("❌ NPC not found when trying to update dialogue!");
         }
       },
       // On UI opened (for pointer lock management)
       onUIOpen,
       // On UI closed (for pointer lock management)
-      onUIClose
+      onUIClose,
     );
   }
 
@@ -260,7 +254,7 @@ export class World {
 
       // Load the third NPC - Caricature Artist
       const npcPosition3 = new THREE.Vector3(0, 1, 4);
-      
+
       const npc3 = await this.npcSystem.loadNPC(
         "caricature-artist",
         "/npc.glb",
@@ -270,7 +264,7 @@ export class World {
           "Just let me know if you want one! Press SPACE to choose how you'd like to pose!",
         ],
         "Artist",
-        npcScale
+        npcScale,
       );
 
       // Don't set onInteract - let the normal dialogue flow happen
@@ -278,8 +272,6 @@ export class World {
 
       this.scene.add(npc3.model);
       this.raycaster.registerInteractable(npc3.model);
-
-      console.log("🎪 NPCs loaded and ready for interaction!");
     } catch (error) {
       console.error("❌ Failed to load NPCs:", error);
     }
