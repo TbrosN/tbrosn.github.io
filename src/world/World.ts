@@ -29,8 +29,60 @@ export class World {
     this.caricatureArtist = new CaricatureArtist();
   }
 
-  setCaricatureCallbacks(onStart: () => void, onEnd: () => void): void {
-    this.caricatureArtist.setCallbacks(onStart, onEnd);
+  getCaricatureArtist(): CaricatureArtist {
+    return this.caricatureArtist;
+  }
+
+  setCaricatureCallbacks(onUIOpen: () => void, onUIClose: () => void): void {
+    const caricatureNPC = this.npcSystem.getNPC('caricature-artist');
+    
+    if (!caricatureNPC) {
+      console.error('❌ Caricature NPC not found! Cannot set callbacks.');
+      return;
+    }
+    
+    console.log('✅ Setting caricature callbacks for NPC:', caricatureNPC.name);
+    
+    this.caricatureArtist.setCallbacks(
+      // On generation started
+      () => {
+        console.log('🎨 Generation started - updating NPC dialogue');
+        const npc = this.npcSystem.getNPC('caricature-artist');
+        if (npc) {
+          // Update dialogue to show we're drawing
+          npc.dialogue.messages = [
+            "🎨 I'm working on your caricature now! Feel free to explore while I draw...",
+            "✏️ Almost there... just adding some finishing touches!",
+          ];
+          npc.dialogue.currentIndex = 0;
+          npc.dialogue.lastShownIndex = -1;
+          console.log('✅ NPC dialogue updated to GENERATING state');
+        } else {
+          console.error('❌ NPC not found when trying to update dialogue!');
+        }
+      },
+      // On generation completed
+      () => {
+        console.log('✅ Generation completed - updating NPC dialogue');
+        const npc = this.npcSystem.getNPC('caricature-artist');
+        if (npc) {
+          // Update dialogue to show it's ready
+          npc.dialogue.messages = [
+            "🎉 Your caricature is ready! Press SPACE to view it!",
+            "I think it turned out great! Want to see it? Press SPACE!",
+          ];
+          npc.dialogue.currentIndex = 0;
+          npc.dialogue.lastShownIndex = -1;
+          console.log('✅ NPC dialogue updated to READY state');
+        } else {
+          console.error('❌ NPC not found when trying to update dialogue!');
+        }
+      },
+      // On UI opened (for pointer lock management)
+      onUIOpen,
+      // On UI closed (for pointer lock management)
+      onUIClose
+    );
   }
 
   async build(): Promise<void> {
@@ -215,16 +267,14 @@ export class World {
         npcPosition3,
         [
           "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of Puter.js AI!",
-          "Just let me know if you want one! It only takes a second. (Press SPACE to generate)",
+          "Just let me know if you want one! Press SPACE to choose how you'd like to pose!",
         ],
         "Artist",
         npcScale
       );
 
-      // Set up interaction handler
-      npc3.onInteract = () => {
-        this.caricatureArtist.generateCaricature();
-      };
+      // Don't set onInteract - let the normal dialogue flow happen
+      // The spacebar handler in main.ts will handle starting the caricature process
 
       this.scene.add(npc3.model);
       this.raycaster.registerInteractable(npc3.model);

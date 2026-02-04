@@ -129,18 +129,18 @@ class App {
       // Build world
       this.world = new World(this.scene, this.physics, this.raycaster);
       
-      // Set up caricature UI state callbacks
-      this.world.setCaricatureCallbacks(
-        () => this.enterCaricatureMode(),
-        () => this.exitCaricatureMode()
-      );
-      
       await this.world.build();
       
       // Set up NPC dialogue callback
       this.world.npcSystem.onDialogue((npc, message) => {
         this.speechBubble.show(npc.name, message);
       });
+      
+      // Set up caricature UI state callbacks (after NPCs are loaded!)
+      this.world.setCaricatureCallbacks(
+        () => this.enterCaricatureMode(),
+        () => this.exitCaricatureMode()
+      );
       
       // Optimize lighting after world is built
       this.lightingOptimizer.optimizeSceneLights(this.scene.scene);
@@ -224,10 +224,32 @@ class App {
         this.handleGrabTarget(tappedObject);
       }, { passive: true });
 
-      // Listen for spacebar to open NPC links
+      // Listen for spacebar to open NPC links or interact with caricature artist
       window.addEventListener('keydown', (event) => {
         if (event.code === 'Space') {
           if (this.lastInteractedNPC) {
+            // Special handling for caricature artist NPC
+            const caricatureNPC = this.world.npcSystem.getNPC('caricature-artist');
+            if (this.lastInteractedNPC === caricatureNPC) {
+              event.preventDefault();
+              event.stopPropagation();
+              
+              const caricatureArtist = this.world.getCaricatureArtist();
+              const isLast = this.world.npcSystem.isOnLastMessage(this.lastInteractedNPC);
+              
+              if (caricatureArtist.isReady()) {
+                // Show the generated caricature (works on any message when ready)
+                caricatureArtist.viewCaricature();
+                console.log('🎨 Showing caricature');
+              } else if (caricatureArtist.canStartNewGeneration() && isLast) {
+                // Only start the process on the last dialogue message
+                caricatureArtist.startCaricatureProcess();
+                console.log('🎨 Starting caricature process');
+              }
+              return;
+            }
+            
+            // Normal NPC link handling
             const isLast = this.world.npcSystem.isOnLastMessage(this.lastInteractedNPC);
             const hasLink = this.lastInteractedNPC.link;
             
