@@ -33,7 +33,11 @@ export class World {
     return this.caricatureArtist;
   }
 
-  setCaricatureCallbacks(onUIOpen: () => void, onUIClose: () => void): void {
+  setCaricatureCallbacks(
+    onUIOpen: () => void,
+    onUIClose: () => void,
+    onNPCSpeak?: (npc: NPC) => void,
+  ): void {
     const caricatureNPC = this.npcSystem.getNPC("caricature-artist");
 
     if (!caricatureNPC) {
@@ -46,9 +50,20 @@ export class World {
       () => {
         const npc = this.npcSystem.getNPC("caricature-artist");
         if (npc) {
-          // Update dialogue to show we're drawing
+          const message =
+            "🎨 I'm working on your caricature now! Feel free to explore while I draw...";
+
+          // Speak immediately so the player knows generation has started
+          this.npcSystem.speak(npc, message);
+
+          // Notify main.ts so it can track this NPC as the last interacted
+          if (onNPCSpeak) {
+            onNPCSpeak(npc);
+          }
+
+          // Update dialogue for subsequent interactions
           npc.dialogue.messages = [
-            "🎨 I'm working on your caricature now! Feel free to explore while I draw...",
+            message,
             "✏️ Almost there... just adding some finishing touches!",
           ];
           npc.dialogue.currentIndex = 0;
@@ -61,9 +76,20 @@ export class World {
       () => {
         const npc = this.npcSystem.getNPC("caricature-artist");
         if (npc) {
-          // Update dialogue to show it's ready
+          const message =
+            "🎉 Your caricature is ready! Press SPACE to view it!";
+
+          // Speak immediately so the player knows the caricature is ready
+          this.npcSystem.speak(npc, message);
+
+          // Notify main.ts so it can track this NPC as the last interacted
+          if (onNPCSpeak) {
+            onNPCSpeak(npc);
+          }
+
+          // Update dialogue for subsequent interactions
           npc.dialogue.messages = [
-            "🎉 Your caricature is ready! Press SPACE to view it!",
+            message,
             "I think it turned out great! Want to see it? Press SPACE!",
           ];
           npc.dialogue.currentIndex = 0;

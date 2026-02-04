@@ -174,6 +174,21 @@ export class NPCSystem {
     }
   }
 
+  /**
+   * Make an NPC speak a message immediately (NPC-initiated dialogue)
+   * This allows NPCs to proactively communicate with the player
+   * without requiring user interaction.
+   */
+  speak(npc: NPC, message: string): void {
+    // Trigger the dialogue callback to show the message immediately
+    if (this.onDialogueCallback) {
+      this.onDialogueCallback(npc, message);
+    }
+
+    // Play interaction animation to draw attention
+    this.playInteractionAnimation(npc.model);
+  }
+
   private playInteractionAnimation(model: THREE.Object3D): void {
     // Quick rotation when interacted with
     const originalRotation = model.rotation.y;

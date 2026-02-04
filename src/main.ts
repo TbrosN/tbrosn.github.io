@@ -144,6 +144,11 @@ class App {
       this.world.setCaricatureCallbacks(
         () => this.enterCaricatureMode(),
         () => this.exitCaricatureMode(),
+        // When an NPC speaks proactively, track it as the last interacted NPC
+        // so spacebar handling works without requiring the user to click the NPC
+        (npc) => {
+          this.lastInteractedNPC = npc;
+        },
       );
 
       // Optimize lighting after world is built
