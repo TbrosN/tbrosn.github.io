@@ -1,7 +1,7 @@
 {
-  "name": "Interactive XR Portfolio",
-  "short_name": "XR Portfolio",
-  "description": "An immersive 3D portfolio experience with XR-style interactions",
+  "name": "Trey Brosnan",
+  "short_name": "Trey Brosnan",
+  "description": "Trey Brosnan's portfolio",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",
