@@ -1,4 +1,5 @@
 import { ImageOverlay } from "../ui/ImageOverlay";
+import { CARICATURE_SYSTEM_PROMPT } from "./prompts";
 
 export enum CaricatureState {
   IDLE = "IDLE",
@@ -198,9 +199,6 @@ export class CaricatureArtist {
     }
 
     try {
-      const prompt =
-        "caricature drawn with a black sharpie marker on a white paper";
-
       // Build options with Gemini model for image-to-image support
       const options: {
         model: string;
@@ -217,7 +215,7 @@ export class CaricatureArtist {
         options.input_image_mime_type = mimeType;
       }
 
-      const image = await puter.ai.txt2img(prompt, options);
+      const image = await puter.ai.txt2img(CARICATURE_SYSTEM_PROMPT, options);
 
       const imageUrl = image.src || URL.createObjectURL(image);
       this.generatedImageUrl = imageUrl;

@@ -1,21 +1,32 @@
 export class ImageOverlay {
   private container: HTMLDivElement;
   private imageElement: HTMLImageElement;
-  private closeButton: HTMLButtonElement;
+  private actionBar: HTMLDivElement;
   private loadingText: HTMLParagraphElement;
   
-  // New UI Elements
-  private optionsContainer: HTMLDivElement;
+  // Bottom sheet for options
+  private bottomSheet: HTMLDivElement;
+  private bottomSheetContent: HTMLDivElement;
+  
+  // Camera view
   private cameraContainer: HTMLDivElement;
   private videoElement: HTMLVideoElement;
   private captureButton: HTMLButtonElement;
   private fileInput: HTMLInputElement;
   
+  // Action buttons (TikTok-style)
+  private downloadBtn: HTMLButtonElement;
+  private shareBtn: HTMLButtonElement;
+  private closeBtn: HTMLButtonElement;
+  
   private onKeyDown: (e: KeyboardEvent) => void;
   private stream: MediaStream | null = null;
   private onCloseCallback?: () => void;
+  private touchStartY: number = 0;
+  private touchEndY: number = 0;
 
   constructor() {
+    // Main container - fullscreen overlay
     this.container = document.createElement('div');
     this.container.id = 'caricature-overlay';
     Object.assign(this.container.style, {
@@ -24,95 +35,204 @@ export class ImageOverlay {
       left: '0',
       width: '100vw',
       height: '100vh',
-      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      backgroundColor: '#000000',
       display: 'none',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
       zIndex: '1000',
       opacity: '0',
-      transition: 'opacity 0.3s ease-in-out',
+      transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       pointerEvents: 'none',
+      overflow: 'hidden',
     });
 
-    // --- Loading Text ---
-    this.loadingText = document.createElement('p');
-    this.loadingText.innerText = '🎨 Sketching your caricature...';
+    // Loading spinner with modern design
+    this.loadingText = document.createElement('div');
+    this.loadingText.innerHTML = `
+      <div style="text-align: center;">
+        <div style="
+          width: 60px;
+          height: 60px;
+          border: 4px solid rgba(255, 255, 255, 0.1);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+        "></div>
+        <p style="
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 18px;
+          font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-weight: 600;
+          margin: 0;
+        ">Creating your caricature...</p>
+      </div>
+    `;
     Object.assign(this.loadingText.style, {
-      color: 'white',
-      fontSize: '24px',
-      fontFamily: '"Outfit", sans-serif',
-      marginBottom: '20px',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
       display: 'none',
+      zIndex: '10',
     });
 
-    // --- Result Image ---
+    // Add keyframe animation for spinner
+    if (!document.getElementById('overlay-animations')) {
+      const style = document.createElement('style');
+      style.id = 'overlay-animations';
+      style.textContent = `
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Image container with centered display
     this.imageElement = document.createElement('img');
     Object.assign(this.imageElement.style, {
-      maxWidth: '80%',
-      maxHeight: '70%',
-      borderRadius: '15px',
-      boxShadow: '0 0 20px rgba(255, 255, 255, 0.2)',
-      border: '5px solid white',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      objectFit: 'contain',
+      borderRadius: '0',
       display: 'none',
+      userSelect: 'none',
+      animation: 'fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     });
 
-    // --- Options Menu ---
-    this.optionsContainer = document.createElement('div');
-    Object.assign(this.optionsContainer.style, {
+    // Bottom sheet for options (TikTok-style)
+    this.bottomSheet = document.createElement('div');
+    Object.assign(this.bottomSheet.style, {
+      position: 'absolute',
+      bottom: '0',
+      left: '0',
+      width: '100%',
+      backgroundColor: 'rgba(30, 30, 30, 0.95)',
+      backdropFilter: 'blur(20px)',
+      borderRadius: '24px 24px 0 0',
+      padding: '24px 20px 40px',
       display: 'none',
-      flexDirection: 'column',
-      gap: '15px',
-      alignItems: 'center',
+      transform: 'translateY(100%)',
+      transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      zIndex: '20',
+      boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.5)',
     });
 
-    // --- Camera View ---
+    this.bottomSheetContent = document.createElement('div');
+    this.bottomSheet.appendChild(this.bottomSheetContent);
+
+    // Camera view (fullscreen)
     this.cameraContainer = document.createElement('div');
     Object.assign(this.cameraContainer.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
       display: 'none',
-      flexDirection: 'column',
+      justifyContent: 'center',
       alignItems: 'center',
-      gap: '15px',
+      backgroundColor: '#000',
     });
     
     this.videoElement = document.createElement('video');
     this.videoElement.autoplay = true;
+    this.videoElement.playsInline = true;
     Object.assign(this.videoElement.style, {
-        maxWidth: '80vw',
-        maxHeight: '60vh',
-        borderRadius: '10px',
-        border: '2px solid white',
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
     });
 
-    this.captureButton = this.createButton('Capture Photo', '#2ecc71');
+    // Capture button (floating at bottom)
+    this.captureButton = document.createElement('button');
+    this.captureButton.innerHTML = '📸';
+    Object.assign(this.captureButton.style, {
+      position: 'absolute',
+      bottom: '40px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '70px',
+      height: '70px',
+      borderRadius: '50%',
+      border: '4px solid white',
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      backdropFilter: 'blur(10px)',
+      fontSize: '32px',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      zIndex: '30',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+    });
+    this.captureButton.addEventListener('mousedown', () => {
+      this.captureButton.style.transform = 'translateX(-50%) scale(0.9)';
+    });
+    this.captureButton.addEventListener('mouseup', () => {
+      this.captureButton.style.transform = 'translateX(-50%) scale(1)';
+    });
+
     this.cameraContainer.appendChild(this.videoElement);
     this.cameraContainer.appendChild(this.captureButton);
 
-
-    // --- File Input (Hidden) ---
+    // File input (hidden)
     this.fileInput = document.createElement('input');
     this.fileInput.type = 'file';
     this.fileInput.accept = 'image/*';
     this.fileInput.style.display = 'none';
-    this.container.appendChild(this.fileInput);
 
+    // Action bar (TikTok-style right side buttons)
+    this.actionBar = document.createElement('div');
+    Object.assign(this.actionBar.style, {
+      position: 'absolute',
+      right: '16px',
+      bottom: '100px',
+      display: 'none',
+      flexDirection: 'column',
+      gap: '16px',
+      zIndex: '30',
+    });
 
-    // --- Close/Save Button ---
-    this.closeButton = this.createButton('Close (ESC) | Save (S)', '#ff4757');
-    this.closeButton.style.display = 'none';
-    this.closeButton.addEventListener('click', () => this.hide());
+    // Download button
+    this.downloadBtn = this.createActionButton('⬇️', 'Download');
+    this.downloadBtn.addEventListener('click', () => this.downloadImage());
 
+    // Share button
+    this.shareBtn = this.createActionButton('🔗', 'Share');
+    this.shareBtn.addEventListener('click', () => this.shareImage());
 
-    // Append everything
+    // Close button
+    this.closeBtn = this.createActionButton('✕', 'Close');
+    this.closeBtn.addEventListener('click', () => this.hide());
+
+    this.actionBar.appendChild(this.downloadBtn);
+    this.actionBar.appendChild(this.shareBtn);
+    this.actionBar.appendChild(this.closeBtn);
+
+    // Append everything to container
     this.container.appendChild(this.loadingText);
     this.container.appendChild(this.imageElement);
-    this.container.appendChild(this.optionsContainer);
+    this.container.appendChild(this.bottomSheet);
     this.container.appendChild(this.cameraContainer);
-    this.container.appendChild(this.closeButton);
+    this.container.appendChild(this.actionBar);
+    this.container.appendChild(this.fileInput);
     document.body.appendChild(this.container);
 
+    // Add swipe to dismiss
+    this.setupSwipeGestures();
+
     this.onKeyDown = (e: KeyboardEvent) => {
-      if (this.container.style.display === 'flex') {
+      if (this.container.style.display === 'block') {
         if (e.key === 'Escape') {
           this.hide();
         } else if (e.key.toLowerCase() === 's' && this.imageElement.style.display === 'block') {
@@ -122,27 +242,108 @@ export class ImageOverlay {
     };
   }
 
-  private createButton(text: string, color: string) {
-      const btn = document.createElement('button');
-      btn.innerText = text;
-      Object.assign(btn.style, {
-        padding: '12px 24px',
-        fontSize: '18px',
-        borderRadius: '8px',
-        border: 'none',
-        backgroundColor: color,
-        color: 'white',
-        cursor: 'pointer',
-        fontFamily: '"Outfit", sans-serif',
-        fontWeight: 'bold',
-        transition: 'transform 0.1s',
-      });
-      btn.addEventListener('mouseenter', () => btn.style.transform = 'scale(1.05)');
-      btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
-      return btn;
+  private createActionButton(emoji: string, label: string): HTMLButtonElement {
+    const container = document.createElement('button');
+    container.title = label; // Add accessibility label
+    container.setAttribute('aria-label', label);
+    Object.assign(container.style, {
+      width: '56px',
+      height: '56px',
+      borderRadius: '50%',
+      border: 'none',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(10px)',
+      cursor: 'pointer',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '24px',
+      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+      position: 'relative',
+    });
+    
+    container.innerHTML = emoji;
+    
+    // Hover effect
+    container.addEventListener('mouseenter', () => {
+      container.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+      container.style.transform = 'scale(1.1)';
+    });
+    container.addEventListener('mouseleave', () => {
+      container.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+      container.style.transform = 'scale(1)';
+    });
+    
+    // Touch feedback
+    container.addEventListener('touchstart', () => {
+      container.style.transform = 'scale(0.95)';
+    });
+    container.addEventListener('touchend', () => {
+      container.style.transform = 'scale(1)';
+    });
+    
+    return container;
   }
 
-  private downloadImage() {
+  private createOptionButton(emoji: string, text: string, color: string): HTMLButtonElement {
+    const btn = document.createElement('button');
+    Object.assign(btn.style, {
+      width: '100%',
+      padding: '18px 24px',
+      fontSize: '17px',
+      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontWeight: '600',
+      borderRadius: '16px',
+      border: 'none',
+      backgroundColor: color,
+      color: 'white',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '12px',
+      transition: 'all 0.2s',
+      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+    });
+    
+    btn.innerHTML = `<span style="font-size: 24px;">${emoji}</span><span>${text}</span>`;
+    
+    btn.addEventListener('mouseenter', () => {
+      btn.style.transform = 'translateY(-2px)';
+      btn.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.3)';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = 'translateY(0)';
+      btn.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+    });
+    
+    return btn;
+  }
+
+  private setupSwipeGestures(): void {
+    this.container.addEventListener('touchstart', (e) => {
+      this.touchStartY = e.touches[0].clientY;
+    });
+
+    this.container.addEventListener('touchend', (e) => {
+      this.touchEndY = e.changedTouches[0].clientY;
+      this.handleSwipe();
+    });
+  }
+
+  private handleSwipe(): void {
+    const swipeDistance = this.touchStartY - this.touchEndY;
+    const threshold = 50;
+
+    // Swipe down to close
+    if (swipeDistance < -threshold && this.imageElement.style.display === 'block') {
+      this.hide();
+    }
+  }
+
+  private downloadImage(): void {
     if (!this.imageElement.src) return;
     const link = document.createElement('a');
     link.href = this.imageElement.src;
@@ -150,113 +351,304 @@ export class ImageOverlay {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    // Visual feedback
+    this.downloadBtn.style.backgroundColor = 'rgba(46, 213, 115, 0.4)';
+    setTimeout(() => {
+      this.downloadBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+    }, 300);
   }
 
-  // --- Public Methods ---
+  private async shareImage(): Promise<void> {
+    if (!this.imageElement.src) return;
+
+    // Check if Web Share API is available
+    if (navigator.share) {
+      try {
+        // Convert image to blob
+        const response = await fetch(this.imageElement.src);
+        const blob = await response.blob();
+        const file = new File([blob], `caricature-${Date.now()}.png`, { type: 'image/png' });
+        
+        await navigator.share({
+          title: 'My Caricature',
+          text: 'Check out my caricature!',
+          files: [file],
+        });
+        
+        // Visual feedback
+        this.shareBtn.style.backgroundColor = 'rgba(52, 152, 219, 0.4)';
+        setTimeout(() => {
+          this.shareBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+        }, 300);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.log('Share failed:', err);
+          this.fallbackShare();
+        }
+      }
+    } else {
+      this.fallbackShare();
+    }
+  }
+
+  private fallbackShare(): void {
+    // Fallback: copy image URL to clipboard
+    if (navigator.clipboard && this.imageElement.src) {
+      navigator.clipboard.writeText(this.imageElement.src)
+        .then(() => {
+          alert('Image link copied to clipboard!');
+        })
+        .catch(() => {
+          alert('Unable to share. You can save the image instead.');
+        });
+    } else {
+      alert('Sharing not supported on this device. You can save the image instead.');
+    }
+  }
+
+  // Public Methods
 
   setOnCloseCallback(callback: () => void): void {
     this.onCloseCallback = callback;
   }
 
   showOptions(
-      onCamera: () => void,
-      onUpload: () => void,
-      onRandom: () => void
-  ) {
-      this.resetView();
-      this.container.style.display = 'flex';
-      this.container.style.pointerEvents = 'auto'; 
-      this.optionsContainer.style.display = 'flex';
-      
-      this.optionsContainer.innerHTML = ''; // Clear previous listeners
-      
-      const title = document.createElement('h2');
-      title.innerText = 'Ready for your caricature?';
-      title.style.color = 'white';
-      title.style.marginBottom = '10px';
-      this.optionsContainer.appendChild(title);
+    onCamera: () => void,
+    onUpload: () => void,
+    onRandom: () => void
+  ): void {
+    this.resetView();
+    this.container.style.display = 'block';
+    this.container.style.pointerEvents = 'auto';
+    this.bottomSheet.style.display = 'block';
+    
+    // Clear previous content
+    this.bottomSheetContent.innerHTML = '';
+    
+    // Handle bar (drag indicator)
+    const handleBar = document.createElement('div');
+    Object.assign(handleBar.style, {
+      width: '40px',
+      height: '4px',
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      borderRadius: '2px',
+      margin: '0 auto 24px',
+    });
+    this.bottomSheetContent.appendChild(handleBar);
+    
+    // Title
+    const title = document.createElement('h2');
+    title.textContent = 'Create Your Caricature';
+    Object.assign(title.style, {
+      color: 'white',
+      fontSize: '24px',
+      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontWeight: '700',
+      marginBottom: '24px',
+      textAlign: 'center',
+      margin: '0 0 24px 0',
+    });
+    this.bottomSheetContent.appendChild(title);
 
-      const btnCamera = this.createButton('📸 Take a Photo', '#3498db');
-      btnCamera.onclick = onCamera;
-      
-      const btnUpload = this.createButton('📁 Upload a Photo', '#9b59b6');
-      btnUpload.onclick = onUpload;
-      
-      const btnRandom = this.createButton('🎲 Surprise Me', '#f1c40f');
-      btnRandom.onclick = onRandom;
+    // Options container
+    const optionsGrid = document.createElement('div');
+    Object.assign(optionsGrid.style, {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px',
+    });
 
-      this.optionsContainer.appendChild(btnCamera);
-      this.optionsContainer.appendChild(btnUpload);
-      this.optionsContainer.appendChild(btnRandom);
-      
-      // Close button just to cancel interaction
-      const btnCancel = this.createButton('Cancel', '#95a5a6');
-      btnCancel.onclick = () => this.hide();
-      this.optionsContainer.appendChild(btnCancel);
+    // Camera button
+    const btnCamera = this.createOptionButton('📸', 'Take a Photo', '#3b82f6');
+    btnCamera.onclick = onCamera;
+    
+    // Upload button
+    const btnUpload = this.createOptionButton('🖼️', 'Upload Photo', '#8b5cf6');
+    btnUpload.onclick = onUpload;
+    
+    // Random button
+    const btnRandom = this.createOptionButton('✨', 'Surprise Me', '#f59e0b');
+    btnRandom.onclick = onRandom;
 
-      this.showContainer();
+    optionsGrid.appendChild(btnCamera);
+    optionsGrid.appendChild(btnUpload);
+    optionsGrid.appendChild(btnRandom);
+    
+    this.bottomSheetContent.appendChild(optionsGrid);
+    
+    // Cancel button (subtle)
+    const btnCancel = document.createElement('button');
+    btnCancel.textContent = 'Cancel';
+    Object.assign(btnCancel.style, {
+      width: '100%',
+      marginTop: '12px',
+      padding: '14px',
+      fontSize: '16px',
+      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontWeight: '500',
+      borderRadius: '12px',
+      border: 'none',
+      backgroundColor: 'transparent',
+      color: 'rgba(255, 255, 255, 0.6)',
+      cursor: 'pointer',
+    });
+    btnCancel.onclick = () => this.hide();
+    this.bottomSheetContent.appendChild(btnCancel);
+
+    this.showContainer();
+    
+    // Animate bottom sheet up
+    requestAnimationFrame(() => {
+      this.bottomSheet.style.transform = 'translateY(0)';
+    });
   }
 
-  async showCamera(onCapture: (blob: Blob) => void) {
-      this.resetView();
-      this.container.style.display = 'flex';
-      this.cameraContainer.style.display = 'flex';
-      
-      try {
-          this.stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          this.videoElement.srcObject = this.stream;
-      } catch (err) {
-          console.error("Camera access denied:", err);
-          alert("Could not access camera. Please check permissions.");
-          this.hide();
-          return;
-      }
+  async showCamera(onCapture: (blob: Blob) => void): Promise<void> {
+    this.resetView();
+    this.container.style.display = 'block';
+    this.cameraContainer.style.display = 'flex';
+    
+    try {
+      // Request camera with optimal settings
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      });
+      this.videoElement.srcObject = this.stream;
+    } catch (err) {
+      console.error("Camera access denied:", err);
+      this.showErrorMessage("Camera access denied. Please check your permissions.");
+      this.hide();
+      return;
+    }
 
-      this.captureButton.onclick = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = this.videoElement.videoWidth;
-          canvas.height = this.videoElement.videoHeight;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(this.videoElement, 0, 0);
-          canvas.toBlob((blob) => {
-              if (blob) {
-                  this.stopCamera();
-                  onCapture(blob);
-              }
-          }, 'image/jpeg');
-      };
+    // Capture button handler
+    this.captureButton.onclick = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = this.videoElement.videoWidth;
+      canvas.height = this.videoElement.videoHeight;
+      const ctx = canvas.getContext('2d');
       
-      this.showContainer();
+      if (ctx) {
+        // Mirror the image for selfie mode
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(this.videoElement, 0, 0);
+      }
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          this.stopCamera();
+          onCapture(blob);
+        }
+      }, 'image/jpeg', 0.95);
+    };
+    
+    this.showContainer();
+  }
+
+  private showErrorMessage(message: string): void {
+    const errorDiv = document.createElement('div');
+    Object.assign(errorDiv.style, {
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: 'rgba(239, 68, 68, 0.95)',
+      color: 'white',
+      padding: '16px 24px',
+      borderRadius: '12px',
+      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontSize: '16px',
+      fontWeight: '500',
+      zIndex: '2000',
+      maxWidth: '80vw',
+      textAlign: 'center',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+    });
+    errorDiv.textContent = message;
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(() => {
+      errorDiv.style.opacity = '0';
+      errorDiv.style.transition = 'opacity 0.3s';
+      setTimeout(() => document.body.removeChild(errorDiv), 300);
+    }, 3000);
   }
   
-  triggerFileUpload(onFileSelected: (file: File) => void) {
-      this.fileInput.onchange = () => {
-          if (this.fileInput.files && this.fileInput.files[0]) {
-              onFileSelected(this.fileInput.files[0]);
-          }
-      };
-      this.fileInput.click();
+  triggerFileUpload(onFileSelected: (file: File) => void): void {
+    this.fileInput.onchange = () => {
+      if (this.fileInput.files && this.fileInput.files[0]) {
+        onFileSelected(this.fileInput.files[0]);
+      }
+    };
+    this.fileInput.click();
   }
 
-  showLoading() {
+  showLoading(): void {
     this.resetView();
+    this.container.style.display = 'block';
     this.loadingText.style.display = 'block';
     this.showContainer();
   }
 
-  showImage(src: string) {
+  showImage(src: string): void {
     this.resetView();
+    this.container.style.display = 'block';
     this.imageElement.src = src;
     this.imageElement.style.display = 'block';
-    this.closeButton.style.display = 'block';
+    this.actionBar.style.display = 'flex';
     this.showContainer();
+    
+    // Add tap to close instruction for mobile
+    const tapHint = document.createElement('div');
+    tapHint.textContent = 'Swipe down to close';
+    Object.assign(tapHint.style, {
+      position: 'absolute',
+      top: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      color: 'rgba(255, 255, 255, 0.7)',
+      fontSize: '14px',
+      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontWeight: '500',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backdropFilter: 'blur(10px)',
+      padding: '8px 16px',
+      borderRadius: '20px',
+      zIndex: '25',
+      animation: 'fadeInScale 0.4s ease-out',
+    });
+    this.container.appendChild(tapHint);
+    
+    // Fade out hint after 3 seconds
+    setTimeout(() => {
+      tapHint.style.opacity = '0';
+      tapHint.style.transition = 'opacity 0.5s';
+      setTimeout(() => {
+        if (tapHint.parentElement) {
+          this.container.removeChild(tapHint);
+        }
+      }, 500);
+    }, 3000);
   }
 
-  hide() {
+  hide(): void {
     this.stopCamera();
     window.removeEventListener('keydown', this.onKeyDown);
+    
+    // Animate bottom sheet down if visible
+    if (this.bottomSheet.style.display === 'block') {
+      this.bottomSheet.style.transform = 'translateY(100%)';
+    }
+    
     this.container.style.opacity = '0';
     this.container.style.pointerEvents = 'none';
+    
     setTimeout(() => {
       this.container.style.display = 'none';
       this.resetView();
@@ -265,32 +657,34 @@ export class ImageOverlay {
       if (this.onCloseCallback) {
         this.onCloseCallback();
       }
-    }, 300);
+    }, 400);
   }
 
-  private stopCamera() {
-      if (this.stream) {
-          this.stream.getTracks().forEach(track => track.stop());
-          this.stream = null;
-      }
-      this.videoElement.srcObject = null;
+  private stopCamera(): void {
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+    this.videoElement.srcObject = null;
   }
 
-  private resetView() {
-      this.loadingText.style.display = 'none';
-      this.imageElement.style.display = 'none';
-      this.optionsContainer.style.display = 'none';
-      this.cameraContainer.style.display = 'none';
-      this.closeButton.style.display = 'none';
+  private resetView(): void {
+    this.loadingText.style.display = 'none';
+    this.imageElement.style.display = 'none';
+    this.bottomSheet.style.display = 'none';
+    this.bottomSheet.style.transform = 'translateY(100%)';
+    this.cameraContainer.style.display = 'none';
+    this.actionBar.style.display = 'none';
   }
 
-  private showContainer() {
-      this.container.style.display = 'flex';
-      this.container.style.pointerEvents = 'auto';
-      window.addEventListener('keydown', this.onKeyDown);
-      // Small delay to allow display:flex to apply before opacity transition
-      requestAnimationFrame(() => {
-          this.container.style.opacity = '1';
-      });
+  private showContainer(): void {
+    this.container.style.display = 'block';
+    this.container.style.pointerEvents = 'auto';
+    window.addEventListener('keydown', this.onKeyDown);
+    
+    // Small delay to allow display to apply before opacity transition
+    requestAnimationFrame(() => {
+      this.container.style.opacity = '1';
+    });
   }
 }
