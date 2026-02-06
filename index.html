@@ -33,12 +33,6 @@
   </head>
   <body>
     <div id="app">
-      <!-- Loading Screen -->
-      <div id="loading">
-        <div class="spinner"></div>
-        <div>Loading Experience...</div>
-      </div>
-
       <!-- Orientation Warning (mobile portrait) -->
       <div id="orientation-warning">
         <div class="message">
@@ -47,18 +41,8 @@
         </div>
       </div>
 
-      <!-- Crosshair -->
-      <div id="crosshair"></div>
-
-      <!-- HUD -->
-      <div id="hud">
-        <div class="hud-item">FPS: <span id="fps">60</span></div>
-        <div class="hud-item">Mode: <span id="mode">Mouse</span></div>
-        <div class="hud-item">Renderer: <span id="renderer">WebGL</span></div>
-      </div>
-
       <!-- Pause Menu -->
-      <div id="pause-menu" class="hidden" aria-hidden="true">
+      <div id="pause-menu" aria-hidden="false">
         <div
           class="pause-panel"
           role="dialog"
@@ -330,6 +314,22 @@
             </section>
           </div>
         </div>
+      </div>
+
+      <!-- Loading Screen -->
+      <div id="loading">
+        <div class="spinner"></div>
+        <div>Loading Experience...</div>
+      </div>
+
+      <!-- Crosshair -->
+      <div id="crosshair"></div>
+
+      <!-- HUD -->
+      <div id="hud">
+        <div class="hud-item">FPS: <span id="fps">60</span></div>
+        <div class="hud-item">Mode: <span id="mode">Mouse</span></div>
+        <div class="hud-item">Renderer: <span id="renderer">WebGL</span></div>
       </div>
 
       <!-- Mobile Controls -->

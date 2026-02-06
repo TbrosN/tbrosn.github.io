@@ -31,7 +31,7 @@ export class ImageOverlay {
   private touchEndY: number = 0;
 
   constructor() {
-    // Main container - fullscreen overlay
+    // Main container - fullscreen overlay with premium backdrop
     this.container = document.createElement("div");
     this.container.id = "caricature-overlay";
     Object.assign(this.container.style, {
@@ -40,34 +40,37 @@ export class ImageOverlay {
       left: "0",
       width: "100vw",
       height: "100vh",
-      backgroundColor: "#000000",
+      background: "linear-gradient(135deg, #000000 0%, #1a1a1a 100%)",
       display: "none",
       zIndex: "1000",
       opacity: "0",
-      transition: "opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       pointerEvents: "none",
       overflow: "hidden",
     });
 
-    // Loading spinner with modern design
+    // Loading spinner with sleek Apple-inspired design
     this.loadingText = document.createElement("div");
     this.loadingText.innerHTML = `
       <div style="text-align: center;">
         <div style="
-          width: 60px;
-          height: 60px;
-          border: 4px solid rgba(255, 255, 255, 0.1);
-          border-top-color: #fff;
+          width: 56px;
+          height: 56px;
+          border: 3px solid rgba(255, 255, 255, 0.08);
+          border-top-color: rgba(255, 255, 255, 0.95);
+          border-right-color: rgba(255, 255, 255, 0.7);
           border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 20px;
+          animation: spin 0.8s cubic-bezier(0.4, 0.15, 0.6, 0.85) infinite;
+          margin: 0 auto 24px;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         "></div>
         <p style="
-          color: rgba(255, 255, 255, 0.9);
-          font-size: 18px;
-          font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-          font-weight: 600;
+          color: rgba(255, 255, 255, 0.95);
+          font-size: 17px;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+          font-weight: 500;
           margin: 0;
+          letter-spacing: -0.3px;
         ">Creating your caricature...</p>
       </div>
     `;
@@ -80,7 +83,7 @@ export class ImageOverlay {
       zIndex: "10",
     });
 
-    // Add keyframe animation for spinner
+    // Add keyframe animations with Apple-style easing
     if (!document.getElementById("overlay-animations")) {
       const style = document.createElement("style");
       style.id = "overlay-animations";
@@ -89,49 +92,68 @@ export class ImageOverlay {
           to { transform: rotate(360deg); }
         }
         @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+          from { 
+            transform: translateY(100%); 
+            opacity: 0;
+          }
+          to { 
+            transform: translateY(0); 
+            opacity: 1;
+          }
         }
         @keyframes fadeInScale {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
+          from { 
+            opacity: 0; 
+            transform: scale(0.92); 
+          }
+          to { 
+            opacity: 1; 
+            transform: scale(1); 
+          }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
         }
       `;
       document.head.appendChild(style);
     }
 
-    // Image container with centered display
+    // Image container with centered display and premium styling
     this.imageElement = document.createElement("img");
     Object.assign(this.imageElement.style, {
       position: "absolute",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      maxWidth: "90vw",
-      maxHeight: "90vh",
+      maxWidth: "92vw",
+      maxHeight: "85vh",
       objectFit: "contain",
-      borderRadius: "0",
+      borderRadius: "12px",
       display: "none",
       userSelect: "none",
-      animation: "fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+      animation: "fadeInScale 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3)",
     });
 
-    // Bottom sheet for options (TikTok-style)
+    // Bottom sheet with premium glassmorphism (iOS-style)
     this.bottomSheet = document.createElement("div");
     Object.assign(this.bottomSheet.style, {
       position: "absolute",
       bottom: "0",
       left: "0",
       width: "100%",
-      backgroundColor: "rgba(30, 30, 30, 0.95)",
-      backdropFilter: "blur(20px)",
-      borderRadius: "24px 24px 0 0",
-      padding: "24px 20px 40px",
+      background: "linear-gradient(to bottom, rgba(28, 28, 30, 0.94), rgba(20, 20, 22, 0.97))",
+      backdropFilter: "saturate(180%) blur(40px)",
+      WebkitBackdropFilter: "saturate(180%) blur(40px)",
+      borderRadius: "28px 28px 0 0",
+      padding: "20px 20px 40px",
       display: "none",
       transform: "translateY(100%)",
-      transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       zIndex: "20",
-      boxShadow: "0 -4px 20px rgba(0, 0, 0, 0.5)",
+      boxShadow: "0 -8px 32px rgba(0, 0, 0, 0.6), 0 -2px 8px rgba(0, 0, 0, 0.4)",
+      borderTop: "0.5px solid rgba(255, 255, 255, 0.08)",
     });
 
     this.bottomSheetContent = document.createElement("div");
@@ -160,31 +182,43 @@ export class ImageOverlay {
       objectFit: "cover",
     });
 
-    // Capture button (floating at bottom)
+    // Capture button with TikTok-inspired ring design
     this.captureButton = document.createElement("button");
-    this.captureButton.innerHTML = "📸";
+    this.captureButton.innerHTML = `
+      <div style="
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+      ">📸</div>
+    `;
     Object.assign(this.captureButton.style, {
       position: "absolute",
       bottom: "40px",
       left: "50%",
       transform: "translateX(-50%)",
-      width: "70px",
-      height: "70px",
+      width: "76px",
+      height: "76px",
       borderRadius: "50%",
-      border: "4px solid white",
-      backgroundColor: "rgba(255, 255, 255, 0.3)",
-      backdropFilter: "blur(10px)",
-      fontSize: "32px",
+      border: "5px solid rgba(255, 255, 255, 0.95)",
+      backgroundColor: "transparent",
+      padding: "0",
       cursor: "pointer",
-      transition: "all 0.2s",
+      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       zIndex: "30",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+      boxShadow: "0 6px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2)",
     });
     this.captureButton.addEventListener("mousedown", () => {
-      this.captureButton.style.transform = "translateX(-50%) scale(0.9)";
+      this.captureButton.style.transform = "translateX(-50%) scale(0.88)";
+      this.captureButton.style.opacity = "0.85";
     });
     this.captureButton.addEventListener("mouseup", () => {
       this.captureButton.style.transform = "translateX(-50%) scale(1)";
+      this.captureButton.style.opacity = "1";
     });
 
     // Preview image (shown after capture for review)
@@ -196,7 +230,7 @@ export class ImageOverlay {
       display: "none",
     });
 
-    // Review bar (Retake / Confirm buttons)
+    // Review bar with refined gradient (iOS-style)
     this.reviewBar = document.createElement("div");
     Object.assign(this.reviewBar.style, {
       position: "absolute",
@@ -204,11 +238,11 @@ export class ImageOverlay {
       left: "0",
       width: "100%",
       display: "none",
-      padding: "20px 24px 40px",
-      gap: "12px",
+      padding: "24px 24px 44px",
+      gap: "14px",
       justifyContent: "center",
       background:
-        "linear-gradient(transparent, rgba(0, 0, 0, 0.7) 40%)",
+        "linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 30%, rgba(0, 0, 0, 0.8) 100%)",
       zIndex: "30",
     });
 
@@ -227,11 +261,11 @@ export class ImageOverlay {
     this.actionBar = document.createElement("div");
     Object.assign(this.actionBar.style, {
       position: "absolute",
-      right: "16px",
-      bottom: "100px",
+      right: "20px",
+      bottom: "120px",
       display: "none",
       flexDirection: "column",
-      gap: "16px",
+      gap: "18px",
       zIndex: "30",
     });
 
@@ -279,44 +313,49 @@ export class ImageOverlay {
 
   private createActionButton(emoji: string, label: string): HTMLButtonElement {
     const container = document.createElement("button");
-    container.title = label; // Add accessibility label
+    container.title = label;
     container.setAttribute("aria-label", label);
     Object.assign(container.style, {
-      width: "56px",
-      height: "56px",
+      width: "60px",
+      height: "60px",
       borderRadius: "50%",
-      border: "none",
-      backgroundColor: "rgba(255, 255, 255, 0.2)",
-      backdropFilter: "blur(10px)",
+      border: "0.5px solid rgba(255, 255, 255, 0.15)",
+      background: "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12))",
+      backdropFilter: "saturate(180%) blur(20px)",
+      WebkitBackdropFilter: "saturate(180%) blur(20px)",
       cursor: "pointer",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "24px",
-      transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.3)",
+      fontSize: "26px",
+      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
       position: "relative",
     });
 
     container.innerHTML = emoji;
 
-    // Hover effect
+    // Hover effect with refined transitions
     container.addEventListener("mouseenter", () => {
-      container.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
-      container.style.transform = "scale(1.1)";
+      container.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.18))";
+      container.style.transform = "scale(1.08) translateY(-2px)";
+      container.style.boxShadow = "0 6px 20px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
     });
     container.addEventListener("mouseleave", () => {
-      container.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
+      container.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12))";
       container.style.transform = "scale(1)";
+      container.style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
     });
 
-    // Touch feedback
+    // Touch feedback with spring-like animation
     container.addEventListener("touchstart", () => {
-      container.style.transform = "scale(0.95)";
+      container.style.transform = "scale(0.92)";
+      container.style.transition = "all 0.15s cubic-bezier(0.4, 0, 0.6, 1)";
     });
     container.addEventListener("touchend", () => {
       container.style.transform = "scale(1)";
+      container.style.transition = "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
     });
 
     return container;
@@ -328,34 +367,46 @@ export class ImageOverlay {
     color: string,
   ): HTMLButtonElement {
     const btn = document.createElement("button");
+    
+    // Create gradient versions of the colors for more premium look
+    const gradientMap: { [key: string]: string } = {
+      "#3b82f6": "linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)",
+      "#8b5cf6": "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%)",
+    };
+    
+    const gradient = gradientMap[color] || `linear-gradient(135deg, ${color}, ${color})`;
+    
     Object.assign(btn.style, {
       width: "100%",
-      padding: "18px 24px",
+      padding: "19px 24px",
       fontSize: "17px",
-      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "600",
-      borderRadius: "16px",
-      border: "none",
-      backgroundColor: color,
+      letterSpacing: "-0.2px",
+      borderRadius: "14px",
+      border: "0.5px solid rgba(255, 255, 255, 0.1)",
+      background: gradient,
       color: "white",
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      gap: "12px",
-      transition: "all 0.2s",
-      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+      gap: "10px",
+      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      boxShadow: "0 4px 14px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
     });
 
-    btn.innerHTML = `<span style="font-size: 24px;">${emoji}</span><span>${text}</span>`;
+    btn.innerHTML = `<span style="font-size: 22px;">${emoji}</span><span>${text}</span>`;
 
     btn.addEventListener("mouseenter", () => {
-      btn.style.transform = "translateY(-2px)";
-      btn.style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.3)";
+      btn.style.transform = "translateY(-3px) scale(1.01)";
+      btn.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
+      btn.style.filter = "brightness(1.1)";
     });
     btn.addEventListener("mouseleave", () => {
-      btn.style.transform = "translateY(0)";
-      btn.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.2)";
+      btn.style.transform = "translateY(0) scale(1)";
+      btn.style.boxShadow = "0 4px 14px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
+      btn.style.filter = "brightness(1)";
     });
 
     return btn;
@@ -469,37 +520,39 @@ export class ImageOverlay {
     // Clear previous content
     this.bottomSheetContent.innerHTML = "";
 
-    // Handle bar (drag indicator)
+    // Handle bar (iOS-style drag indicator)
     const handleBar = document.createElement("div");
     Object.assign(handleBar.style, {
-      width: "40px",
-      height: "4px",
-      backgroundColor: "rgba(255, 255, 255, 0.3)",
-      borderRadius: "2px",
-      margin: "0 auto 24px",
+      width: "36px",
+      height: "5px",
+      backgroundColor: "rgba(255, 255, 255, 0.25)",
+      borderRadius: "2.5px",
+      margin: "8px auto 28px",
+      boxShadow: "inset 0 0.5px 1px rgba(0, 0, 0, 0.2)",
     });
     this.bottomSheetContent.appendChild(handleBar);
 
-    // Title
+    // Title with refined iOS typography
     const title = document.createElement("h2");
     title.textContent = "Create Your Caricature";
     Object.assign(title.style, {
-      color: "white",
-      fontSize: "24px",
-      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      color: "rgba(255, 255, 255, 0.98)",
+      fontSize: "22px",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "700",
+      letterSpacing: "-0.4px",
       marginBottom: "24px",
       textAlign: "center",
-      margin: "0 0 24px 0",
+      margin: "0 0 26px 0",
     });
     this.bottomSheetContent.appendChild(title);
 
-    // Options container
+    // Options container with refined spacing
     const optionsGrid = document.createElement("div");
     Object.assign(optionsGrid.style, {
       display: "flex",
       flexDirection: "column",
-      gap: "12px",
+      gap: "14px",
     });
 
     // Camera button
@@ -515,21 +568,31 @@ export class ImageOverlay {
 
     this.bottomSheetContent.appendChild(optionsGrid);
 
-    // Cancel button (subtle)
+    // Cancel button (iOS-style subtle button)
     const btnCancel = document.createElement("button");
     btnCancel.textContent = "Cancel";
     Object.assign(btnCancel.style, {
       width: "100%",
-      marginTop: "12px",
-      padding: "14px",
-      fontSize: "16px",
-      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      marginTop: "14px",
+      padding: "15px",
+      fontSize: "17px",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "500",
-      borderRadius: "12px",
+      letterSpacing: "-0.2px",
+      borderRadius: "14px",
       border: "none",
-      backgroundColor: "transparent",
-      color: "rgba(255, 255, 255, 0.6)",
+      backgroundColor: "rgba(255, 255, 255, 0.06)",
+      color: "rgba(255, 255, 255, 0.7)",
       cursor: "pointer",
+      transition: "all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    });
+    btnCancel.addEventListener("mouseenter", () => {
+      btnCancel.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+      btnCancel.style.color = "rgba(255, 255, 255, 0.85)";
+    });
+    btnCancel.addEventListener("mouseleave", () => {
+      btnCancel.style.backgroundColor = "rgba(255, 255, 255, 0.06)";
+      btnCancel.style.color = "rgba(255, 255, 255, 0.7)";
     });
     btnCancel.onclick = () => this.hide();
     this.bottomSheetContent.appendChild(btnCancel);
@@ -612,58 +675,70 @@ export class ImageOverlay {
     btnRetake.innerHTML = `<span style="font-size: 20px;">↺</span><span>Retake</span>`;
     Object.assign(btnRetake.style, {
       flex: "1",
-      maxWidth: "160px",
-      padding: "14px 24px",
+      maxWidth: "165px",
+      padding: "15px 26px",
       fontSize: "17px",
-      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "600",
-      borderRadius: "16px",
-      border: "2px solid rgba(255, 255, 255, 0.4)",
-      backgroundColor: "rgba(255, 255, 255, 0.15)",
-      backdropFilter: "blur(10px)",
+      letterSpacing: "-0.2px",
+      borderRadius: "14px",
+      border: "0.5px solid rgba(255, 255, 255, 0.2)",
+      background: "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1))",
+      backdropFilter: "saturate(180%) blur(20px)",
+      WebkitBackdropFilter: "saturate(180%) blur(20px)",
       color: "white",
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       gap: "8px",
-      transition: "all 0.2s",
+      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      boxShadow: "0 4px 14px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
     });
 
     const btnConfirm = document.createElement("button");
     btnConfirm.innerHTML = `<span style="font-size: 20px;">✓</span><span>Confirm</span>`;
     Object.assign(btnConfirm.style, {
       flex: "1",
-      maxWidth: "160px",
-      padding: "14px 24px",
+      maxWidth: "165px",
+      padding: "15px 26px",
       fontSize: "17px",
-      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "600",
-      borderRadius: "16px",
-      border: "none",
-      backgroundColor: "#22c55e",
+      letterSpacing: "-0.2px",
+      borderRadius: "14px",
+      border: "0.5px solid rgba(255, 255, 255, 0.15)",
+      background: "linear-gradient(135deg, #34d399 0%, #22c55e 50%, #16a34a 100%)",
       color: "white",
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       gap: "8px",
-      transition: "all 0.2s",
-      boxShadow: "0 2px 10px rgba(34, 197, 94, 0.4)",
+      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      boxShadow: "0 4px 14px rgba(34, 197, 94, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
     });
 
-    // Hover effects
+    // Hover effects with refined transitions
     btnRetake.addEventListener("mouseenter", () => {
-      btnRetake.style.backgroundColor = "rgba(255, 255, 255, 0.25)";
+      btnRetake.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15))";
+      btnRetake.style.transform = "translateY(-2px) scale(1.02)";
+      btnRetake.style.boxShadow = "0 6px 18px rgba(0, 0, 0, 0.35), 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
     });
     btnRetake.addEventListener("mouseleave", () => {
-      btnRetake.style.backgroundColor = "rgba(255, 255, 255, 0.15)";
+      btnRetake.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1))";
+      btnRetake.style.transform = "translateY(0) scale(1)";
+      btnRetake.style.boxShadow = "0 4px 14px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
     });
     btnConfirm.addEventListener("mouseenter", () => {
-      btnConfirm.style.backgroundColor = "#16a34a";
+      btnConfirm.style.filter = "brightness(1.1)";
+      btnConfirm.style.transform = "translateY(-2px) scale(1.02)";
+      btnConfirm.style.boxShadow = "0 6px 20px rgba(34, 197, 94, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25)";
     });
     btnConfirm.addEventListener("mouseleave", () => {
-      btnConfirm.style.backgroundColor = "#22c55e";
+      btnConfirm.style.filter = "brightness(1)";
+      btnConfirm.style.transform = "translateY(0) scale(1)";
+      btnConfirm.style.boxShadow = "0 4px 14px rgba(34, 197, 94, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)";
     });
 
     // Retake — go back to live camera
@@ -696,25 +771,37 @@ export class ImageOverlay {
       position: "fixed",
       top: "50%",
       left: "50%",
-      transform: "translate(-50%, -50%)",
-      backgroundColor: "rgba(239, 68, 68, 0.95)",
+      transform: "translate(-50%, -50%) scale(0.92)",
+      background: "linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(220, 38, 38, 0.98))",
+      backdropFilter: "saturate(180%) blur(20px)",
+      WebkitBackdropFilter: "saturate(180%) blur(20px)",
       color: "white",
-      padding: "16px 24px",
-      borderRadius: "12px",
-      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      padding: "18px 28px",
+      borderRadius: "16px",
+      border: "0.5px solid rgba(255, 255, 255, 0.15)",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontSize: "16px",
       fontWeight: "500",
+      letterSpacing: "-0.2px",
       zIndex: "2000",
       maxWidth: "80vw",
       textAlign: "center",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+      opacity: "0",
+      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     });
     errorDiv.textContent = message;
     document.body.appendChild(errorDiv);
 
+    // Animate in
+    requestAnimationFrame(() => {
+      errorDiv.style.opacity = "1";
+      errorDiv.style.transform = "translate(-50%, -50%) scale(1)";
+    });
+
     setTimeout(() => {
       errorDiv.style.opacity = "0";
-      errorDiv.style.transition = "opacity 0.3s";
+      errorDiv.style.transform = "translate(-50%, -50%) scale(0.92)";
       setTimeout(() => document.body.removeChild(errorDiv), 300);
     }, 3000);
   }
@@ -743,24 +830,28 @@ export class ImageOverlay {
     this.actionBar.style.display = "flex";
     this.showContainer();
 
-    // Add tap to close instruction for mobile
+    // Add tap to close instruction with refined iOS styling
     const tapHint = document.createElement("div");
     tapHint.textContent = "Swipe down to close";
     Object.assign(tapHint.style, {
       position: "absolute",
-      top: "20px",
+      top: "24px",
       left: "50%",
       transform: "translateX(-50%)",
-      color: "rgba(255, 255, 255, 0.7)",
+      color: "rgba(255, 255, 255, 0.9)",
       fontSize: "14px",
-      fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "500",
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      backdropFilter: "blur(10px)",
-      padding: "8px 16px",
-      borderRadius: "20px",
+      letterSpacing: "-0.1px",
+      background: "linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5))",
+      backdropFilter: "saturate(180%) blur(20px)",
+      WebkitBackdropFilter: "saturate(180%) blur(20px)",
+      padding: "10px 18px",
+      borderRadius: "22px",
+      border: "0.5px solid rgba(255, 255, 255, 0.1)",
       zIndex: "25",
-      animation: "fadeInScale 0.4s ease-out",
+      animation: "fadeInScale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2)",
     });
     this.container.appendChild(tapHint);
 
