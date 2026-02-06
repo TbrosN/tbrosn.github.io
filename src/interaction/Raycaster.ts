@@ -1,5 +1,6 @@
-import * as THREE from 'three';
-import type { Camera } from '../core/Camera';
+import * as THREE from "three";
+import type { Camera } from "../core/Camera";
+import { INTERACTION_RANGE } from "../constants";
 
 /**
  * Raycasting system for object interaction
@@ -13,7 +14,7 @@ export class Raycaster {
   constructor(camera: Camera) {
     this.camera = camera;
     this.raycaster = new THREE.Raycaster();
-    this.raycaster.far = 5; // Interaction range
+    this.raycaster.far = INTERACTION_RANGE; // Interaction range
   }
 
   registerInteractable(object: THREE.Object3D): void {
@@ -33,11 +34,14 @@ export class Raycaster {
     // Raycast from center of screen
     const direction = new THREE.Vector3(0, 0, -1);
     direction.applyQuaternion(this.camera.camera.quaternion);
-    
+
     this.raycaster.set(this.camera.camera.position, direction);
-    
-    const intersects = this.raycaster.intersectObjects(this.interactables, true);
-    
+
+    const intersects = this.raycaster.intersectObjects(
+      this.interactables,
+      true,
+    );
+
     // Clear previous hover
     if (this.currentHoveredObject) {
       this.clearHover(this.currentHoveredObject);
@@ -54,18 +58,24 @@ export class Raycaster {
     return null;
   }
 
-  raycastFromScreenPoint(clientX: number, clientY: number): THREE.Object3D | null {
+  raycastFromScreenPoint(
+    clientX: number,
+    clientY: number,
+  ): THREE.Object3D | null {
     const ndc = new THREE.Vector2(
       (clientX / window.innerWidth) * 2 - 1,
-      -(clientY / window.innerHeight) * 2 + 1
+      -(clientY / window.innerHeight) * 2 + 1,
     );
     this.raycaster.setFromCamera(ndc, this.camera.camera);
-    const intersects = this.raycaster.intersectObjects(this.interactables, true);
+    const intersects = this.raycaster.intersectObjects(
+      this.interactables,
+      true,
+    );
     return this.getRootInteractable(intersects);
   }
 
   private getRootInteractable(
-    intersects: THREE.Intersection[]
+    intersects: THREE.Intersection[],
   ): THREE.Object3D | null {
     if (intersects.length === 0) return null;
 
@@ -82,13 +92,20 @@ export class Raycaster {
       if (child instanceof THREE.Mesh) {
         // Store original emissive for later restoration
         if (!child.userData.originalEmissive) {
-          child.userData.originalEmissive = (child.material as THREE.MeshStandardMaterial).emissive?.clone();
-          child.userData.originalEmissiveIntensity = (child.material as THREE.MeshStandardMaterial).emissiveIntensity;
+          child.userData.originalEmissive = (
+            child.material as THREE.MeshStandardMaterial
+          ).emissive?.clone();
+          child.userData.originalEmissiveIntensity = (
+            child.material as THREE.MeshStandardMaterial
+          ).emissiveIntensity;
         }
-        
+
         if ((child.material as THREE.MeshStandardMaterial).emissive) {
-          (child.material as THREE.MeshStandardMaterial).emissive.setHex(0x00d4ff);
-          (child.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.3;
+          (child.material as THREE.MeshStandardMaterial).emissive.setHex(
+            0x00d4ff,
+          );
+          (child.material as THREE.MeshStandardMaterial).emissiveIntensity =
+            0.3;
         }
       }
     });
@@ -97,8 +114,11 @@ export class Raycaster {
   private clearHover(object: THREE.Object3D): void {
     object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.userData.originalEmissive) {
-        (child.material as THREE.MeshStandardMaterial).emissive.copy(child.userData.originalEmissive);
-        (child.material as THREE.MeshStandardMaterial).emissiveIntensity = child.userData.originalEmissiveIntensity || 0;
+        (child.material as THREE.MeshStandardMaterial).emissive.copy(
+          child.userData.originalEmissive,
+        );
+        (child.material as THREE.MeshStandardMaterial).emissiveIntensity =
+          child.userData.originalEmissiveIntensity || 0;
       }
     });
   }

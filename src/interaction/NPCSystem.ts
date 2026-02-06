@@ -86,6 +86,57 @@ export class NPCSystem {
     }
   }
 
+  /**
+   * Create an NPC from an existing model (e.g., from a Blender scene)
+   */
+  createNPCFromModel(
+    id: string,
+    model: THREE.Object3D,
+    dialogue: string[],
+    name: string,
+    link?: string
+  ): NPC {
+    // Get the model's current world position
+    const position = new THREE.Vector3();
+    model.getWorldPosition(position);
+
+    // Enable shadows and clone materials so hover effects don't bleed between NPCs
+    // (GLB exports often share material instances across meshes)
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        
+        // Clone the material so each NPC has its own instance
+        if (child.material) {
+          child.material = child.material.clone();
+          child.userData.originalEmissive = child.material.emissive?.clone();
+          child.userData.originalEmissiveIntensity = child.material.emissiveIntensity;
+        }
+      }
+    });
+
+    // Add idle animation
+    this.addIdleAnimation(model);
+
+    const npc: NPC = {
+      model,
+      position,
+      dialogue: {
+        messages: dialogue,
+        currentIndex: 0,
+        lastShownIndex: -1,
+      },
+      name,
+      link,
+    };
+
+    this.npcs.set(id, npc);
+    console.log(`👤 NPC "${name}" created from existing model at`, position);
+
+    return npc;
+  }
+
   private addIdleAnimation(model: THREE.Object3D): void {
     // No idle animation - NPC stays still
   }

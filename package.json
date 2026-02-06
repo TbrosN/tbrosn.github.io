@@ -12,6 +12,7 @@
     "@mediapipe/camera_utils": "^0.3.1646424915",
     "@mediapipe/hands": "^0.4.1646424915",
     "gsap": "^3.12.5",
+    "lil-gui": "^0.21.0",
     "three": "^0.170.0"
   },
   "devDependencies": {
