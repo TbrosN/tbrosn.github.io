@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 /**
  * Main scene setup with lighting and environment
@@ -10,9 +10,8 @@ export class Scene {
 
   constructor() {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x87CEEB); // Bright sky blue
-    this.scene.fog = new THREE.Fog(0x87CEEB, 20, 100);
-
+    this.scene.background = new THREE.Color(0x87ceeb); // Bright sky blue
+    this.scene.fog = new THREE.Fog(0x87ceeb, 500, 1000);
     this.setupLighting();
   }
 
@@ -25,7 +24,7 @@ export class Scene {
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
     this.directionalLight.position.set(5, 10, 5);
     this.directionalLight.castShadow = true;
-    
+
     // Shadow settings
     this.directionalLight.shadow.camera.left = -20;
     this.directionalLight.shadow.camera.right = 20;

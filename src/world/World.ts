@@ -54,10 +54,6 @@ export class World {
         console.log(`  └─ Name: "${node.name}" | Type: ${node.type}`);
       });
 
-      // Scale down the model to match player size (adjust this value as needed)
-      const scaleFactor = 0.2; // Makes the scene 10x smaller
-      this.carnivalModel.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
       // Enable shadows on all meshes in the loaded model
       this.carnivalModel.traverse((child) => {
         if (child instanceof THREE.Mesh) {
@@ -67,9 +63,6 @@ export class World {
       });
 
       this.scene.add(this.carnivalModel);
-      console.log(
-        `🎡 Carnival scene loaded successfully (scaled to ${scaleFactor}x)`,
-      );
 
       // Create physics ground (you can adjust the Y position based on your model)
       this.physics.createGround(0);
@@ -134,14 +127,14 @@ export class World {
       // We need to be careful to only register the actual NPC objects, not parent groups
       const npcObjects: Map<string, THREE.Object3D> = new Map();
       const allNPCNames = new Set<string>();
-      
+
       // First pass: find all objects starting with "NPC"
       this.carnivalModel.traverse((child) => {
         if (child.name.startsWith("NPC")) {
           allNPCNames.add(child.name);
         }
       });
-      
+
       // Second pass: only register NPCs that are configured (not parent groups)
       this.carnivalModel.traverse((child) => {
         if (child.name.startsWith("NPC") && npcConfig[child.name]) {
@@ -165,8 +158,11 @@ export class World {
           });
         }
       });
-      
-      console.log(`🔍 All objects starting with "NPC":`, Array.from(allNPCNames));
+
+      console.log(
+        `🔍 All objects starting with "NPC":`,
+        Array.from(allNPCNames),
+      );
 
       // Register each found NPC with the NPC system
       for (const [npcName, npcObject] of npcObjects) {
