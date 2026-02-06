@@ -277,27 +277,6 @@ export class World {
       }
 
       console.log(`🎪 Total NPCs registered: ${npcObjects.size}`);
-
-      // Load the third NPC - Caricature Artist
-      const npcPosition3 = new THREE.Vector3(0, 1, 4);
-
-      const npc3 = await this.npcSystem.loadNPC(
-        "caricature-artist",
-        "/npc.glb",
-        npcPosition3,
-        [
-          "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of Puter.js AI!",
-          "Just let me know if you want one! Press SPACE to choose how you'd like to pose!",
-        ],
-        "Artist",
-        npcScale,
-      );
-
-      // Don't set onInteract - let the normal dialogue flow happen
-      // The spacebar handler in main.ts will handle starting the caricature process
-
-      this.scene.add(npc3.model);
-      this.raycaster.registerInteractable(npc3.model);
     } catch (error) {
       console.error("❌ Failed to load NPCs:", error);
     }
