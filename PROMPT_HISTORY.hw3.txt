@@ -1,0 +1,25 @@
+This is the prompt history for the Caricature Artist feature, implemented for 15-113 HW3.
+Below are some of the key prompts that were used to implement the feature.
+
+ I want to add an npc that is a caricature artist. Let's use puter.js and use a reasonably modern image gen model for this.
+
+@src/interaction/CaricatureArtist.ts This caricature UI is not usable because of how our pause menu works@src/ui/ImageOverlay.ts @src/ui/UI.ts . In particular, we grab pointer lock for our game, and the pause menu shows whenever pointer lock is lost (user can press esc to drop pointer lock in chrome e.g.). We need to refactor this somehow so that the user can actually use the UI. Please help make a high level plan for this
+
+@src/ui/ImageOverlay.ts @src/main.ts @src/interaction/NPCSystem.ts our caricature generation process should be non-blocking. When the generation starts, the npc should tell us that he's started drawing, and when he finishes, he should tell us via dialogue that it's ready. Then we can interact with him from there. Let's make this more of a realistic interaction and better UX.
+
+hold on, our npc dialogue sequence doesnt make sense. he says some stuff, but on interact it immediately pulls up the overlaid image select UI. Let's please fix this so the user has to press space after the dialog to open up that UI, rather than being forced into it
+
+our new npc async gen doesnt seem to work; when I interact with him and then open the UI and upload an image, the npc doesn't say any kind of confirmation/wait message. And when I talk to him again, rather than saying hes still working on it, he just pretends we've never met.
+
+@src/interaction/CaricatureArtist.ts @src/main.ts:257-262 as you can see, we have a caricature artist in our 3d game. They generate using puter with a reference image, see this example from the docs and double check we're doing it right:
+` puter.ai.txt2img("Turn this image into a watercolor painting", {
+            model: "gemini-2.5-flash-image-preview",
+            input_image: "iVBORw0K...",
+            input_image_mime_type: "image/png"
+        }).then((image)=>{
+            document.body.appendChild(image);
+        });`
+
+The problem is, we need the npc to be able to immediately say a dialog without requiring a user interaction. This is necessary to notify the user of important changes like when he starts painting and says it will take a minute, or when it's finished, the user needs to know that. Please make a high level plan to refactor our dialogue to allow for this
+
+@src/ui/ImageOverlay.ts let's revamp the style and UX for the caricature selection and display. We should do something modern and familiar, similar to the tiktok UI for sharing, viewing, etc.
