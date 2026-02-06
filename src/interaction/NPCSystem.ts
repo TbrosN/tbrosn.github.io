@@ -100,14 +100,16 @@ export class NPCSystem {
     const position = new THREE.Vector3();
     model.getWorldPosition(position);
 
-    // Enable shadows and store material properties
+    // Enable shadows and clone materials so hover effects don't bleed between NPCs
+    // (GLB exports often share material instances across meshes)
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
         
-        // Store original material properties for hover effects
+        // Clone the material so each NPC has its own instance
         if (child.material) {
+          child.material = child.material.clone();
           child.userData.originalEmissive = child.material.emissive?.clone();
           child.userData.originalEmissiveIntensity = child.material.emissiveIntensity;
         }

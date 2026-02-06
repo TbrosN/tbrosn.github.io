@@ -131,9 +131,20 @@ export class World {
       };
 
       // Find all NPCs in the carnival model (they start with "NPC")
+      // We need to be careful to only register the actual NPC objects, not parent groups
       const npcObjects: Map<string, THREE.Object3D> = new Map();
+      const allNPCNames = new Set<string>();
+      
+      // First pass: find all objects starting with "NPC"
       this.carnivalModel.traverse((child) => {
         if (child.name.startsWith("NPC")) {
+          allNPCNames.add(child.name);
+        }
+      });
+      
+      // Second pass: only register NPCs that are configured (not parent groups)
+      this.carnivalModel.traverse((child) => {
+        if (child.name.startsWith("NPC") && npcConfig[child.name]) {
           npcObjects.set(child.name, child);
 
           // Debug: Check if this object or its children have meshes
@@ -149,9 +160,13 @@ export class World {
             meshCount,
             position: child.position,
             hasChildren: child.children.length > 0,
+            parent: child.parent?.name,
+            parentType: child.parent?.type,
           });
         }
       });
+      
+      console.log(`🔍 All objects starting with "NPC":`, Array.from(allNPCNames));
 
       // Register each found NPC with the NPC system
       for (const [npcName, npcObject] of npcObjects) {
