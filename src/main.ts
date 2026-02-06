@@ -467,12 +467,10 @@ class App {
   private exitCaricatureMode(): void {
     this.setAppState(AppState.PLAYING);
 
-    // Re-request pointer lock for desktop users
+    // Re-request pointer lock for desktop users immediately
+    // (must happen within user activation window — no setTimeout)
     if (this.controlMode === "desktop" && this.isRunning) {
-      // Small delay to avoid immediate re-lock issues
-      setTimeout(() => {
-        this.desktopControls.requestPointerLock();
-      }, 100);
+      this.desktopControls.requestPointerLock();
     }
   }
 

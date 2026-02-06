@@ -21,18 +21,18 @@ export class CaricatureArtist {
   constructor() {
     this.overlay = new ImageOverlay();
 
-    // When overlay closes, exit viewing mode
+    // When overlay closes, handle state transitions and reacquire pointer lock
     this.overlay.setOnCloseCallback(() => {
       if (this.state === CaricatureState.VIEWING) {
         this.state = CaricatureState.READY; // Image still available to view again
+      } else if (this.state === CaricatureState.WAITING_FOR_INPUT) {
+        this.state = CaricatureState.IDLE; // User cancelled, allow re-opening
       }
 
-      // Only trigger UI closed callback if we're not about to start generating
-      // (because beginGeneration will handle the state transition)
-      if (this.state !== CaricatureState.GENERATING) {
-        if (this.onUIClosed) {
-          this.onUIClosed();
-        }
+      // Always notify UI closed so pointer lock is reacquired —
+      // even during generation (user walks around while it processes)
+      if (this.onUIClosed) {
+        this.onUIClosed();
       }
     });
   }
