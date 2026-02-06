@@ -13,7 +13,7 @@ export class Raycaster {
   constructor(camera: Camera) {
     this.camera = camera;
     this.raycaster = new THREE.Raycaster();
-    this.raycaster.far = 5; // Interaction range
+    this.raycaster.far = 10; // Interaction range - increased for easier NPC interaction
   }
 
   registerInteractable(object: THREE.Object3D): void {
