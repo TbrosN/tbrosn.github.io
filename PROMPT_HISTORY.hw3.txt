@@ -23,3 +23,13 @@ our new npc async gen doesnt seem to work; when I interact with him and then ope
 The problem is, we need the npc to be able to immediately say a dialog without requiring a user interaction. This is necessary to notify the user of important changes like when he starts painting and says it will take a minute, or when it's finished, the user needs to know that. Please make a high level plan to refactor our dialogue to allow for this
 
 @src/ui/ImageOverlay.ts let's revamp the style and UX for the caricature selection and display. We should do something modern and familiar, similar to the tiktok UI for sharing, viewing, etc.
+
+
+CaricatureArtist.ts
+
+ImageOverlay.ts
+ Let's refactor this UX flow a bit: when user presses space after the caricature artist dialogue, rather than opening an input selection screen, it goes straight to the camera screen. If permissions are denied, we gracefully handle that by exiting the screen and the caricature artist can say a friendly message like "sorry, can't do it without camera permissions". Most importantly, there is NO LONGER an option to upload an image; this means we can ENTIRELY REMOVE the existing input selection screen. We then only have the photo capture, retake/confirm, and finally the share screen. Also, anywhere that we are using emojis for our buttons, let's instead use actual icons following best practices.
+
+ @src/ui/ImageOverlay.ts:284-289  @src/ui/ImageOverlay.ts:430-463 as you can see, our share button does some weird conversion to blob and im pretty sure it doesnt even work. Instead, let's make this share feature follow standard best practices and function like the tiktok or instagram share button. That is, it should provide the user with some common/reasonable sharing options. Please make a simple high level plan so I know you understand what I mean
+
+eh nevermind, this is much too complex. Let's remove the share button completely, and we will just keep the download button okay?
