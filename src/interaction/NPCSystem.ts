@@ -190,20 +190,7 @@ export class NPCSystem {
   }
 
   private playInteractionAnimation(model: THREE.Object3D): void {
-    // Quick rotation when interacted with
-    const originalRotation = model.rotation.y;
-    gsap.to(model.rotation, {
-      y: originalRotation + Math.PI * 0.25,
-      duration: 0.3,
-      ease: "back.out(2)",
-      onComplete: () => {
-        gsap.to(model.rotation, {
-          y: originalRotation,
-          duration: 0.3,
-          ease: "back.out(2)",
-        });
-      },
-    });
+    return;
   }
 
   onDialogue(callback: (npc: NPC, message: string) => void): void {
