@@ -32,7 +32,6 @@ export class SpeechBubble {
     this.bubble.style.cssText = `
       background: #FFF8E1;
       border: 4px solid #8B0000;
-      border-radius: 12px;
       padding: 24px 32px;
       max-width: 500px;
       min-width: 320px;
@@ -68,40 +67,9 @@ export class SpeechBubble {
       font-weight: 500;
     `;
 
-    // Create tail (pointer)
-    const tail = document.createElement('div');
-    tail.style.cssText = `
-      position: absolute;
-      bottom: -16px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 16px solid transparent;
-      border-right: 16px solid transparent;
-      border-top: 16px solid #8B0000;
-    `;
-
-    // Create tail inner (for the filled part)
-    const tailInner = document.createElement('div');
-    tailInner.style.cssText = `
-      position: absolute;
-      bottom: 2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-top: 10px solid #FFF8E1;
-      z-index: 2;
-    `;
-
     // Assemble the bubble
     this.bubble.appendChild(this.nameLabel);
     this.bubble.appendChild(this.messageText);
-    this.bubble.appendChild(tail);
-    tail.appendChild(tailInner);
     this.container.appendChild(this.bubble);
 
     // Add to DOM
