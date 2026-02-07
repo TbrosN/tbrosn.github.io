@@ -210,7 +210,7 @@ export class World {
           id: "caricature-artist",
           displayName: "Artist",
           dialogue: [
-            "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of Puter.js AI!",
+            "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of AI!",
             "Just let me know if you want one! Press SPACE to choose how you'd like to pose!",
           ],
         },

@@ -21,7 +21,6 @@ export class ImageOverlay {
 
   // Action buttons (TikTok-style)
   private downloadBtn: HTMLButtonElement;
-  private shareBtn: HTMLButtonElement;
   private closeBtn: HTMLButtonElement;
 
   private onKeyDown: (e: KeyboardEvent) => void;
@@ -183,6 +182,7 @@ export class ImageOverlay {
       width: "100%",
       height: "100%",
       objectFit: "cover",
+      transform: "scaleX(-1)",
     });
 
     // Capture button with TikTok-inspired ring design
@@ -281,13 +281,6 @@ export class ImageOverlay {
     );
     this.downloadBtn.addEventListener("click", () => this.downloadImage());
 
-    // Share button
-    this.shareBtn = this.createActionButton(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
-      "Share",
-    );
-    this.shareBtn.addEventListener("click", () => this.shareImage());
-
     // Close button
     this.closeBtn = this.createActionButton(
       `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
@@ -296,7 +289,6 @@ export class ImageOverlay {
     this.closeBtn.addEventListener("click", () => this.hide());
 
     this.actionBar.appendChild(this.downloadBtn);
-    this.actionBar.appendChild(this.shareBtn);
     this.actionBar.appendChild(this.closeBtn);
 
     // Append everything to container
@@ -425,59 +417,6 @@ export class ImageOverlay {
     setTimeout(() => {
       this.downloadBtn.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
     }, 300);
-  }
-
-  private async shareImage(): Promise<void> {
-    if (!this.imageElement.src) return;
-
-    // Check if Web Share API is available
-    if (navigator.share) {
-      try {
-        // Convert image to blob
-        const response = await fetch(this.imageElement.src);
-        const blob = await response.blob();
-        const file = new File([blob], `caricature-${Date.now()}.png`, {
-          type: "image/png",
-        });
-
-        await navigator.share({
-          title: "My Caricature",
-          text: "Check out my caricature!",
-          files: [file],
-        });
-
-        // Visual feedback
-        this.shareBtn.style.backgroundColor = "rgba(52, 152, 219, 0.4)";
-        setTimeout(() => {
-          this.shareBtn.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-        }, 300);
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          console.log("Share failed:", err);
-          this.fallbackShare();
-        }
-      }
-    } else {
-      this.fallbackShare();
-    }
-  }
-
-  private fallbackShare(): void {
-    // Fallback: copy image URL to clipboard
-    if (navigator.clipboard && this.imageElement.src) {
-      navigator.clipboard
-        .writeText(this.imageElement.src)
-        .then(() => {
-          alert("Image link copied to clipboard!");
-        })
-        .catch(() => {
-          alert("Unable to share. You can save the image instead.");
-        });
-    } else {
-      alert(
-        "Sharing not supported on this device. You can save the image instead.",
-      );
-    }
   }
 
   // Public Methods
