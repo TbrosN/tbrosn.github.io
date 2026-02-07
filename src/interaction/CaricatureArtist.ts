@@ -17,6 +17,7 @@ export class CaricatureArtist {
   private onGenerationCompleted?: () => void;
   private onUIOpened?: () => void;
   private onUIClosed?: () => void;
+  private onPermissionDenied?: () => void;
 
   constructor() {
     this.overlay = new ImageOverlay();
@@ -42,11 +43,13 @@ export class CaricatureArtist {
     onGenerationCompleted: () => void,
     onUIOpened: () => void,
     onUIClosed: () => void,
+    onPermissionDenied: () => void,
   ): void {
     this.onGenerationStarted = onGenerationStarted;
     this.onGenerationCompleted = onGenerationCompleted;
     this.onUIOpened = onUIOpened;
     this.onUIClosed = onUIClosed;
+    this.onPermissionDenied = onPermissionDenied;
   }
 
   getState(): CaricatureState {
@@ -81,11 +84,8 @@ export class CaricatureArtist {
       this.onUIOpened();
     }
 
-    this.overlay.showOptions(
-      () => this.startCameraFlow(),
-      () => this.startUploadFlow(),
-      () => this.beginGeneration(null),
-    );
+    // Go straight to camera flow
+    this.startCameraFlow();
   }
 
   // Show the generated caricature
@@ -104,31 +104,25 @@ export class CaricatureArtist {
   }
 
   private startCameraFlow() {
-    this.overlay.showCamera((blob) => {
-      this.blobToBase64(blob)
-        .then((base64) => this.downscaleImage(base64))
-        .then((resizedBase64) => {
-          this.beginGeneration(resizedBase64);
-        })
-        .catch((err) => {
-          console.error("❌ Failed to process camera image:", err);
-          alert("Failed to process the photo. Please try again.");
-        });
-    });
-  }
-
-  private startUploadFlow() {
-    this.overlay.triggerFileUpload((file) => {
-      this.blobToBase64(file)
-        .then((base64) => this.downscaleImage(base64))
-        .then((resizedBase64) => {
-          this.beginGeneration(resizedBase64);
-        })
-        .catch((err) => {
-          console.error("❌ Failed to process uploaded image:", err);
-          alert("Failed to process the photo. Please try again.");
-        });
-    });
+    this.overlay.showCamera(
+      (blob) => {
+        this.blobToBase64(blob)
+          .then((base64) => this.downscaleImage(base64))
+          .then((resizedBase64) => {
+            this.beginGeneration(resizedBase64);
+          })
+          .catch((err) => {
+            console.error("❌ Failed to process camera image:", err);
+            alert("Failed to process the photo. Please try again.");
+          });
+      },
+      // Handle permission denied / error
+      () => {
+        if (this.onPermissionDenied) {
+          this.onPermissionDenied();
+        }
+      },
+    );
   }
 
   private blobToBase64(blob: Blob): Promise<string> {

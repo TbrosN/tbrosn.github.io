@@ -92,23 +92,23 @@ export class ImageOverlay {
           to { transform: rotate(360deg); }
         }
         @keyframes slideUp {
-          from { 
-            transform: translateY(100%); 
+          from {
+            transform: translateY(100%);
             opacity: 0;
           }
-          to { 
-            transform: translateY(0); 
+          to {
+            transform: translateY(0);
             opacity: 1;
           }
         }
         @keyframes fadeInScale {
-          from { 
-            opacity: 0; 
-            transform: scale(0.92); 
+          from {
+            opacity: 0;
+            transform: scale(0.92);
           }
-          to { 
-            opacity: 1; 
-            transform: scale(1); 
+          to {
+            opacity: 1;
+            transform: scale(1);
           }
         }
         @keyframes pulse {
@@ -133,7 +133,8 @@ export class ImageOverlay {
       display: "none",
       userSelect: "none",
       animation: "fadeInScale 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3)",
+      boxShadow:
+        "0 20px 60px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3)",
     });
 
     // Bottom sheet with premium glassmorphism (iOS-style)
@@ -143,7 +144,8 @@ export class ImageOverlay {
       bottom: "0",
       left: "0",
       width: "100%",
-      background: "linear-gradient(to bottom, rgba(28, 28, 30, 0.94), rgba(20, 20, 22, 0.97))",
+      background:
+        "linear-gradient(to bottom, rgba(28, 28, 30, 0.94), rgba(20, 20, 22, 0.97))",
       backdropFilter: "saturate(180%) blur(40px)",
       WebkitBackdropFilter: "saturate(180%) blur(40px)",
       borderRadius: "28px 28px 0 0",
@@ -152,7 +154,8 @@ export class ImageOverlay {
       transform: "translateY(100%)",
       transition: "transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       zIndex: "20",
-      boxShadow: "0 -8px 32px rgba(0, 0, 0, 0.6), 0 -2px 8px rgba(0, 0, 0, 0.4)",
+      boxShadow:
+        "0 -8px 32px rgba(0, 0, 0, 0.6), 0 -2px 8px rgba(0, 0, 0, 0.4)",
       borderTop: "0.5px solid rgba(255, 255, 255, 0.08)",
     });
 
@@ -193,8 +196,10 @@ export class ImageOverlay {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
-      ">📸</div>
+        color: black;
+      ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
     `;
     Object.assign(this.captureButton.style, {
       position: "absolute",
@@ -270,15 +275,24 @@ export class ImageOverlay {
     });
 
     // Download button
-    this.downloadBtn = this.createActionButton("⬇️", "Download");
+    this.downloadBtn = this.createActionButton(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+      "Download",
+    );
     this.downloadBtn.addEventListener("click", () => this.downloadImage());
 
     // Share button
-    this.shareBtn = this.createActionButton("🔗", "Share");
+    this.shareBtn = this.createActionButton(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,
+      "Share",
+    );
     this.shareBtn.addEventListener("click", () => this.shareImage());
 
     // Close button
-    this.closeBtn = this.createActionButton("✕", "Close");
+    this.closeBtn = this.createActionButton(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+      "Close",
+    );
     this.closeBtn.addEventListener("click", () => this.hide());
 
     this.actionBar.appendChild(this.downloadBtn);
@@ -311,7 +325,10 @@ export class ImageOverlay {
     };
   }
 
-  private createActionButton(emoji: string, label: string): HTMLButtonElement {
+  private createActionButton(
+    iconSvg: string,
+    label: string,
+  ): HTMLButtonElement {
     const container = document.createElement("button");
     container.title = label;
     container.setAttribute("aria-label", label);
@@ -320,7 +337,8 @@ export class ImageOverlay {
       height: "60px",
       borderRadius: "50%",
       border: "0.5px solid rgba(255, 255, 255, 0.15)",
-      background: "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12))",
+      background:
+        "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12))",
       backdropFilter: "saturate(180%) blur(20px)",
       WebkitBackdropFilter: "saturate(180%) blur(20px)",
       cursor: "pointer",
@@ -328,24 +346,29 @@ export class ImageOverlay {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "26px",
+      color: "white", // ensure icon inherits color
       transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+      boxShadow:
+        "0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
       position: "relative",
     });
 
-    container.innerHTML = emoji;
+    container.innerHTML = iconSvg;
 
     // Hover effect with refined transitions
     container.addEventListener("mouseenter", () => {
-      container.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.18))";
+      container.style.background =
+        "linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.18))";
       container.style.transform = "scale(1.08) translateY(-2px)";
-      container.style.boxShadow = "0 6px 20px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
+      container.style.boxShadow =
+        "0 6px 20px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
     });
     container.addEventListener("mouseleave", () => {
-      container.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12))";
+      container.style.background =
+        "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12))";
       container.style.transform = "scale(1)";
-      container.style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
+      container.style.boxShadow =
+        "0 4px 16px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
     });
 
     // Touch feedback with spring-like animation
@@ -355,62 +378,14 @@ export class ImageOverlay {
     });
     container.addEventListener("touchend", () => {
       container.style.transform = "scale(1)";
-      container.style.transition = "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      container.style.transition =
+        "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
     });
 
     return container;
   }
 
-  private createOptionButton(
-    emoji: string,
-    text: string,
-    color: string,
-  ): HTMLButtonElement {
-    const btn = document.createElement("button");
-    
-    // Create gradient versions of the colors for more premium look
-    const gradientMap: { [key: string]: string } = {
-      "#3b82f6": "linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)",
-      "#8b5cf6": "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%)",
-    };
-    
-    const gradient = gradientMap[color] || `linear-gradient(135deg, ${color}, ${color})`;
-    
-    Object.assign(btn.style, {
-      width: "100%",
-      padding: "19px 24px",
-      fontSize: "17px",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-      fontWeight: "600",
-      letterSpacing: "-0.2px",
-      borderRadius: "14px",
-      border: "0.5px solid rgba(255, 255, 255, 0.1)",
-      background: gradient,
-      color: "white",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "10px",
-      transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      boxShadow: "0 4px 14px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
-    });
-
-    btn.innerHTML = `<span style="font-size: 22px;">${emoji}</span><span>${text}</span>`;
-
-    btn.addEventListener("mouseenter", () => {
-      btn.style.transform = "translateY(-3px) scale(1.01)";
-      btn.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
-      btn.style.filter = "brightness(1.1)";
-    });
-    btn.addEventListener("mouseleave", () => {
-      btn.style.transform = "translateY(0) scale(1)";
-      btn.style.boxShadow = "0 4px 14px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
-      btn.style.filter = "brightness(1)";
-    });
-
-    return btn;
-  }
+  /* Removed createOptionButton as we no longer have an options menu */
 
   private setupSwipeGestures(): void {
     this.container.addEventListener("touchstart", (e) => {
@@ -511,104 +486,16 @@ export class ImageOverlay {
     this.onCloseCallback = callback;
   }
 
-  showOptions(onCamera: () => void, onUpload: () => void): void {
-    this.resetView();
-    this.container.style.display = "block";
-    this.container.style.pointerEvents = "auto";
-    this.bottomSheet.style.display = "block";
+  // showOptions removed as we go straight to camera
 
-    // Clear previous content
-    this.bottomSheetContent.innerHTML = "";
-
-    // Handle bar (iOS-style drag indicator)
-    const handleBar = document.createElement("div");
-    Object.assign(handleBar.style, {
-      width: "36px",
-      height: "5px",
-      backgroundColor: "rgba(255, 255, 255, 0.25)",
-      borderRadius: "2.5px",
-      margin: "8px auto 28px",
-      boxShadow: "inset 0 0.5px 1px rgba(0, 0, 0, 0.2)",
-    });
-    this.bottomSheetContent.appendChild(handleBar);
-
-    // Title with refined iOS typography
-    const title = document.createElement("h2");
-    title.textContent = "Create Your Caricature";
-    Object.assign(title.style, {
-      color: "rgba(255, 255, 255, 0.98)",
-      fontSize: "22px",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-      fontWeight: "700",
-      letterSpacing: "-0.4px",
-      marginBottom: "24px",
-      textAlign: "center",
-      margin: "0 0 26px 0",
-    });
-    this.bottomSheetContent.appendChild(title);
-
-    // Options container with refined spacing
-    const optionsGrid = document.createElement("div");
-    Object.assign(optionsGrid.style, {
-      display: "flex",
-      flexDirection: "column",
-      gap: "14px",
-    });
-
-    // Camera button
-    const btnCamera = this.createOptionButton("📸", "Take a Photo", "#3b82f6");
-    btnCamera.onclick = onCamera;
-
-    // Upload button
-    const btnUpload = this.createOptionButton("🖼️", "Upload Photo", "#8b5cf6");
-    btnUpload.onclick = onUpload;
-
-    optionsGrid.appendChild(btnCamera);
-    optionsGrid.appendChild(btnUpload);
-
-    this.bottomSheetContent.appendChild(optionsGrid);
-
-    // Cancel button (iOS-style subtle button)
-    const btnCancel = document.createElement("button");
-    btnCancel.textContent = "Cancel";
-    Object.assign(btnCancel.style, {
-      width: "100%",
-      marginTop: "14px",
-      padding: "15px",
-      fontSize: "17px",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-      fontWeight: "500",
-      letterSpacing: "-0.2px",
-      borderRadius: "14px",
-      border: "none",
-      backgroundColor: "rgba(255, 255, 255, 0.06)",
-      color: "rgba(255, 255, 255, 0.7)",
-      cursor: "pointer",
-      transition: "all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-    });
-    btnCancel.addEventListener("mouseenter", () => {
-      btnCancel.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-      btnCancel.style.color = "rgba(255, 255, 255, 0.85)";
-    });
-    btnCancel.addEventListener("mouseleave", () => {
-      btnCancel.style.backgroundColor = "rgba(255, 255, 255, 0.06)";
-      btnCancel.style.color = "rgba(255, 255, 255, 0.7)";
-    });
-    btnCancel.onclick = () => this.hide();
-    this.bottomSheetContent.appendChild(btnCancel);
-
-    this.showContainer();
-
-    // Animate bottom sheet up
-    requestAnimationFrame(() => {
-      this.bottomSheet.style.transform = "translateY(0)";
-    });
-  }
-
-  async showCamera(onCapture: (blob: Blob) => void): Promise<void> {
+  async showCamera(
+    onCapture: (blob: Blob) => void,
+    onError?: () => void,
+  ): Promise<void> {
     this.resetView();
     this.container.style.display = "block";
     this.cameraContainer.style.display = "flex";
+    this.container.style.pointerEvents = "auto"; // Re-enable pointer events
 
     try {
       // Request camera with optimal settings
@@ -622,9 +509,15 @@ export class ImageOverlay {
       this.videoElement.srcObject = this.stream;
     } catch (err) {
       console.error("Camera access denied:", err);
-      this.showErrorMessage(
-        "Camera access denied. Please check your permissions.",
-      );
+      // If we have an error callback, use it (to trigger NPC dialogue)
+      if (onError) {
+        onError();
+      } else {
+        // Fallback to internal error message if no callback
+        this.showErrorMessage(
+          "Camera access denied. Please check your permissions.",
+        );
+      }
       this.hide();
       return;
     }
@@ -647,7 +540,10 @@ export class ImageOverlay {
         (blob) => {
           if (blob) {
             this.capturedBlob = blob;
-            this.showCameraPreview(canvas.toDataURL("image/jpeg", 0.95), onCapture);
+            this.showCameraPreview(
+              canvas.toDataURL("image/jpeg", 0.95),
+              onCapture,
+            );
           }
         },
         "image/jpeg",
@@ -672,18 +568,23 @@ export class ImageOverlay {
     this.reviewBar.innerHTML = "";
 
     const btnRetake = document.createElement("button");
-    btnRetake.innerHTML = `<span style="font-size: 20px;">↺</span><span>Retake</span>`;
+    btnRetake.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <span>Retake</span>
+    `;
     Object.assign(btnRetake.style, {
       flex: "1",
       maxWidth: "165px",
       padding: "15px 26px",
       fontSize: "17px",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+      fontFamily:
+        "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "600",
       letterSpacing: "-0.2px",
       borderRadius: "14px",
       border: "0.5px solid rgba(255, 255, 255, 0.2)",
-      background: "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1))",
+      background:
+        "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1))",
       backdropFilter: "saturate(180%) blur(20px)",
       WebkitBackdropFilter: "saturate(180%) blur(20px)",
       color: "white",
@@ -693,22 +594,28 @@ export class ImageOverlay {
       justifyContent: "center",
       gap: "8px",
       transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      boxShadow: "0 4px 14px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+      boxShadow:
+        "0 4px 14px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
     });
 
     const btnConfirm = document.createElement("button");
-    btnConfirm.innerHTML = `<span style="font-size: 20px;">✓</span><span>Confirm</span>`;
+    btnConfirm.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>Confirm</span>
+    `;
     Object.assign(btnConfirm.style, {
       flex: "1",
       maxWidth: "165px",
       padding: "15px 26px",
       fontSize: "17px",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+      fontFamily:
+        "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontWeight: "600",
       letterSpacing: "-0.2px",
       borderRadius: "14px",
       border: "0.5px solid rgba(255, 255, 255, 0.15)",
-      background: "linear-gradient(135deg, #34d399 0%, #22c55e 50%, #16a34a 100%)",
+      background:
+        "linear-gradient(135deg, #34d399 0%, #22c55e 50%, #16a34a 100%)",
       color: "white",
       cursor: "pointer",
       display: "flex",
@@ -716,29 +623,36 @@ export class ImageOverlay {
       justifyContent: "center",
       gap: "8px",
       transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      boxShadow: "0 4px 14px rgba(34, 197, 94, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
+      boxShadow:
+        "0 4px 14px rgba(34, 197, 94, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
     });
 
     // Hover effects with refined transitions
     btnRetake.addEventListener("mouseenter", () => {
-      btnRetake.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15))";
+      btnRetake.style.background =
+        "linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15))";
       btnRetake.style.transform = "translateY(-2px) scale(1.02)";
-      btnRetake.style.boxShadow = "0 6px 18px rgba(0, 0, 0, 0.35), 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
+      btnRetake.style.boxShadow =
+        "0 6px 18px rgba(0, 0, 0, 0.35), 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)";
     });
     btnRetake.addEventListener("mouseleave", () => {
-      btnRetake.style.background = "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1))";
+      btnRetake.style.background =
+        "linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1))";
       btnRetake.style.transform = "translateY(0) scale(1)";
-      btnRetake.style.boxShadow = "0 4px 14px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
+      btnRetake.style.boxShadow =
+        "0 4px 14px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)";
     });
     btnConfirm.addEventListener("mouseenter", () => {
       btnConfirm.style.filter = "brightness(1.1)";
       btnConfirm.style.transform = "translateY(-2px) scale(1.02)";
-      btnConfirm.style.boxShadow = "0 6px 20px rgba(34, 197, 94, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25)";
+      btnConfirm.style.boxShadow =
+        "0 6px 20px rgba(34, 197, 94, 0.5), 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25)";
     });
     btnConfirm.addEventListener("mouseleave", () => {
       btnConfirm.style.filter = "brightness(1)";
       btnConfirm.style.transform = "translateY(0) scale(1)";
-      btnConfirm.style.boxShadow = "0 4px 14px rgba(34, 197, 94, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)";
+      btnConfirm.style.boxShadow =
+        "0 4px 14px rgba(34, 197, 94, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)";
     });
 
     // Retake — go back to live camera
@@ -772,21 +686,24 @@ export class ImageOverlay {
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%) scale(0.92)",
-      background: "linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(220, 38, 38, 0.98))",
+      background:
+        "linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(220, 38, 38, 0.98))",
       backdropFilter: "saturate(180%) blur(20px)",
       WebkitBackdropFilter: "saturate(180%) blur(20px)",
       color: "white",
       padding: "18px 28px",
       borderRadius: "16px",
       border: "0.5px solid rgba(255, 255, 255, 0.15)",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
+      fontFamily:
+        "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
       fontSize: "16px",
       fontWeight: "500",
       letterSpacing: "-0.2px",
       zIndex: "2000",
       maxWidth: "80vw",
       textAlign: "center",
-      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+      boxShadow:
+        "0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
       opacity: "0",
       transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     });
@@ -829,42 +746,6 @@ export class ImageOverlay {
     this.imageElement.style.display = "block";
     this.actionBar.style.display = "flex";
     this.showContainer();
-
-    // Add tap to close instruction with refined iOS styling
-    const tapHint = document.createElement("div");
-    tapHint.textContent = "Swipe down to close";
-    Object.assign(tapHint.style, {
-      position: "absolute",
-      top: "24px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      color: "rgba(255, 255, 255, 0.9)",
-      fontSize: "14px",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif",
-      fontWeight: "500",
-      letterSpacing: "-0.1px",
-      background: "linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5))",
-      backdropFilter: "saturate(180%) blur(20px)",
-      WebkitBackdropFilter: "saturate(180%) blur(20px)",
-      padding: "10px 18px",
-      borderRadius: "22px",
-      border: "0.5px solid rgba(255, 255, 255, 0.1)",
-      zIndex: "25",
-      animation: "fadeInScale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2)",
-    });
-    this.container.appendChild(tapHint);
-
-    // Fade out hint after 3 seconds
-    setTimeout(() => {
-      tapHint.style.opacity = "0";
-      tapHint.style.transition = "opacity 0.5s";
-      setTimeout(() => {
-        if (tapHint.parentElement) {
-          this.container.removeChild(tapHint);
-        }
-      }, 500);
-    }, 3000);
   }
 
   hide(): void {

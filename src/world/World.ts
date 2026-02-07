@@ -102,6 +102,20 @@ export class World {
       onUIOpen,
       // On UI closed (for pointer lock management)
       onUIClose,
+      // On permission denied
+      () => {
+        const npc = this.npcSystem.getNPC("caricature-artist");
+        if (npc) {
+          const message =
+            "Sorry, I can't draw you without seeing you! (Camera permission denied)";
+          this.npcSystem.speak(npc, message);
+
+          // Notify main.ts so it can track this NPC as the last interacted
+          if (onNPCSpeak) {
+            onNPCSpeak(npc);
+          }
+        }
+      },
     );
   }
 
