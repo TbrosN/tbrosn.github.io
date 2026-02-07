@@ -192,8 +192,17 @@ class App {
           this.controlMode === "desktop" &&
           !this.desktopControls.getPointerLocked()
         ) {
+          // Try pointer lock first — the user gesture gives the best chance.
+          // If it succeeds, the pointerlockchange callback hides the menu.
           await this.desktopControls.requestPointerLock();
-          this.setAppState(AppState.PLAYING);
+
+          // If pointer lock failed (e.g. browser cooldown after ESC), dismiss
+          // the menu and show a "click to play" prompt. Keep appState as PAUSED
+          // so the pointerlockchange callback won't re-show the menu.
+          if (!this.desktopControls.getPointerLocked()) {
+            this.ui.hidePauseMenu();
+            this.ui.showClickToPlay();
+          }
         } else if (this.controlMode === "touch") {
           this.touchControls.setActive(true);
           this.ui.hidePauseMenu();
@@ -215,13 +224,16 @@ class App {
         if (this.desktopControls.getPointerLocked()) {
           this.setControlMode("desktop");
           this.ui.hidePauseMenu();
+          this.ui.hideClickToPlay();
           this.setAppState(AppState.PLAYING);
         } else {
-          // Only show pause menu if we're not in a special UI mode (like caricature)
+          // Only show pause menu when transitioning from active play
+          // (user pressed ESC or lost focus). Don't re-show after a
+          // failed resume attempt where the menu was already dismissed.
           if (
             this.isRunning &&
             this.controlMode === "desktop" &&
-            this.appState !== AppState.CARICATURE_UI
+            this.appState === AppState.PLAYING
           ) {
             this.ui.showPauseMenu();
             this.setAppState(AppState.PAUSED);
