@@ -167,8 +167,6 @@ export class ImageOverlay {
         align-items: center;
         justify-content: center;
         color: #5D4037;
-        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-        border: 2px solid #8D6E63;
       ">
         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       </div>
@@ -181,21 +179,16 @@ export class ImageOverlay {
       width: "84px",
       height: "84px",
       borderRadius: "50%",
-      border: "6px solid #FFD700",
-      backgroundColor: "#B71C1C", // Dark red ring
       padding: "4px",
       cursor: "pointer",
       transition: "all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       zIndex: "30",
-      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5), 0 4px 0px #8B0000",
     });
     this.captureButton.addEventListener("mousedown", () => {
       this.captureButton.style.transform = "translateX(-50%) scale(0.95) translateY(4px)";
-      this.captureButton.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.5), 0 0px 0px #8B0000";
     });
     this.captureButton.addEventListener("mouseup", () => {
       this.captureButton.style.transform = "translateX(-50%) scale(1) translateY(0)";
-      this.captureButton.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.5), 0 4px 0px #8B0000";
     });
 
     // Preview image
@@ -302,7 +295,7 @@ export class ImageOverlay {
       width: "64px",
       height: "64px",
       borderRadius: "50%",
-      border: "3px solid #5D4037",
+      border: "none",
       background: "#FFF8E1",
       cursor: "pointer",
       display: "flex",
@@ -310,9 +303,6 @@ export class ImageOverlay {
       alignItems: "center",
       justifyContent: "center",
       color: "#5D4037", // Wood color for icons
-      transition: "all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      boxShadow:
-        "0 4px 0px #3E2723, 0 8px 16px rgba(0,0,0,0.3)", // 3D button effect
       position: "relative",
     });
 
@@ -320,22 +310,7 @@ export class ImageOverlay {
 
     // Hover effect
     container.addEventListener("mouseenter", () => {
-      container.style.transform = "translateY(-2px)";
-      container.style.boxShadow = "0 6px 0px #3E2723, 0 10px 20px rgba(0,0,0,0.3)";
-    });
-    container.addEventListener("mouseleave", () => {
-      container.style.transform = "translateY(0)";
-      container.style.boxShadow = "0 4px 0px #3E2723, 0 8px 16px rgba(0,0,0,0.3)";
-    });
-
-    // Touch/Click feedback
-    container.addEventListener("mousedown", () => {
-      container.style.transform = "translateY(4px)";
-      container.style.boxShadow = "0 0px 0px #3E2723, 0 2px 4px rgba(0,0,0,0.3)";
-    });
-    container.addEventListener("mouseup", () => {
-      container.style.transform = "translateY(0)";
-      container.style.boxShadow = "0 4px 0px #3E2723, 0 8px 16px rgba(0,0,0,0.3)";
+      container.style.background = "#fffae9ff";
     });
 
     return container;
@@ -375,13 +350,6 @@ export class ImageOverlay {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    // Visual feedback
-    const originalBg = this.downloadBtn.style.background;
-    this.downloadBtn.style.background = "#A5D6A7"; // Light green
-    setTimeout(() => {
-      this.downloadBtn.style.background = originalBg;
-    }, 300);
   }
 
   // Public Methods

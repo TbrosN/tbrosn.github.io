@@ -186,12 +186,11 @@ export class World {
       > = {
         NPCDARC: {
           id: "darc-vendor",
-          displayName: "DARC Researcher",
+          displayName: "Music Researcher",
           dialogue: [
-            "Hey there! Welcome to the carnival! 🎪 I'm working on a music AI research project called DARC - Drum Accompaniment generation with Rhythm Control.",
-            "It's my 15-798 final project at CMU. The cool part? It lets you control BOTH musical context and fine-grained rhythm at the same time - you can condition on other stems while using rhythm prompts like beatboxing or tapping tracks!",
-            "I used parameter-efficient fine-tuning to augment STAGE, a state-of-the-art drum stem generator. Prior tools could do stem-to-stem generation OR timbre transfer, but DARC bridges that gap with precise rhythm control AND musical context awareness.",
-            "It's published on arXiv! Want to read the paper? Press SPACE BAR to open it! 📄",
+            "Hey there, welcome to the carnival! I built a music AI research project called DARC - Drum Accompaniment generation with Rhythm Control.",
+            "It's my 15-798 final project at CMU. The cool part? It lets you input beatboxing or tapping, plus your other tracks, and it generates drums that fit the rhythm and musical context.",
+            "Want to read the paper? Press SPACE to open it!",
           ],
           linkUrl: "https://arxiv.org/abs/2601.02357",
         },
@@ -199,10 +198,9 @@ export class World {
           id: "crossy-road-dev",
           displayName: "Game Dev",
           dialogue: [
-            "What's up! 🎮 Check out my Crossy Road clone I built for 15-113 at CMU - it's a Python implementation made with AI on a 1-hour timer!",
+            "What's up! Check out my Crossy Road clone I built for 15-113 at CMU, a Python implementation made with AI on a 1-hour timer!",
             "Time crunch was REAL! I had to move fast and be strategic with my approach. I used Cursor with a mix of prompting techniques to maximize efficiency.",
-            "Started with plan-then-build for the MVP architecture, then switched to new chat + choose context + one-shot prompts for debugging and smaller features. The strategic context selection made all the difference!",
-            "Got procedural terrain, collision detection, and score tracking all working in under an hour. Pretty wild! Press SPACE BAR to check out the code on GitHub! 🐍",
+            "Got procedural terrain, collision detection, and score tracking all working in under an hour. Press SPACE to check out the code on GitHub!",
           ],
           linkUrl: "https://github.com/TbrosN/crossy-road",
         },
@@ -210,8 +208,8 @@ export class World {
           id: "caricature-artist",
           displayName: "Artist",
           dialogue: [
-            "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of AI!",
-            "Just let me know if you want one! Press SPACE to choose how you'd like to pose!",
+            "Hello, I'm the Caricature Artist! I can draw a funny picture of you using the power of AI!",
+            "If you would like a caricature, press SPACE to choose how you'd like to pose!",
           ],
         },
       };
