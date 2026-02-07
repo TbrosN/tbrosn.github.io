@@ -60,6 +60,31 @@ canvas {
   display: block;
 }
 
+/* Custom scrollbar for the pause menu */
+.pause-scrollable::-webkit-scrollbar {
+  width: 10px;
+}
+
+.pause-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pause-scrollable::-webkit-scrollbar-thumb {
+  background: #5D4037; /* carnival-wood */
+  border: 2px solid #FFF8E1; /* carnival-cream border for "floating" effect */
+  border-radius: 10px;
+}
+
+.pause-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #8B0000; /* carnival-red */
+}
+
+/* For Firefox */
+.pause-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #5D4037 #FFF8E1;
+}
+
 
 
 /* Orientation warning for mobile portrait */
