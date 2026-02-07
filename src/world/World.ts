@@ -212,6 +212,14 @@ export class World {
             "If you would like a caricature, press SPACE to choose how you'd like to pose!",
           ],
         },
+        NPCCarousel: {
+          id: "carousel-operator",
+          displayName: "Carousel Operator",
+          dialogue: [
+            "Welcome to the carnival! If you like what you see, press SPACE to open the code for this portfolio on GitHub.",
+          ],
+          linkUrl: "https://github.com/TbrosN/tbrosn.github.io?tab=readme-ov-file",
+        },
       };
 
       // Find all NPCs in the carnival model (they start with "NPC")
