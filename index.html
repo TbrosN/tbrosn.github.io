@@ -26,48 +26,33 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#000000" />
-    <link rel="stylesheet" href="/src/style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.puter.com/v2/"></script>
 
     <title>Trey Brosnan</title>
   </head>
-  <body>
-    <div id="app">
-      <!-- Loading Screen -->
-      <div id="loading">
-        <div class="spinner"></div>
-        <div>Loading Experience...</div>
-      </div>
-
+  <body class="m-0 p-0 font-sans overflow-hidden bg-black touch-none overscroll-none">
+    <div id="app" class="w-screen h-screen relative">
       <!-- Orientation Warning (mobile portrait) -->
-      <div id="orientation-warning">
-        <div class="message">
-          <h2>Rotate Your Phone</h2>
-          <p>For the best experience, switch to landscape mode.</p>
+      <div id="orientation-warning" class="fixed inset-0 bg-black/95 z-[1100] hidden portrait:max-[coarse]:flex items-center justify-center text-white text-center p-6">
+        <div class="max-w-[420px]">
+          <h2 class="text-[28px] mb-3 font-semibold tracking-tight">Rotate Your Phone</h2>
+          <p class="text-[15px] opacity-80 font-normal leading-relaxed">For the best experience, switch to landscape mode.</p>
         </div>
       </div>
 
-      <!-- Crosshair -->
-      <div id="crosshair"></div>
-
-      <!-- HUD -->
-      <div id="hud">
-        <div class="hud-item">FPS: <span id="fps">60</span></div>
-        <div class="hud-item">Mode: <span id="mode">Mouse</span></div>
-        <div class="hud-item">Renderer: <span id="renderer">WebGL</span></div>
-      </div>
-
       <!-- Pause Menu -->
-      <div id="pause-menu" class="hidden" aria-hidden="true">
+      <div id="pause-menu" aria-hidden="false" class="fixed inset-0 z-[1050] text-white bg-black/80 backdrop-blur-xl backdrop-saturate-[140%] transition-[opacity,backdrop-filter] duration-300 cursor-default">
         <div
-          class="pause-panel"
+          class="w-full h-full max-w-full max-h-full bg-transparent border-none rounded-none shadow-none overflow-auto flex flex-col min-h-0 cursor-default md:items-stretch md:justify-stretch"
           role="dialog"
           aria-modal="true"
           aria-label="Pause menu"
         >
-          <div class="pause-topbar">
-            <div class="pause-tabs" role="tablist" aria-label="Pause menu tabs">
+          <div class="flex items-center justify-between px-8 py-6 gap-3 md:px-4 md:py-4">
+            <div class="flex gap-2 flex-wrap" role="tablist" aria-label="Pause menu tabs">
               <button
-                class="pause-tab"
+                class="pause-tab p-3 w-12 h-12 flex items-center justify-center rounded-[10px] border-none bg-white/[0.08] text-white/50 cursor-pointer transition-all duration-150 hover:bg-white/[0.14] hover:text-white/85"
                 type="button"
                 data-tab="about"
                 role="tab"
@@ -84,10 +69,10 @@
                     d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
                   />
                 </svg>
-                <span class="sr-only">About</span>
+                <span class="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0 clip-[rect(0,0,0,0)]">About</span>
               </button>
               <button
-                class="pause-tab"
+                class="pause-tab p-3 w-12 h-12 flex items-center justify-center rounded-[10px] border-none bg-white/[0.08] text-white/50 cursor-pointer transition-all duration-150 hover:bg-white/[0.14] hover:text-white/85"
                 type="button"
                 data-tab="controls"
                 role="tab"
@@ -104,11 +89,11 @@
                     d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"
                   />
                 </svg>
-                <span class="sr-only">Controls</span>
+                <span class="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0 clip-[rect(0,0,0,0)]">Controls</span>
               </button>
             </div>
             <button
-              class="pause-close-btn"
+              class="p-3 w-12 h-12 flex items-center justify-center rounded-[10px] border-none bg-white/[0.08] text-white/50 cursor-pointer transition-all duration-150 hover:bg-white/[0.14] hover:text-white/85"
               id="pause-close-btn"
               type="button"
               title="Close"
@@ -123,51 +108,51 @@
                   d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                 />
               </svg>
-              <span class="sr-only">Close</span>
+              <span class="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0 clip-[rect(0,0,0,0)]">Close</span>
             </button>
           </div>
 
-          <div class="pause-body">
-            <section class="pause-section" data-tab-panel="about">
-              <div class="about-container">
-                <h1 class="portfolio-title">Hi, I'm Trey.</h1>
+          <div class="flex-1 flex items-center justify-center p-8 overflow-auto">
+            <section class="w-full flex items-center justify-center" data-tab-panel="about">
+              <div class="max-w-[700px] mx-auto p-0 w-full">
+                <h1 class="text-5xl font-semibold tracking-tight text-center mb-8 text-white">Hi, I'm Trey.</h1>
 
-                <div class="welcome-text">
-                  <p>
+                <div class="mb-7">
+                  <p class="text-[16px] leading-relaxed text-white drop-shadow-md mb-2 font-normal">
                     I'm a fourth-year undergraduate at
                     <strong>Carnegie Mellon University</strong> studying
                     computer science and math.
                   </p>
-                  <p>
+                  <p class="text-[16px] leading-relaxed text-white drop-shadow-md mb-2 font-normal">
                     I'm also a Software Engineer at
                     <strong>CreativeMode (YC S24)</strong>, where I'm building
                     coding agents for video games.
                   </p>
                 </div>
 
-                <div class="about-content">
-                  <p>
+                <div class="mb-8">
+                  <p class="text-[16px] leading-relaxed text-white drop-shadow-md mb-4 font-normal">
                     I'm passionate about using
-                    <strong
+                    <strong class="text-white font-medium"
                       >AI to lower barriers for creative expression.</strong
                     >
                   </p>
                 </div>
 
-                <div class="skills-section">
-                  <div class="connect-label">Skills</div>
-                  <div class="skill-tags">
-                    <span class="skill-tag">React / Next.js / TypeScript</span>
-                    <span class="skill-tag">Python</span>
-                    <span class="skill-tag">Unity</span>
-                    <span class="skill-tag">C / C++</span>
+                <div class="mb-8">
+                  <div class="text-[14px] text-gray-200 uppercase tracking-wider font-semibold drop-shadow-sm mb-3">Skills</div>
+                  <div class="flex gap-2 flex-wrap">
+                    <span class="px-3.5 py-1.5 bg-white/[0.08] border border-white/10 rounded-full text-[13px] text-white/85 font-normal transition-all duration-200 cursor-default hover:bg-white/15 hover:border-white/20 hover:text-white hover:-translate-y-px">React / Next.js / TypeScript</span>
+                    <span class="px-3.5 py-1.5 bg-white/[0.08] border border-white/10 rounded-full text-[13px] text-white/85 font-normal transition-all duration-200 cursor-default hover:bg-white/15 hover:border-white/20 hover:text-white hover:-translate-y-px">Python</span>
+                    <span class="px-3.5 py-1.5 bg-white/[0.08] border border-white/10 rounded-full text-[13px] text-white/85 font-normal transition-all duration-200 cursor-default hover:bg-white/15 hover:border-white/20 hover:text-white hover:-translate-y-px">Unity</span>
+                    <span class="px-3.5 py-1.5 bg-white/[0.08] border border-white/10 rounded-full text-[13px] text-white/85 font-normal transition-all duration-200 cursor-default hover:bg-white/15 hover:border-white/20 hover:text-white hover:-translate-y-px">C / C++</span>
                   </div>
                 </div>
 
-                <div class="connect-section">
-                  <div class="pause-links">
+                <div class="mb-8">
+                  <div class="flex gap-3 flex-wrap items-center justify-center">
                     <a
-                      class="pause-icon-btn"
+                      class="w-12 h-12 inline-flex items-center justify-center rounded-xl border-none bg-white/[0.08] text-white/70 no-underline transition-all duration-150 hover:-translate-y-px hover:bg-white/[0.14] hover:shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover:text-white"
                       href="mailto:treyb@cmu.edu"
                       target="_blank"
                       rel="noreferrer"
@@ -179,10 +164,10 @@
                         alt=""
                         aria-hidden="true"
                       />
-                      <span class="sr-only">Email</span>
+                      <span class="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0 clip-[rect(0,0,0,0)]">Email</span>
                     </a>
                     <a
-                      class="pause-icon-btn"
+                      class="w-12 h-12 inline-flex items-center justify-center rounded-xl border-none bg-white/[0.08] text-white/70 no-underline transition-all duration-150 hover:-translate-y-px hover:bg-white/[0.14] hover:shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover:text-white"
                       href="https://github.com/tbrosn"
                       target="_blank"
                       rel="noreferrer"
@@ -194,10 +179,10 @@
                         alt=""
                         aria-hidden="true"
                       />
-                      <span class="sr-only">GitHub</span>
+                      <span class="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0 clip-[rect(0,0,0,0)]">GitHub</span>
                     </a>
                     <a
-                      class="pause-icon-btn"
+                      class="w-12 h-12 inline-flex items-center justify-center rounded-xl border-none bg-white/[0.08] text-white/70 no-underline transition-all duration-150 hover:-translate-y-px hover:bg-white/[0.14] hover:shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover:text-white"
                       href="https://linkedin.com/in/trey-brosnan"
                       target="_blank"
                       rel="noreferrer"
@@ -209,10 +194,10 @@
                         alt=""
                         aria-hidden="true"
                       />
-                      <span class="sr-only">LinkedIn</span>
+                      <span class="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0 clip-[rect(0,0,0,0)]">LinkedIn</span>
                     </a>
                     <a
-                      class="pause-icon-btn"
+                      class="w-12 h-12 inline-flex items-center justify-center rounded-xl border-none bg-white/[0.08] text-white/70 no-underline transition-all duration-150 hover:-translate-y-px hover:bg-white/[0.14] hover:shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover:text-white"
                       href="https://open.spotify.com/artist/50K7zuQx7W5vF9B6o6ABY1?si=SCy7Kdu5RIaHhWJrE8RALg"
                       target="_blank"
                       rel="noreferrer"
@@ -224,7 +209,7 @@
                         alt=""
                         aria-hidden="true"
                       />
-                      <span class="sr-only">Spotify</span>
+                      <span class="absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0 clip-[rect(0,0,0,0)]">Spotify</span>
                     </a>
                   </div>
                 </div>
@@ -232,15 +217,15 @@
             </section>
 
             <section
-              class="pause-section"
+              class="w-full flex items-center justify-center"
               data-tab-panel="controls"
               style="display: none"
             >
-              <div class="controls-container">
-                <h1 class="portfolio-title">Controls</h1>
+              <div class="max-w-[700px] mx-auto p-0 w-full">
+                <h1 class="text-5xl font-semibold tracking-tight text-center mb-8 text-white">Controls</h1>
 
-                <div class="device-tabs">
-                  <button class="device-tab active" data-device="desktop">
+                <div class="flex gap-2 justify-center mb-8">
+                  <button class="device-tab flex items-center gap-2 px-4 py-2 rounded-[10px] border-none bg-white/[0.08] text-white/50 cursor-pointer text-[13px] font-medium transition-all duration-150 hover:bg-white/[0.14] hover:text-white/85" data-device="desktop">
                     <svg
                       viewBox="0 0 24 24"
                       width="18"
@@ -253,7 +238,7 @@
                     </svg>
                     <span>Desktop</span>
                   </button>
-                  <button class="device-tab" data-device="mobile">
+                  <button class="device-tab flex items-center gap-2 px-4 py-2 rounded-[10px] border-none bg-white/[0.08] text-white/50 cursor-pointer text-[13px] font-medium transition-all duration-150 hover:bg-white/[0.14] hover:text-white/85" data-device="mobile">
                     <svg
                       viewBox="0 0 24 24"
                       width="18"
@@ -268,60 +253,60 @@
                   </button>
                 </div>
 
-                <div class="controls-list" data-device-controls="desktop">
-                  <div class="control-item">
-                    <div class="key-group">
-                      <kbd class="key">W</kbd>
-                      <kbd class="key">A</kbd>
-                      <kbd class="key">S</kbd>
-                      <kbd class="key">D</kbd>
+                <div class="flex flex-col gap-5" data-device-controls="desktop">
+                  <div class="flex items-center gap-4">
+                    <div class="flex gap-1.5">
+                      <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">W</kbd>
+                      <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">A</kbd>
+                      <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">S</kbd>
+                      <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">D</kbd>
                     </div>
-                    <span class="control-desc">Move around</span>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Move around</span>
                   </div>
 
-                  <div class="control-item">
-                    <kbd class="key wide">MOUSE</kbd>
-                    <span class="control-desc">Look around (pointer lock)</span>
+                  <div class="flex items-center gap-4">
+                    <kbd class="inline-flex items-center justify-center min-w-[80px] h-[42px] px-4 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">MOUSE</kbd>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Look around (pointer lock)</span>
                   </div>
 
-                  <div class="control-item">
-                    <kbd class="key">CLICK</kbd>
-                    <span class="control-desc">Grab or release objects</span>
+                  <div class="flex items-center gap-4">
+                    <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">CLICK</kbd>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Grab or release objects</span>
                   </div>
 
-                  <div class="control-item">
-                    <kbd class="key">ESC</kbd>
-                    <span class="control-desc">Open pause menu</span>
+                  <div class="flex items-center gap-4">
+                    <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">ESC</kbd>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Open pause menu</span>
                   </div>
                 </div>
 
                 <div
-                  class="controls-list"
+                  class="flex flex-col gap-5"
                   data-device-controls="mobile"
                   style="display: none"
                 >
-                  <div class="control-item">
-                    <kbd class="key wide">LEFT STICK</kbd>
-                    <span class="control-desc">Move around</span>
+                  <div class="flex items-center gap-4">
+                    <kbd class="inline-flex items-center justify-center min-w-[80px] h-[42px] px-4 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">LEFT STICK</kbd>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Move around</span>
                   </div>
 
-                  <div class="control-item">
-                    <kbd class="key wide">RIGHT SIDE</kbd>
-                    <span class="control-desc">Look around</span>
+                  <div class="flex items-center gap-4">
+                    <kbd class="inline-flex items-center justify-center min-w-[80px] h-[42px] px-4 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">RIGHT SIDE</kbd>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Look around</span>
                   </div>
 
-                  <div class="control-item">
-                    <kbd class="key">TAP</kbd>
-                    <span class="control-desc">Interact with objects</span>
+                  <div class="flex items-center gap-4">
+                    <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">TAP</kbd>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Interact with objects</span>
                   </div>
 
-                  <div class="control-item">
-                    <kbd class="key">MENU</kbd>
-                    <span class="control-desc">Open pause menu</span>
+                  <div class="flex items-center gap-4">
+                    <kbd class="inline-flex items-center justify-center min-w-[42px] h-[42px] px-3 rounded-md border border-white/15 bg-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-white font-mono text-[13px] font-medium uppercase tracking-wide">MENU</kbd>
+                    <span class="text-[16px] text-white drop-shadow-md leading-relaxed font-normal">Open pause menu</span>
                   </div>
                 </div>
 
-                <p class="controls-hint">
+                <p class="mt-8 text-center text-[14px] text-gray-200 drop-shadow-sm leading-relaxed font-normal">
                   Hand tracking is optional. Enable it from the onboarding
                   screen.
                 </p>
@@ -331,14 +316,30 @@
         </div>
       </div>
 
+      <!-- Loading Screen -->
+      <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-black/95 text-white text-2xl z-[999]">
+        <div id="spinner" class="border-[3px] border-white/10 border-l-white/80 rounded-full w-10 h-10 animate-spin mx-auto mb-5"></div>
+        <div>Loading Experience...</div>
+      </div>
+
+      <!-- Crosshair -->
+      <div id="crosshair" class="absolute top-1/2 left-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"></div>
+
+      <!-- HUD -->
+      <div id="hud" class="absolute top-5 left-5 text-white text-sm z-[100] pointer-events-none">
+        <div class="mb-1.5 opacity-70">FPS: <span id="fps">60</span></div>
+        <div class="mb-1.5 opacity-70">Mode: <span id="mode">Mouse</span></div>
+        <div class="mb-1.5 opacity-70">Renderer: <span id="renderer">WebGL</span></div>
+      </div>
+
       <!-- Mobile Controls -->
-      <div id="mobile-controls">
-        <button class="pause-btn" id="pause-btn" type="button">Menu</button>
-        <div id="move-stick">
-          <div class="stick-base"></div>
-          <div class="stick-thumb" id="move-thumb"></div>
+      <div id="mobile-controls" class="absolute inset-0 z-[200] hidden pointer-events-none">
+        <button class="px-3 py-2.5 rounded-[10px] border-none bg-white/[0.08] text-white cursor-pointer font-medium text-[13px] transition-all duration-150 relative overflow-hidden hover:-translate-y-px hover:bg-white/[0.14] hover:shadow-[0_2px_8px_rgba(0,0,0,0.2)] absolute top-[calc(14px+env(safe-area-inset-top,0px))] right-[calc(14px+env(safe-area-inset-right,0px))] z-[300] pointer-events-auto hidden" id="pause-btn" type="button">Menu</button>
+        <div id="move-stick" class="absolute left-[calc(20px+env(safe-area-inset-left,0px))] bottom-[calc(20px+env(safe-area-inset-bottom,0px))] w-40 h-40 pointer-events-auto touch-none">
+          <div class="absolute left-1/2 top-1/2 w-[120px] h-[120px] -ml-[60px] -mt-[60px] rounded-full border-[1.5px] border-white/15 bg-white/[0.06]"></div>
+          <div class="absolute left-1/2 top-1/2 w-[60px] h-[60px] -ml-[30px] -mt-[30px] rounded-full bg-white/25 border-none translate-x-0 translate-y-0 translate-z-0 transition-transform duration-[0.05s] linear shadow-[0_2px_8px_rgba(0,0,0,0.3)]" id="move-thumb"></div>
         </div>
-        <div id="look-zone"></div>
+        <div id="look-zone" class="absolute top-0 right-0 bottom-0 w-1/2 pointer-events-auto touch-none"></div>
       </div>
     </div>
 

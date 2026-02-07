@@ -58,24 +58,7 @@ export class PerformanceMonitor {
   }
 
   logPerformanceStats(): void {
-    console.log('📊 Performance Stats:');
-    console.log('  Average FPS:', Math.round(this.getAverageFPS()));
-    console.log('  Performance Good:', this.isPerformanceGood());
-    console.log('  Renderer:', this.isWebGPU ? 'WebGPU' : 'WebGL');
-    
-    const memory = this.getMemoryUsage();
-    if (memory) {
-      console.log(`  Memory: ${memory.used}MB / ${memory.total}MB`);
-    }
-
-    if (this.renderer?.info) {
-      console.log('  Render Info:', {
-        calls: this.renderer.info.render?.calls || 0,
-        triangles: this.renderer.info.render?.triangles || 0,
-        points: this.renderer.info.render?.points || 0,
-        lines: this.renderer.info.render?.lines || 0,
-      });
-    }
+    // Performance stats logging removed - re-enable for debugging if needed
   }
 
   setRenderer(renderer: any, isWebGPU: boolean): void {

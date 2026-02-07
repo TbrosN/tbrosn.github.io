@@ -6,6 +6,7 @@ import type { Raycaster } from "../interaction/Raycaster";
 import type { GrabbableObject } from "../interaction/GrabSystem";
 import { NodeMaterialFactory } from "../materials/NodeMaterialFactory";
 import { NPCSystem, type NPC } from "../interaction/NPCSystem";
+import { CaricatureArtist } from "../interaction/CaricatureArtist";
 
 /**
  * World building - environment and interactive objects
@@ -16,6 +17,7 @@ export class World {
   private raycaster: Raycaster;
   public interactiveObjects: Map<THREE.Object3D, GrabbableObject> = new Map();
   public npcSystem: NPCSystem;
+  private caricatureArtist: CaricatureArtist;
   private built: boolean = false;
   private carnivalModel?: THREE.Group;
 
@@ -24,6 +26,97 @@ export class World {
     this.physics = physics;
     this.raycaster = raycaster;
     this.npcSystem = new NPCSystem();
+    this.caricatureArtist = new CaricatureArtist();
+  }
+
+  getCaricatureArtist(): CaricatureArtist {
+    return this.caricatureArtist;
+  }
+
+  setCaricatureCallbacks(
+    onUIOpen: () => void,
+    onUIClose: () => void,
+    onNPCSpeak?: (npc: NPC) => void,
+  ): void {
+    const caricatureNPC = this.npcSystem.getNPC("caricature-artist");
+
+    if (!caricatureNPC) {
+      console.error("❌ Caricature NPC not found! Cannot set callbacks.");
+      return;
+    }
+
+    this.caricatureArtist.setCallbacks(
+      // On generation started
+      () => {
+        const npc = this.npcSystem.getNPC("caricature-artist");
+        if (npc) {
+          const message =
+            "🎨 I'm working on your caricature now! Feel free to explore while I draw...";
+
+          // Speak immediately so the player knows generation has started
+          this.npcSystem.speak(npc, message);
+
+          // Notify main.ts so it can track this NPC as the last interacted
+          if (onNPCSpeak) {
+            onNPCSpeak(npc);
+          }
+
+          // Update dialogue for subsequent interactions
+          npc.dialogue.messages = [
+            message,
+            "✏️ Almost there... just adding some finishing touches!",
+          ];
+          npc.dialogue.currentIndex = 0;
+          npc.dialogue.lastShownIndex = -1;
+        } else {
+          console.error("❌ NPC not found when trying to update dialogue!");
+        }
+      },
+      // On generation completed
+      () => {
+        const npc = this.npcSystem.getNPC("caricature-artist");
+        if (npc) {
+          const message =
+            "🎉 Your caricature is ready! Press SPACE to view it!";
+
+          // Speak immediately so the player knows the caricature is ready
+          this.npcSystem.speak(npc, message);
+
+          // Notify main.ts so it can track this NPC as the last interacted
+          if (onNPCSpeak) {
+            onNPCSpeak(npc);
+          }
+
+          // Update dialogue for subsequent interactions
+          npc.dialogue.messages = [
+            message,
+            "I think it turned out great! Want to see it? Press SPACE!",
+          ];
+          npc.dialogue.currentIndex = 0;
+          npc.dialogue.lastShownIndex = -1;
+        } else {
+          console.error("❌ NPC not found when trying to update dialogue!");
+        }
+      },
+      // On UI opened (for pointer lock management)
+      onUIOpen,
+      // On UI closed (for pointer lock management)
+      onUIClose,
+      // On permission denied
+      () => {
+        const npc = this.npcSystem.getNPC("caricature-artist");
+        if (npc) {
+          const message =
+            "Sorry, I can't draw you without seeing you! (Camera permission denied)";
+          this.npcSystem.speak(npc, message);
+
+          // Notify main.ts so it can track this NPC as the last interacted
+          if (onNPCSpeak) {
+            onNPCSpeak(npc);
+          }
+        }
+      },
+    );
   }
 
   async build(): Promise<void> {
@@ -117,7 +210,7 @@ export class World {
           id: "caricature-artist",
           displayName: "Artist",
           dialogue: [
-            "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of Puter.js AI!",
+            "Hello! I am the Caricature Artist! 🎨 I can draw a funny picture of you using the power of AI!",
             "Just let me know if you want one! Press SPACE to choose how you'd like to pose!",
           ],
         },
@@ -198,8 +291,6 @@ export class World {
       }
 
       console.log(`🎪 Total NPCs registered: ${npcObjects.size}`);
-
-      console.log("🎪 NPCs loaded and ready for interaction!");
     } catch (error) {
       console.error("❌ Failed to load NPCs:", error);
     }

@@ -1,24 +1,33 @@
-import './style.css';
-import * as THREE from 'three';
-import { Time } from './core/Time';
-import { Renderer, WebGLContextError } from './core/Renderer';
-import { Camera } from './core/Camera';
-import { Scene } from './core/Scene';
-import type { Controls } from './player/Controls';
-import { DesktopControls } from './player/DesktopControls';
-import { TouchControls } from './player/TouchControls';
-import { PlayerController } from './player/PlayerController';
-import { PhysicsWorld } from './physics/PhysicsWorld';
-import { Raycaster } from './interaction/Raycaster';
-import { GrabSystem } from './interaction/GrabSystem';
-import { World } from './world/World';
-import { UI } from './ui/UI';
-import { SpeechBubble } from './ui/SpeechBubble';
-import type { NPC } from './interaction/NPCSystem';
-import { DeviceDetector } from './utils/DeviceDetector';
-import { PerformanceMonitor } from './utils/PerformanceMonitor';
-import { LightingOptimizer } from './lighting/LightingOptimizer';
-import { NodeMaterialFactory } from './materials/NodeMaterialFactory';
+import "./style.css";
+import * as THREE from "three";
+import { Time } from "./core/Time";
+import { Renderer, WebGLContextError } from "./core/Renderer";
+import { Camera } from "./core/Camera";
+import { Scene } from "./core/Scene";
+import type { Controls } from "./player/Controls";
+import { DesktopControls } from "./player/DesktopControls";
+import { TouchControls } from "./player/TouchControls";
+import { PlayerController } from "./player/PlayerController";
+import { PhysicsWorld } from "./physics/PhysicsWorld";
+import { Raycaster } from "./interaction/Raycaster";
+import { GrabSystem } from "./interaction/GrabSystem";
+import { World } from "./world/World";
+import { UI } from "./ui/UI";
+import { SpeechBubble } from "./ui/SpeechBubble";
+import type { NPC } from "./interaction/NPCSystem";
+import { DeviceDetector } from "./utils/DeviceDetector";
+import { PerformanceMonitor } from "./utils/PerformanceMonitor";
+import { LightingOptimizer } from "./lighting/LightingOptimizer";
+import { NodeMaterialFactory } from "./materials/NodeMaterialFactory";
+
+/**
+ * Application state enum
+ */
+enum AppState {
+  PLAYING = "PLAYING", // Pointer locked, game active
+  PAUSED = "PAUSED", // Pause menu visible
+  CARICATURE_UI = "CARICATURE_UI", // Caricature overlay active
+}
 
 /**
  * Main application class
@@ -32,7 +41,7 @@ class App {
   private desktopControls!: DesktopControls;
   private touchControls!: TouchControls;
   private activeControls!: Controls;
-  private controlMode: 'desktop' | 'touch' = 'desktop';
+  private controlMode: "desktop" | "touch" = "desktop";
   private player!: PlayerController;
   private physics!: PhysicsWorld;
   private raycaster!: Raycaster;
@@ -44,52 +53,53 @@ class App {
   private lightingOptimizer!: LightingOptimizer;
   private isRunning: boolean = false;
   private lastInteractedNPC: NPC | null = null;
+  private appState: AppState = AppState.PAUSED;
 
   async init(): Promise<void> {
     try {
       // Log device info
       DeviceDetector.logDeviceInfo();
       const settings = DeviceDetector.getRecommendedSettings();
-      console.log('📱 Recommended Settings:', settings);
 
       // Create canvas (ensure we don't accumulate multiple canvases across re-init/HMR)
-      const appRoot = document.getElementById('app')!;
-      const existingCanvas = appRoot.querySelector('canvas');
+      const appRoot = document.getElementById("app")!;
+      const existingCanvas = appRoot.querySelector("canvas");
       if (existingCanvas) existingCanvas.remove();
 
-      this.canvas = document.createElement('canvas');
+      this.canvas = document.createElement("canvas");
       appRoot.appendChild(this.canvas);
 
       // Initialize UI
       this.ui = new UI();
       this.speechBubble = new SpeechBubble();
-      this.ui.setRenderer('Initializing...');
+      this.ui.setRenderer("Initializing...");
 
       // Initialize core systems
       this.time = new Time();
       this.scene = new Scene();
       this.camera = new Camera();
       this.renderer = new Renderer(this.canvas);
-      
+
       // Initialize performance monitor (needs renderer)
       this.performanceMonitor = new PerformanceMonitor();
-      this.performanceMonitor.setRenderer(this.renderer.renderer, this.renderer.isWebGPU);
+      this.performanceMonitor.setRenderer(
+        this.renderer.renderer,
+        this.renderer.isWebGPU,
+      );
       this.performanceMonitor.setQualityDowngradeCallback(() => {
-        console.warn('⚠️ Auto-downgrading quality due to low FPS');
+        console.warn("⚠️ Auto-downgrading quality due to low FPS");
         // Could disable shadows, reduce pixel ratio, etc.
       });
 
       // Initialize lighting optimizer based on renderer type
       this.lightingOptimizer = new LightingOptimizer(this.renderer.isWebGPU);
-      
+
       // Log renderer info
       const rendererInfo = NodeMaterialFactory.getRendererInfo();
-      console.log(`🎨 Renderer: ${rendererInfo.backend}`);
-      console.log(`🎨 Node Materials: ${rendererInfo.nodeMaterialsSupported ? 'Enabled' : 'Disabled'}`);
-      
+
       // Update UI with renderer type
       this.ui.setRenderer(rendererInfo.backend);
-      
+
       this.desktopControls = new DesktopControls(this.canvas);
       this.touchControls = new TouchControls();
 
@@ -111,119 +121,185 @@ class App {
       // Initialize interaction systems
       this.raycaster = new Raycaster(this.camera);
       this.grabSystem = new GrabSystem(this.camera, this.physics);
-      
+
       // Initialize player
-      this.player = new PlayerController(this.camera, this.activeControls, this.physics);
+      this.player = new PlayerController(
+        this.camera,
+        this.activeControls,
+        this.physics,
+      );
       this.player.setupPhysics();
 
       // Build world
       this.world = new World(this.scene, this.physics, this.raycaster);
+
       await this.world.build();
-      
+
       // Set up NPC dialogue callback
       this.world.npcSystem.onDialogue((npc, message) => {
         this.speechBubble.show(npc.name, message);
       });
-      
+
+      // Set up caricature UI state callbacks (after NPCs are loaded!)
+      this.world.setCaricatureCallbacks(
+        () => this.enterCaricatureMode(),
+        () => this.exitCaricatureMode(),
+        // When an NPC speaks proactively, track it as the last interacted NPC
+        // so spacebar handling works without requiring the user to click the NPC
+        (npc) => {
+          this.lastInteractedNPC = npc;
+        },
+      );
+
       // Optimize lighting after world is built
       this.lightingOptimizer.optimizeSceneLights(this.scene.scene);
-      
+
       // Log lighting metrics
-      const lightingMetrics = this.lightingOptimizer.getLightingMetrics(this.scene.scene);
-      console.log(`💡 Lighting Metrics:`, lightingMetrics);
+      const lightingMetrics = this.lightingOptimizer.getLightingMetrics(
+        this.scene.scene,
+      );
 
       // Auto-start: skip onboarding and go straight into the scene
       this.start();
 
       // Show pause menu initially for desktop users (no pointer lock yet)
-      if (DeviceDetector.getDefaultControlMode() === 'desktop') {
+      if (DeviceDetector.getDefaultControlMode() === "desktop") {
         this.ui.showPauseMenu();
       }
 
       // Setup mouse click for pointer lock and grabbing
-      this.canvas.addEventListener('click', async () => {
+      this.canvas.addEventListener("click", async () => {
         // First click: try to acquire pointer lock (requires user gesture)
-        if (this.controlMode === 'desktop' && !this.desktopControls.getPointerLocked() && this.isRunning) {
+        if (
+          this.controlMode === "desktop" &&
+          !this.desktopControls.getPointerLocked() &&
+          this.isRunning
+        ) {
           await this.desktopControls.requestPointerLock();
         }
         // Subsequent clicks: handle grabbing
-        else if (this.controlMode === 'desktop' && this.desktopControls.getPointerLocked()) {
+        else if (
+          this.controlMode === "desktop" &&
+          this.desktopControls.getPointerLocked()
+        ) {
           this.handleGrabClick();
         }
       });
 
       // Pause menu: clicking anywhere requests pointer lock (for desktop)
       this.ui.onResumeRequested(async () => {
-        if (this.controlMode === 'desktop' && !this.desktopControls.getPointerLocked()) {
+        if (
+          this.controlMode === "desktop" &&
+          !this.desktopControls.getPointerLocked()
+        ) {
           await this.desktopControls.requestPointerLock();
-        } else if (this.controlMode === 'touch') {
+          this.setAppState(AppState.PLAYING);
+        } else if (this.controlMode === "touch") {
           this.touchControls.setActive(true);
           this.ui.hidePauseMenu();
+          this.setAppState(AppState.PLAYING);
         }
       });
 
       // Pause menu: when on mobile, pause button should show menu
       this.ui.onPauseRequested(() => {
-        if (this.isRunning && this.controlMode === 'touch') {
+        if (this.isRunning && this.controlMode === "touch") {
           this.touchControls.setActive(false);
           this.ui.showPauseMenu();
+          this.setAppState(AppState.PAUSED);
         }
       });
 
       // Pointer lock callback: show/hide pause menu based on lock state
       this.desktopControls.setPointerLockCallback(() => {
         if (this.desktopControls.getPointerLocked()) {
-          this.setControlMode('desktop');
+          this.setControlMode("desktop");
           this.ui.hidePauseMenu();
+          this.setAppState(AppState.PLAYING);
         } else {
-          // Show pause menu when pointer lock is lost
-          if (this.isRunning && this.controlMode === 'desktop') {
+          // Only show pause menu if we're not in a special UI mode (like caricature)
+          if (
+            this.isRunning &&
+            this.controlMode === "desktop" &&
+            this.appState !== AppState.CARICATURE_UI
+          ) {
             this.ui.showPauseMenu();
+            this.setAppState(AppState.PAUSED);
           }
         }
       });
 
-      this.canvas.addEventListener('pointerdown', (event) => {
-        if (event.pointerType === 'touch') {
-          this.setControlMode('touch');
-        }
-      }, { passive: true });
+      this.canvas.addEventListener(
+        "pointerdown",
+        (event) => {
+          if (event.pointerType === "touch") {
+            this.setControlMode("touch");
+          }
+        },
+        { passive: true },
+      );
 
-      this.canvas.addEventListener('pointerup', (event) => {
-        if (event.pointerType !== 'touch') return;
-        if (!this.isRunning || this.controlMode !== 'touch') return;
-        // Don't handle grab if pause menu is visible
-        if (this.ui.isPauseMenuVisible()) return;
+      this.canvas.addEventListener(
+        "pointerup",
+        (event) => {
+          if (event.pointerType !== "touch") return;
+          if (!this.isRunning || this.controlMode !== "touch") return;
+          // Don't handle grab if pause menu is visible
+          if (this.ui.isPauseMenuVisible()) return;
 
-        const tappedObject = this.raycaster.raycastFromScreenPoint(
-          event.clientX,
-          event.clientY
-        );
-        this.handleGrabTarget(tappedObject);
-      }, { passive: true });
+          const tappedObject = this.raycaster.raycastFromScreenPoint(
+            event.clientX,
+            event.clientY,
+          );
+          this.handleGrabTarget(tappedObject);
+        },
+        { passive: true },
+      );
 
-      // Listen for spacebar to open NPC links
-      window.addEventListener('keydown', (event) => {
-        if (event.code === 'Space') {
+      // Listen for spacebar to open NPC links or interact with caricature artist
+      window.addEventListener("keydown", (event) => {
+        if (event.code === "Space") {
           if (this.lastInteractedNPC) {
-            const isLast = this.world.npcSystem.isOnLastMessage(this.lastInteractedNPC);
+            // Special handling for caricature artist NPC
+            const caricatureNPC =
+              this.world.npcSystem.getNPC("caricature-artist");
+            if (this.lastInteractedNPC === caricatureNPC) {
+              event.preventDefault();
+              event.stopPropagation();
+
+              const caricatureArtist = this.world.getCaricatureArtist();
+              const isLast = this.world.npcSystem.isOnLastMessage(
+                this.lastInteractedNPC,
+              );
+
+              if (caricatureArtist.isReady()) {
+                // Show the generated caricature (works on any message when ready)
+                caricatureArtist.viewCaricature();
+              } else if (caricatureArtist.canStartNewGeneration() && isLast) {
+                // Only start the process on the last dialogue message
+                caricatureArtist.startCaricatureProcess();
+              }
+              return;
+            }
+
+            // Normal NPC link handling
+            const isLast = this.world.npcSystem.isOnLastMessage(
+              this.lastInteractedNPC,
+            );
             const hasLink = this.lastInteractedNPC.link;
-            
-            console.log('🔍 Spacebar pressed - Last message:', isLast, 'Has link:', hasLink);
-            
+
             // Check if we're on the last message and the NPC has a link
             if (isLast && hasLink) {
               event.preventDefault();
               event.stopPropagation();
-              window.open(this.lastInteractedNPC.link, '_blank');
-              console.log('📄 Opening paper:', this.lastInteractedNPC.link);
+              window.open(this.lastInteractedNPC.link, "_blank");
             }
           }
         }
       });
     } catch (error) {
-      console.error('❌ App initialization failed:', error);
-      const loading = document.getElementById('loading');
+      console.error("❌ App initialization failed:", error);
+      const loading = document.getElementById("loading");
       if (loading) {
         if (error instanceof WebGLContextError) {
           // Show user-friendly GPU/WebGL error
@@ -244,7 +320,8 @@ class App {
             </div>
           `;
         } else {
-          loading.innerHTML = '<div style="max-width:520px;text-align:center;line-height:1.4;">Failed to load. Open DevTools Console for details.</div>';
+          loading.innerHTML =
+            '<div style="max-width:520px;text-align:center;line-height:1.4;">Failed to load. Open DevTools Console for details.</div>';
         }
       }
       throw error;
@@ -262,13 +339,16 @@ class App {
     this.isRunning = true;
     // For touch controls, activate immediately and hide pause menu
     // For desktop, pointer lock will be requested on user click (pause menu shows until then)
-    if (this.controlMode === 'touch') {
+    if (this.controlMode === "touch") {
       this.touchControls.setActive(true);
       this.ui.hidePauseMenu();
+      this.setAppState(AppState.PLAYING);
+    } else {
+      // Desktop starts in paused state until user clicks
+      this.setAppState(AppState.PAUSED);
     }
     this.animate();
   }
-
 
   private handleGrabClick(): void {
     this.handleGrabTarget(this.raycaster.getCurrentHovered());
@@ -334,7 +414,7 @@ class App {
     this.player.prePhysics(delta);
     this.physics.update(delta);
     this.player.postPhysics();
-    
+
     this.raycaster.update();
     this.grabSystem.update(delta);
     this.world.update(delta);
@@ -344,7 +424,7 @@ class App {
 
     // Update UI
     this.ui.setFPS(this.time.fps);
-    
+
     // Update crosshair based on hover
     const isHovering = this.raycaster.getCurrentHovered() !== null;
     if (!this.grabSystem.isGrabbing()) {
@@ -356,14 +436,42 @@ class App {
   }
 
   private activeControlsTarget(): Controls {
-    return this.controlMode === 'desktop' ? this.desktopControls : this.touchControls;
+    return this.controlMode === "desktop"
+      ? this.desktopControls
+      : this.touchControls;
   }
 
-  private setControlMode(mode: 'desktop' | 'touch'): void {
+  private setControlMode(mode: "desktop" | "touch"): void {
     if (this.controlMode === mode) return;
     this.controlMode = mode;
-    this.touchControls.setActive(mode === 'touch' && this.isRunning);
-    this.ui.setMode(mode === 'touch' ? 'Touch' : 'Mouse');
+    this.touchControls.setActive(mode === "touch" && this.isRunning);
+    this.ui.setMode(mode === "touch" ? "Touch" : "Mouse");
+  }
+
+  private setAppState(state: AppState): void {
+    this.appState = state;
+  }
+
+  private enterCaricatureMode(): void {
+    this.setAppState(AppState.CARICATURE_UI);
+
+    // Exit pointer lock to allow mouse interaction with UI
+    if (this.controlMode === "desktop") {
+      this.desktopControls.exitPointerLock();
+    }
+
+    // Hide pause menu if it's showing
+    this.ui.hidePauseMenu();
+  }
+
+  private exitCaricatureMode(): void {
+    this.setAppState(AppState.PLAYING);
+
+    // Re-request pointer lock for desktop users immediately
+    // (must happen within user activation window — no setTimeout)
+    if (this.controlMode === "desktop" && this.isRunning) {
+      this.desktopControls.requestPointerLock();
+    }
   }
 
   dispose(): void {

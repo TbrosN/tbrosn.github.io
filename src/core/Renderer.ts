@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 /**
  * Custom error for WebGL context creation failure
@@ -6,7 +6,7 @@ import * as THREE from 'three';
 export class WebGLContextError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'WebGLContextError';
+    this.name = "WebGLContextError";
   }
 }
 
@@ -25,13 +25,13 @@ export class Renderer {
         canvas,
         antialias: true,
         alpha: false,
-        powerPreference: 'high-performance',
+        powerPreference: "high-performance",
       });
     } catch (error) {
       // WebGL context creation failed - likely due to GPU being disabled (low battery, etc.)
       throw new WebGLContextError(
-        'WebGL is unavailable. This may be due to low battery mode disabling GPU access. ' +
-        'Please plug in your device or enable hardware acceleration in your browser settings.'
+        "WebGL is unavailable. This may be due to low battery mode disabling GPU access. " +
+          "Please plug in your device or enable hardware acceleration in your browser settings.",
       );
     }
 
@@ -39,18 +39,16 @@ export class Renderer {
     const gl = this.renderer.getContext();
     if (!gl) {
       throw new WebGLContextError(
-        'WebGL context could not be created. Please ensure your device is plugged in ' +
-        'and hardware acceleration is enabled in your browser.'
+        "WebGL context could not be created. Please ensure your device is plugged in " +
+          "and hardware acceleration is enabled in your browser.",
       );
     }
-
-    console.log('🌐 WebGL Renderer initialized');
 
     this.setupRenderer();
 
     // Handle resize
     this.onResizeHandler = this.onResize.bind(this);
-    window.addEventListener('resize', this.onResizeHandler);
+    window.addEventListener("resize", this.onResizeHandler);
   }
 
   private setupRenderer(): void {
@@ -78,7 +76,7 @@ export class Renderer {
   }
 
   dispose(): void {
-    window.removeEventListener('resize', this.onResizeHandler);
+    window.removeEventListener("resize", this.onResizeHandler);
     this.renderer.dispose();
   }
 }
