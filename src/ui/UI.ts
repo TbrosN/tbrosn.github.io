@@ -110,8 +110,8 @@ export class UI {
       this.loadingToast = document.createElement('div');
       this.loadingToast.style.cssText =
         'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);' +
-        'padding:10px 20px;border-radius:10px;background:rgba(255,255,255,0.12);' +
-        'backdrop-filter:blur(12px);color:#fff;font-size:14px;font-weight:500;' +
+        'padding:12px 24px;border-radius:8px;background:#5D4037;border:2px solid #FFF8E1;' +
+        'box-shadow:0 4px 10px rgba(0,0,0,0.4);color:#FFF8E1;font-size:16px;font-family:"Rye",serif;' +
         'pointer-events:none;z-index:1100;opacity:0;transition:opacity 0.25s;';
       this.loadingToast.textContent = 'Still loading — hang tight!';
       document.body.appendChild(this.loadingToast);
@@ -155,10 +155,10 @@ export class UI {
         'position:fixed;inset:0;z-index:1050;display:flex;align-items:center;' +
         'justify-content:center;cursor:pointer;background:transparent;';
       this.clickToPlayPrompt.innerHTML =
-        '<span style="padding:12px 28px;border-radius:12px;' +
-        'background:rgba(0,0,0,0.55);backdrop-filter:blur(12px);' +
-        'color:#fff;font-size:15px;font-weight:500;pointer-events:none;' +
-        'letter-spacing:0.01em;">Click to play</span>';
+        '<span style="padding:16px 32px;border-radius:8px;' +
+        'background:#B71C1C;border:4px dashed #FFD700;box-shadow:0 10px 20px rgba(0,0,0,0.5);' +
+        'color:#FFD700;font-size:24px;font-family:\'Rye\',serif;pointer-events:none;' +
+        'text-shadow:2px 2px 0 rgba(0,0,0,0.5);transform:rotate(-2deg);">Click to Enter Carnival</span>';
       // Clicking the overlay triggers the same resume flow as the pause menu X
       this.clickToPlayPrompt.addEventListener('click', () => {
         if (this.onResumeRequestedCallback) this.onResumeRequestedCallback();
@@ -196,9 +196,9 @@ export class UI {
     deviceTabs.forEach((btn) => {
       const isActive = btn.dataset.device === device;
       if (isActive) {
-        btn.classList.add('active');
+        btn.setAttribute('data-active', '');
       } else {
-        btn.classList.remove('active');
+        btn.removeAttribute('data-active');
       }
     });
 

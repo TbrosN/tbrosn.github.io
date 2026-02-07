@@ -24,54 +24,62 @@ export class SpeechBubble {
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.3s ease;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
     `;
 
     // Create bubble
     this.bubble = document.createElement('div');
     this.bubble.style.cssText = `
-      background: rgba(20, 20, 40, 0.95);
-      border: 2px solid #00d4ff;
-      border-radius: 20px;
-      padding: 20px 30px;
+      background: #FFF8E1;
+      border: 4px solid #8B0000;
+      border-radius: 12px;
+      padding: 24px 32px;
       max-width: 500px;
-      min-width: 300px;
-      box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+      min-width: 320px;
       position: relative;
-      backdrop-filter: blur(10px);
+      box-shadow: inset 0 0 20px rgba(139, 0, 0, 0.05);
     `;
+    
+    // Add decorative corner elements (via pseudo-elements normally, but here via JS inline is hard, so we just use simple borders for now)
+    // We can add a "stripe" pattern to the top border if we want, but solid red is strong and reads "Carnival".
 
     // Create name label
     this.nameLabel = document.createElement('div');
     this.nameLabel.style.cssText = `
-      color: #00d4ff;
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 8px;
+      color: #8B0000;
+      font-size: 18px;
+      font-family: 'Rye', serif;
+      margin-bottom: 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
+      text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+      border-bottom: 2px solid rgba(139, 0, 0, 0.1);
+      padding-bottom: 8px;
+      display: inline-block;
     `;
 
     // Create message text
     this.messageText = document.createElement('div');
     this.messageText.style.cssText = `
-      color: #ffffff;
-      font-size: 16px;
-      line-height: 1.5;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #3E2723;
+      font-size: 17px;
+      line-height: 1.6;
+      font-family: 'Roboto Slab', serif;
+      font-weight: 500;
     `;
 
     // Create tail (pointer)
     const tail = document.createElement('div');
     tail.style.cssText = `
       position: absolute;
-      bottom: -12px;
+      bottom: -16px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-top: 12px solid #00d4ff;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 16px solid #8B0000;
     `;
 
     // Create tail inner (for the filled part)
@@ -85,7 +93,8 @@ export class SpeechBubble {
       height: 0;
       border-left: 10px solid transparent;
       border-right: 10px solid transparent;
-      border-top: 10px solid rgba(20, 20, 40, 0.95);
+      border-top: 10px solid #FFF8E1;
+      z-index: 2;
     `;
 
     // Assemble the bubble

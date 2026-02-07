@@ -60,17 +60,7 @@ canvas {
   display: block;
 }
 
-/* Tab button aria-selected state (Tailwind doesn't support aria-selected variant by default) */
-button[role="tab"][aria-selected="true"] {
-  background: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
 
-/* Device tab active state */
-.device-tab.active {
-  background: rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-}
 
 /* Orientation warning for mobile portrait */
 @media (pointer: coarse) and (orientation: portrait) {
