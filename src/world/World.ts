@@ -212,6 +212,16 @@ export class World {
             "If you would like a caricature, press SPACE to choose how you'd like to pose!",
           ],
         },
+        NPCFerrisWheel: {
+          id: "ferris-wheel-health",
+          displayName: "Health Tracker",
+          dialogue: [
+            "Hey! I built Clarity - a full-stack PWA that's like Waze for your health. It helps you understand what actually drives your energy levels.",
+            "Instead of generic advice, Clarity asks you simple questions that take just 1 second to answer. From these, it connects the dots between your energy, diet, and sleep patterns.",
+            "Want to see how it works? Press SPACE to check out the project on GitHub!",
+          ],
+          linkUrl: "https://github.com/TbrosN/clarity",
+        },
         NPCCarousel: {
           id: "carousel-operator",
           displayName: "Carousel Operator",
