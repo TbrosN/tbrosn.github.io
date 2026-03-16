@@ -228,7 +228,18 @@ export class World {
           dialogue: [
             "Welcome to the carnival! If you like what you see, press SPACE to open the code for this portfolio on GitHub.",
           ],
-          linkUrl: "https://github.com/TbrosN/tbrosn.github.io?tab=readme-ov-file",
+          linkUrl:
+            "https://github.com/TbrosN/tbrosn.github.io?tab=readme-ov-file",
+        },
+        NPCIceCreamStand: {
+          id: "ice-cream-stand",
+          displayName: "Ice Cream Stand",
+          dialogue: [
+            "Hello! Can I interested you some ice cream?",
+            "Oh, I see... you're looking for healthy options! I have just the thing for you- a database that stores food products and their nutrition information!",
+            "Press SPACE to checkout the github page.",
+          ],
+          linkUrl: "https://github.com/TbrosN/grocery-store",
         },
       };
 
