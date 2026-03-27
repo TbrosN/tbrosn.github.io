@@ -241,6 +241,16 @@ export class World {
           ],
           linkUrl: "https://github.com/TbrosN/grocery-store",
         },
+        NPCCottonCandy: {
+          id: "cotton-candy-stand",
+          displayName: "Cotton Candy Stand",
+          dialogue: [
+            "Hey! I built a CLI tool for 15-113 at CMU that quizzes you on LeetCode problems and focuses on the high-level approach rather than full code solutions.",
+            "I used a multi-agent workflow for it too: I wrote the spec, Agent 1 implemented it, Agent 2 reviewed it, and then I iterated on it with Cursor.",
+            "Press SPACE to checkout the github page.",
+          ],
+          linkUrl: "https://github.com/TbrosN/15113-hw8",
+        }
       };
 
       // Find all NPCs in the carnival model (they start with "NPC")
