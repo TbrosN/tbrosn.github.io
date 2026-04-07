@@ -175,6 +175,15 @@ export class World {
     try {
       // Map of NPC names in the GLB file to their IDs and dialogue
       // Note: Dots are removed during GLB export, so "NPC.DARC" becomes "NPCDARC"
+// NPC Node Names found in carnival.glb:
+//   0: "NPCCaricature"
+//   1: "NPCDARC"
+//   2: "NPCCottonCandy"
+//   3: "NPCCrossyRoad"
+//   4: "NPCIceCreamStand"
+//   5: "NPCCarousel"
+//   6: "NPCKebabCart"
+//   7: "NPCFerrisWheel"
       const npcConfig: Record<
         string,
         {
@@ -250,7 +259,18 @@ export class World {
             "Press SPACE to checkout the github page.",
           ],
           linkUrl: "https://github.com/TbrosN/15113-hw8",
-        }
+        },
+        NPCKebabCart: {
+          id: "kebab-cart",
+          displayName: "Kebab Cart",
+          dialogue: [
+            "Merhaba! Can I interest you in some kebab?",
+            "Oh, I see... you want to cook something yourself! I have just the thing: meet Sousie, a mobile app that helps you design, edit, and cook recipes.",
+            "It's built with Expo using a multi-agent workflow: I wrote a spec, and then had different agents for implentation and review.",
+            "Press SPACE to check out the project on GitHub!",
+          ],
+          linkUrl: "https://github.com/TbrosN/sousie",
+        },
       };
 
       // Find all NPCs in the carnival model (they start with "NPC")
