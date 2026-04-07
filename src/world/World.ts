@@ -244,7 +244,7 @@ export class World {
           id: "ice-cream-stand",
           displayName: "Ice Cream Stand",
           dialogue: [
-            "Hello! Can I interested you some ice cream?",
+            "Hello! Would you like some ice cream?",
             "Oh, I see... you're looking for healthy options! I have just the thing for you- a database that stores food products and their nutrition information!",
             "Press SPACE to checkout the github page.",
           ],
