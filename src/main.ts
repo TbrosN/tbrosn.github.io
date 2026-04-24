@@ -72,6 +72,9 @@ class App {
       // Initialize UI
       this.ui = new UI();
       this.speechBubble = new SpeechBubble();
+      this.speechBubble.onAdvanceRequested(() => {
+        this.advanceOrDismissActiveDialogue();
+      });
       this.ui.setRenderer("Initializing...");
 
       // Initialize core systems
@@ -137,7 +140,14 @@ class App {
 
       // Set up NPC dialogue callback
       this.world.npcSystem.onDialogue((npc, message) => {
-        this.speechBubble.show(npc.name, message);
+        const isLastMessage = this.world.npcSystem.isOnLastMessage(npc);
+        const actionLabel =
+          isLastMessage && npc.link ? this.getNPCActionLabel(npc.link) : undefined;
+
+        this.speechBubble.show(npc.name, message, {
+          actionLabel,
+          onAction: actionLabel ? () => this.openNPCLink(npc) : undefined,
+        });
       });
 
       // Set up caricature UI state callbacks (after NPCs are loaded!)
@@ -268,7 +278,7 @@ class App {
         { passive: true },
       );
 
-      // Listen for spacebar to open NPC links or interact with caricature artist
+      // Listen for spacebar to interact with the caricature artist
       window.addEventListener("keydown", (event) => {
         if (event.code === "Space") {
           if (this.lastInteractedNPC) {
@@ -294,18 +304,6 @@ class App {
               return;
             }
 
-            // Normal NPC link handling
-            const isLast = this.world.npcSystem.isOnLastMessage(
-              this.lastInteractedNPC,
-            );
-            const hasLink = this.lastInteractedNPC.link;
-
-            // Check if we're on the last message and the NPC has a link
-            if (isLast && hasLink) {
-              event.preventDefault();
-              event.stopPropagation();
-              window.open(this.lastInteractedNPC.link, "_blank");
-            }
           }
         }
       });
@@ -366,16 +364,49 @@ class App {
     this.handleGrabTarget(this.raycaster.getCurrentHovered());
   }
 
+  private getNPCActionLabel(link: string): string {
+    if (link.includes("github.com")) {
+      return "Open on GitHub";
+    }
+
+    if (link.includes("arxiv.org")) {
+      return "Read Paper";
+    }
+
+    return "Open Link";
+  }
+
+  private openNPCLink(npc: NPC): void {
+    if (!npc.link) return;
+    window.open(npc.link, "_blank", "noopener,noreferrer");
+  }
+
+  private dismissActiveDialogue(): void {
+    if (this.lastInteractedNPC) {
+      this.world.npcSystem.resetDialogue(this.lastInteractedNPC);
+    }
+
+    this.speechBubble.hide();
+    this.lastInteractedNPC = null;
+  }
+
+  private advanceOrDismissActiveDialogue(): void {
+    if (!this.lastInteractedNPC || !this.speechBubble.isShowing()) return;
+
+    if (this.world.npcSystem.isOnLastMessage(this.lastInteractedNPC)) {
+      this.dismissActiveDialogue();
+      return;
+    }
+
+    this.world.npcSystem.interact(this.lastInteractedNPC);
+  }
+
   private handleGrabTarget(target: THREE.Object3D | null): void {
     // If dialogue is showing and the user clicks/taps anywhere that is NOT an NPC,
     // close the dialogue to avoid trapping them in a long message.
     const clickedNPC = target ? this.world.getNPC(target) : undefined;
     if (this.speechBubble.isShowing() && !clickedNPC) {
-      if (this.lastInteractedNPC) {
-        this.world.npcSystem.resetDialogue(this.lastInteractedNPC);
-      }
-      this.speechBubble.hide();
-      this.lastInteractedNPC = null;
+      this.dismissActiveDialogue();
       return;
     }
 
@@ -390,6 +421,11 @@ class App {
       // Check if it's an NPC first
       const npc = clickedNPC;
       if (npc) {
+        if (this.speechBubble.isShowing() && this.lastInteractedNPC === npc) {
+          this.advanceOrDismissActiveDialogue();
+          return;
+        }
+
         // Interact with NPC
         this.lastInteractedNPC = npc;
         this.world.npcSystem.interact(npc);

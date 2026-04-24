@@ -199,7 +199,7 @@ export class World {
           dialogue: [
             "Hey there, welcome to the carnival! I built a music AI research project called DARC - Drum Accompaniment generation with Rhythm Control.",
             "It's my 15-798 final project at CMU. The cool part? It lets you input beatboxing or tapping, plus your other tracks, and it generates drums that fit the rhythm and musical context.",
-            "Want to read the paper? Press SPACE to open it!",
+            "Want to read the paper? Use the button below to open it.",
           ],
           linkUrl: "https://arxiv.org/abs/2601.02357",
         },
@@ -209,7 +209,7 @@ export class World {
           dialogue: [
             "What's up! Check out my Crossy Road clone I built for 15-113 at CMU, a Python implementation made with AI on a 1-hour timer!",
             "Time crunch was REAL! I had to move fast and be strategic with my approach. I used Cursor with a mix of prompting techniques to maximize efficiency.",
-            "Got procedural terrain, collision detection, and score tracking all working in under an hour. Press SPACE to check out the code on GitHub!",
+            "Got procedural terrain, collision detection, and score tracking all working in under an hour. Use the button below to check out the code on GitHub!",
           ],
           linkUrl: "https://github.com/TbrosN/crossy-road",
         },
@@ -227,7 +227,7 @@ export class World {
           dialogue: [
             "Hey! I built Clarity - a full-stack PWA that's like Waze for your health. It helps you understand what actually drives your energy levels.",
             "Instead of generic advice, Clarity asks you simple questions that take just 1 second to answer. From these, it connects the dots between your energy, diet, and sleep patterns.",
-            "Want to see how it works? Press SPACE to check out the project on GitHub!",
+            "Want to see how it works? Use the button below to check out the project on GitHub!",
           ],
           linkUrl: "https://github.com/TbrosN/clarity",
         },
@@ -235,7 +235,7 @@ export class World {
           id: "carousel-operator",
           displayName: "Carousel Operator",
           dialogue: [
-            "Welcome to the carnival! If you like what you see, press SPACE to open the code for this portfolio on GitHub.",
+            "Welcome to the carnival! If you like what you see, use the button below to open the code for this portfolio on GitHub.",
           ],
           linkUrl:
             "https://github.com/TbrosN/tbrosn.github.io?tab=readme-ov-file",
@@ -246,7 +246,7 @@ export class World {
           dialogue: [
             "Hello! Would you like some ice cream?",
             "Oh, I see... you're looking for healthy options! I have just the thing for you- a database that stores food products and their nutrition information!",
-            "Press SPACE to checkout the github page.",
+            "Use the button below to check out the GitHub page.",
           ],
           linkUrl: "https://github.com/TbrosN/grocery-store",
         },
@@ -256,7 +256,7 @@ export class World {
           dialogue: [
             "Hey! I built Squibble, an AI tool that makes creating narration-style TikTok videos effortless.",
             "Work with an AI agent to write a script, and let Squibble turn it into an engaging video, with a voiceover and visuals—no editing skills needed!",
-            "Press SPACE to check out the GitHub page.",
+            "Use the button below to check out the GitHub page.",
           ],
           linkUrl: "https://github.com/TbrosN/squibble",
         },
@@ -267,7 +267,7 @@ export class World {
             "Merhaba! Can I interest you in some kebab?",
             "Oh, I see... you want to cook something yourself! I have just the thing: meet Sousie, a mobile app that helps you design, edit, and cook recipes.",
             "It's built with Expo using a multi-agent workflow: I wrote a spec, and then had different agents for implentation and review.",
-            "Press SPACE to check out the project on GitHub!",
+            "Use the button below to check out the project on GitHub!",
           ],
           linkUrl: "https://github.com/TbrosN/sousie",
         },

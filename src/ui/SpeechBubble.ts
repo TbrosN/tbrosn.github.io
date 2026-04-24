@@ -1,5 +1,11 @@
 import gsap from 'gsap';
 
+interface SpeechBubbleOptions {
+  duration?: number;
+  actionLabel?: string;
+  onAction?: () => void;
+}
+
 /**
  * Speech bubble UI component for NPC dialogue
  */
@@ -8,8 +14,11 @@ export class SpeechBubble {
   private bubble: HTMLElement;
   private nameLabel: HTMLElement;
   private messageText: HTMLElement;
+  private actionButton: HTMLButtonElement;
   private isVisible: boolean = false;
   private hideTimeout?: number;
+  private onAdvanceRequestedCallback?: () => void;
+  private onActionCallback?: () => void;
 
   constructor() {
     // Create container
@@ -67,18 +76,62 @@ export class SpeechBubble {
       font-weight: 500;
     `;
 
+    this.actionButton = document.createElement('button');
+    this.actionButton.type = 'button';
+    this.actionButton.style.cssText = `
+      display: none;
+      margin-top: 18px;
+      padding: 10px 16px;
+      border: 2px solid #8B0000;
+      border-radius: 999px;
+      background: #8B0000;
+      color: #FFF8E1;
+      font-size: 15px;
+      line-height: 1;
+      font-family: 'Roboto Slab', serif;
+      font-weight: 700;
+      cursor: pointer;
+    `;
+
+    this.bubble.addEventListener('click', () => {
+      if (this.onAdvanceRequestedCallback) {
+        this.onAdvanceRequestedCallback();
+      }
+    });
+
+    this.actionButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (this.onActionCallback) {
+        this.onActionCallback();
+      }
+    });
+
     // Assemble the bubble
     this.bubble.appendChild(this.nameLabel);
     this.bubble.appendChild(this.messageText);
+    this.bubble.appendChild(this.actionButton);
     this.container.appendChild(this.bubble);
 
     // Add to DOM
     document.body.appendChild(this.container);
   }
 
-  show(name: string, message: string, duration: number = 5000): void {
+  show(name: string, message: string, options: SpeechBubbleOptions = {}): void {
+    const { duration = 5000, actionLabel, onAction } = options;
+
     this.nameLabel.textContent = name;
     this.messageText.textContent = message;
+    this.onActionCallback = onAction;
+
+    if (actionLabel && onAction) {
+      this.actionButton.textContent = actionLabel;
+      this.actionButton.style.display = 'inline-flex';
+      this.actionButton.style.alignItems = 'center';
+      this.actionButton.style.justifyContent = 'center';
+    } else {
+      this.actionButton.style.display = 'none';
+      this.actionButton.textContent = '';
+    }
 
     // Clear any existing timeout
     if (this.hideTimeout) {
@@ -133,6 +186,10 @@ export class SpeechBubble {
 
   isShowing(): boolean {
     return this.isVisible;
+  }
+
+  onAdvanceRequested(callback: () => void): void {
+    this.onAdvanceRequestedCallback = callback;
   }
 
   dispose(): void {
