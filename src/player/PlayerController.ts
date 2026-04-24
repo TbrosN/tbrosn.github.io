@@ -13,13 +13,12 @@ export class PlayerController {
   private static readonly PLAYER_RADIUS = 0.3;
   private static readonly PLAYER_HALF_HEIGHT = 0.8;
   private static readonly MAX_JUMPS = 2;
-  private static readonly DOUBLE_JUMP_MULTIPLIER = 0.9;
+  private static readonly DOUBLE_JUMP_MULTIPLIER = 0.85;
 
   private camera: Camera;
   private controls: Controls;
   private physics: PhysicsWorld;
 
-  private velocity: THREE.Vector3 = new THREE.Vector3();
   private speedSettings = { speed: 45.0 };
   private isGrounded: boolean = true;
   private jumpCount: number = 0;
@@ -214,11 +213,11 @@ export class PlayerController {
 
   private getEstimatedJumpHeight(): number {
     const playerHeight = this.getPlayerHeight();
-    return playerHeight * 0.75 + this.speedSettings.speed * 0.05;
+    return Math.max(playerHeight * 2.5, this.speedSettings.speed * 0.18);
   }
 
   private getJumpGravity(): number {
-    return Math.max(24, this.speedSettings.speed * 0.75);
+    return Math.max(140, this.speedSettings.speed * 4.0);
   }
 
   private getPlayerHeight(): number {
