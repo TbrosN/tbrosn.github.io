@@ -7,6 +7,7 @@ import type { GrabbableObject } from "../interaction/GrabSystem";
 import { NodeMaterialFactory } from "../materials/NodeMaterialFactory";
 import { NPCSystem, type NPC } from "../interaction/NPCSystem";
 import { CaricatureArtist } from "../interaction/CaricatureArtist";
+import { DeviceDetector } from "../utils/DeviceDetector";
 
 /**
  * World building - environment and interactive objects
@@ -76,8 +77,11 @@ export class World {
       () => {
         const npc = this.npcSystem.getNPC("caricature-artist");
         if (npc) {
+          const interactionHint = DeviceDetector.isMobile()
+            ? "DOUBLE-TAP"
+            : "RIGHT-CLICK";
           const message =
-            "🎉 Your caricature is ready! Right-click or double-tap to view it!";
+            `🎉 Your caricature is ready! ${interactionHint} to view it!`;
 
           // Speak immediately so the player knows the caricature is ready
           this.npcSystem.speak(npc, message);
@@ -90,7 +94,7 @@ export class World {
           // Update dialogue for subsequent interactions
           npc.dialogue.messages = [
             message,
-            "I think it turned out great! Want to see it? Right-click or double-tap!",
+            `I think it turned out great! Want to see it? ${interactionHint}!`,
           ];
           npc.dialogue.currentIndex = 0;
           npc.dialogue.lastShownIndex = -1;
