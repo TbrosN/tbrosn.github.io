@@ -10,14 +10,21 @@ import { CollisionGroups } from "../physics/PhysicsWorld";
  * First-person player controller with physics-based movement
  */
 export class PlayerController {
+  private static readonly PLAYER_RADIUS = 0.3;
+  private static readonly PLAYER_HALF_HEIGHT = 0.8;
+  private static readonly MAX_JUMPS = 2;
+  private static readonly DOUBLE_JUMP_MULTIPLIER = 0.9;
+
   private camera: Camera;
   private controls: Controls;
   private physics: PhysicsWorld;
 
   private velocity: THREE.Vector3 = new THREE.Vector3();
   private speedSettings = { speed: 45.0 };
-  private jumpForce: number = 6.0;
   private isGrounded: boolean = true;
+  private jumpCount: number = 0;
+  private verticalVelocity: number = 0;
+  private groundedEyeHeight: number;
 
   public collider: any; // Rapier collider
   public rigidBody: any; // Rapier rigid body
@@ -28,6 +35,7 @@ export class PlayerController {
     this.camera = camera;
     this.controls = controls;
     this.physics = physics;
+    this.groundedEyeHeight = this.camera.camera.position.y;
 
     if (DEBUG) {
       this.setupSpeedControls();
@@ -78,10 +86,13 @@ export class PlayerController {
 
     this.rigidBody = this.physics.world.createRigidBody(rigidBodyDesc);
 
-    // Capsule: radius 0.3, half-height 0.8 (total height ~1.6m)
-    const colliderDesc = RAPIER.ColliderDesc.capsule(0.8, 0.3).setTranslation(
+    // Capsule: radius 0.3, half-height 0.8 (total height ~2.2m)
+    const colliderDesc = RAPIER.ColliderDesc.capsule(
+      PlayerController.PLAYER_HALF_HEIGHT,
+      PlayerController.PLAYER_RADIUS,
+    ).setTranslation(
       0,
-      -0.8,
+      -PlayerController.PLAYER_HALF_HEIGHT,
       0,
     ); // Offset so top is at eye level
 
@@ -94,6 +105,21 @@ export class PlayerController {
       colliderDesc,
       this.rigidBody,
     );
+  }
+
+  requestJump(): boolean {
+    if (!this.controls.isActive()) return false;
+    if (this.jumpCount >= PlayerController.MAX_JUMPS) return false;
+
+    const isDoubleJump = this.jumpCount > 0;
+    const jumpHeight =
+      this.getEstimatedJumpHeight() *
+      (isDoubleJump ? PlayerController.DOUBLE_JUMP_MULTIPLIER : 1);
+
+    this.verticalVelocity = Math.sqrt(2 * this.getJumpGravity() * jumpHeight);
+    this.isGrounded = false;
+    this.jumpCount += 1;
+    return true;
   }
 
   /**
@@ -129,9 +155,12 @@ export class PlayerController {
       moveDirection.multiplyScalar(moveSpeed);
     }
 
-    // Apply movement
     const currentPos = this.camera.camera.position;
+    const nextY = this.computeNextEyeHeight(currentPos.y, delta);
+
+    // Apply movement
     const newPos = currentPos.clone().add(moveDirection);
+    newPos.y = nextY;
 
     if (this.rigidBody) {
       this.rigidBody.setNextKinematicTranslation({
@@ -162,5 +191,40 @@ export class PlayerController {
     if (this.keyListener) {
       window.removeEventListener("keydown", this.keyListener);
     }
+  }
+
+  private computeNextEyeHeight(currentY: number, delta: number): number {
+    if (this.isGrounded) {
+      this.verticalVelocity = 0;
+      return this.groundedEyeHeight;
+    }
+
+    this.verticalVelocity -= this.getJumpGravity() * delta;
+
+    const nextY = currentY + this.verticalVelocity * delta;
+    if (nextY <= this.groundedEyeHeight) {
+      this.isGrounded = true;
+      this.jumpCount = 0;
+      this.verticalVelocity = 0;
+      return this.groundedEyeHeight;
+    }
+
+    return nextY;
+  }
+
+  private getEstimatedJumpHeight(): number {
+    const playerHeight = this.getPlayerHeight();
+    return playerHeight * 0.75 + this.speedSettings.speed * 0.05;
+  }
+
+  private getJumpGravity(): number {
+    return Math.max(24, this.speedSettings.speed * 0.75);
+  }
+
+  private getPlayerHeight(): number {
+    return (
+      PlayerController.PLAYER_HALF_HEIGHT * 2 +
+      PlayerController.PLAYER_RADIUS * 2
+    );
   }
 }

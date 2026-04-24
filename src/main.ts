@@ -33,6 +33,8 @@ enum AppState {
  * Main application class
  */
 class App {
+  private static readonly MOBILE_DOUBLE_TAP_DELAY_MS = 250;
+
   private canvas!: HTMLCanvasElement;
   private renderer!: Renderer;
   private scene!: Scene;
@@ -54,6 +56,8 @@ class App {
   private isRunning: boolean = false;
   private lastInteractedNPC: NPC | null = null;
   private appState: AppState = AppState.PAUSED;
+  private pendingTouchTapTimeout?: number;
+  private pendingTouchTapTarget: THREE.Object3D | null = null;
 
   async init(): Promise<void> {
     try {
@@ -140,22 +144,15 @@ class App {
 
       // Set up NPC dialogue callback
       this.world.npcSystem.onDialogue((npc, message) => {
-        const isLastMessage = this.world.npcSystem.isOnLastMessage(npc);
-        const actionLabel =
-          isLastMessage && npc.link ? this.getNPCActionLabel(npc.link) : undefined;
-
-        this.speechBubble.show(npc.name, message, {
-          actionLabel,
-          onAction: actionLabel ? () => this.openNPCLink(npc) : undefined,
-        });
+        this.speechBubble.show(npc.name, message);
       });
 
       // Set up caricature UI state callbacks (after NPCs are loaded!)
       this.world.setCaricatureCallbacks(
         () => this.enterCaricatureMode(),
         () => this.exitCaricatureMode(),
-        // When an NPC speaks proactively, track it as the last interacted NPC
-        // so spacebar handling works without requiring the user to click the NPC
+        // When an NPC speaks proactively, track it as the active NPC so
+        // alternate interaction methods can still target it.
         (npc) => {
           this.lastInteractedNPC = npc;
         },
@@ -177,23 +174,33 @@ class App {
         this.ui.showPauseMenu();
       }
 
-      // Setup mouse click for pointer lock and grabbing
-      this.canvas.addEventListener("click", async () => {
+      this.canvas.addEventListener("contextmenu", (event) => {
+        if (this.isRunning) {
+          event.preventDefault();
+        }
+      });
+
+      // Desktop interaction: left click advances/interacts, right click triggers actions.
+      this.canvas.addEventListener("mousedown", async (event) => {
+        if (this.controlMode !== "desktop" || !this.isRunning) return;
+
+        if (event.button === 2) {
+          event.preventDefault();
+          if (this.desktopControls.getPointerLocked()) {
+            this.handleDesktopSecondaryInteraction();
+          }
+          return;
+        }
+
+        if (event.button !== 0) return;
+
         // First click: try to acquire pointer lock (requires user gesture)
-        if (
-          this.controlMode === "desktop" &&
-          !this.desktopControls.getPointerLocked() &&
-          this.isRunning
-        ) {
+        if (!this.desktopControls.getPointerLocked()) {
           await this.desktopControls.requestPointerLock();
+          return;
         }
-        // Subsequent clicks: handle grabbing
-        else if (
-          this.controlMode === "desktop" &&
-          this.desktopControls.getPointerLocked()
-        ) {
-          this.handleGrabClick();
-        }
+
+        this.handleDesktopPrimaryInteraction();
       });
 
       // Pause menu: clicking anywhere requests pointer lock (for desktop)
@@ -273,39 +280,17 @@ class App {
             event.clientX,
             event.clientY,
           );
-          this.handleGrabTarget(tappedObject);
+          this.handleTouchInteraction(tappedObject);
         },
         { passive: true },
       );
 
-      // Listen for spacebar to interact with the caricature artist
+      // Space is always jump now.
       window.addEventListener("keydown", (event) => {
-        if (event.code === "Space") {
-          if (this.lastInteractedNPC) {
-            // Special handling for caricature artist NPC
-            const caricatureNPC =
-              this.world.npcSystem.getNPC("caricature-artist");
-            if (this.lastInteractedNPC === caricatureNPC) {
-              event.preventDefault();
-              event.stopPropagation();
-
-              const caricatureArtist = this.world.getCaricatureArtist();
-              const isLast = this.world.npcSystem.isOnLastMessage(
-                this.lastInteractedNPC,
-              );
-
-              if (caricatureArtist.isReady()) {
-                // Show the generated caricature (works on any message when ready)
-                caricatureArtist.viewCaricature();
-              } else if (caricatureArtist.canStartNewGeneration() && isLast) {
-                // Only start the process on the last dialogue message
-                caricatureArtist.startCaricatureProcess();
-              }
-              return;
-            }
-
-          }
-        }
+        if (event.code !== "Space" || event.repeat) return;
+        if (!this.player.requestJump()) return;
+        event.preventDefault();
+        event.stopPropagation();
       });
     } catch (error) {
       console.error("❌ App initialization failed:", error);
@@ -360,20 +345,12 @@ class App {
     this.animate();
   }
 
-  private handleGrabClick(): void {
-    this.handleGrabTarget(this.raycaster.getCurrentHovered());
+  private handleDesktopPrimaryInteraction(): void {
+    this.handlePrimaryInteraction(this.raycaster.getCurrentHovered());
   }
 
-  private getNPCActionLabel(link: string): string {
-    if (link.includes("github.com")) {
-      return "Open on GitHub";
-    }
-
-    if (link.includes("arxiv.org")) {
-      return "Read Paper";
-    }
-
-    return "Open Link";
+  private handleDesktopSecondaryInteraction(): void {
+    this.tryPerformDialogueAction();
   }
 
   private openNPCLink(npc: NPC): void {
@@ -401,7 +378,30 @@ class App {
     this.world.npcSystem.interact(this.lastInteractedNPC);
   }
 
-  private handleGrabTarget(target: THREE.Object3D | null): void {
+  private handleTouchInteraction(target: THREE.Object3D | null): void {
+    if (this.pendingTouchTapTimeout) {
+      window.clearTimeout(this.pendingTouchTapTimeout);
+      this.pendingTouchTapTimeout = undefined;
+      this.pendingTouchTapTarget = null;
+
+      if (this.tryPerformDialogueAction()) {
+        return;
+      }
+
+      this.handlePrimaryInteraction(target);
+      return;
+    }
+
+    this.pendingTouchTapTarget = target;
+    this.pendingTouchTapTimeout = window.setTimeout(() => {
+      this.pendingTouchTapTimeout = undefined;
+      const pendingTarget = this.pendingTouchTapTarget;
+      this.pendingTouchTapTarget = null;
+      this.handlePrimaryInteraction(pendingTarget);
+    }, App.MOBILE_DOUBLE_TAP_DELAY_MS);
+  }
+
+  private handlePrimaryInteraction(target: THREE.Object3D | null): void {
     // If dialogue is showing and the user clicks/taps anywhere that is NOT an NPC,
     // close the dialogue to avoid trapping them in a long message.
     const clickedNPC = target ? this.world.getNPC(target) : undefined;
@@ -439,6 +439,38 @@ class App {
         this.ui.setCrosshairActive(true);
       }
     }
+  }
+
+  private tryPerformDialogueAction(): boolean {
+    if (this.appState !== AppState.PLAYING) return false;
+    if (!this.lastInteractedNPC || !this.speechBubble.isShowing()) {
+      return false;
+    }
+
+    const caricatureArtist = this.world.getCaricatureArtist();
+    const isLast = this.world.npcSystem.isOnLastMessage(this.lastInteractedNPC);
+    const caricatureNPC = this.world.npcSystem.getNPC("caricature-artist");
+
+    if (this.lastInteractedNPC === caricatureNPC && caricatureArtist.isReady()) {
+      caricatureArtist.viewCaricature();
+      return true;
+    }
+
+    if (
+      this.lastInteractedNPC === caricatureNPC &&
+      caricatureArtist.canStartNewGeneration() &&
+      isLast
+    ) {
+      caricatureArtist.startCaricatureProcess();
+      return true;
+    }
+
+    if (this.lastInteractedNPC.link && isLast) {
+      this.openNPCLink(this.lastInteractedNPC);
+      return true;
+    }
+
+    return false;
   }
 
   private async animate(): Promise<void> {
@@ -524,6 +556,9 @@ class App {
 
   dispose(): void {
     this.isRunning = false;
+    if (this.pendingTouchTapTimeout) {
+      window.clearTimeout(this.pendingTouchTapTimeout);
+    }
     this.renderer.dispose();
     this.camera.dispose();
     this.desktopControls.dispose();
