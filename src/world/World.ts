@@ -177,6 +177,10 @@ export class World {
     }
 
     try {
+      const interactionHint = DeviceDetector.isMobile()
+        ? "DOUBLE-TAP"
+        : "RIGHT-CLICK";
+
       // Map of NPC names in the GLB file to their IDs and dialogue
       // Note: Dots are removed during GLB export, so "NPC.DARC" becomes "NPCDARC"
 // NPC Node Names found in carnival.glb:
@@ -203,7 +207,7 @@ export class World {
           dialogue: [
             "Hey there, welcome to the carnival! I built a music AI research project called DARC - Drum Accompaniment generation with Rhythm Control.",
             "It's my 15-798 final project at CMU. The cool part? It lets you input beatboxing or tapping, plus your other tracks, and it generates drums that fit the rhythm and musical context.",
-            "Want to read the paper? Right-click or double-tap when this message is up.",
+            `Want to read the paper? ${interactionHint} when this message is up.`,
           ],
           linkUrl: "https://arxiv.org/abs/2601.02357",
         },
@@ -213,7 +217,7 @@ export class World {
           dialogue: [
             "What's up! Check out my Crossy Road clone I built for 15-113 at CMU, a Python implementation made with AI on a 1-hour timer!",
             "Time crunch was REAL! I had to move fast and be strategic with my approach. I used Cursor with a mix of prompting techniques to maximize efficiency.",
-            "Got procedural terrain, collision detection, and score tracking all working in under an hour. Right-click or double-tap here to open the code!",
+            `Got procedural terrain, collision detection, and score tracking all working in under an hour. ${interactionHint} here to open the code!`,
           ],
           linkUrl: "https://github.com/TbrosN/crossy-road",
         },
@@ -222,7 +226,7 @@ export class World {
           displayName: "Artist",
           dialogue: [
             "Hello, I'm the Caricature Artist! I can draw a funny picture of you using the power of AI!",
-            "If you would like a caricature, right-click or double-tap to choose how you'd like to pose!",
+            `If you would like a caricature, ${interactionHint} to choose how you'd like to pose!`,
           ],
         },
         NPCFerrisWheel: {
@@ -231,7 +235,7 @@ export class World {
           dialogue: [
             "Hey! I built Clarity - a full-stack PWA that's like Waze for your health. It helps you understand what actually drives your energy levels.",
             "Instead of generic advice, Clarity asks you simple questions that take just 1 second to answer. From these, it connects the dots between your energy, diet, and sleep patterns.",
-            "Want to see how it works? Right-click or double-tap when this message is up.",
+            `Want to see how it works? ${interactionHint} when this message is up.`,
           ],
           linkUrl: "https://github.com/TbrosN/clarity",
         },
@@ -239,7 +243,7 @@ export class World {
           id: "carousel-operator",
           displayName: "Carousel Operator",
           dialogue: [
-            "Welcome to the carnival! If you like what you see, right-click or double-tap to open the code for this portfolio.",
+            `Welcome to the carnival! If you like what you see, ${interactionHint} to open the code for this portfolio.`,
           ],
           linkUrl:
             "https://github.com/TbrosN/tbrosn.github.io?tab=readme-ov-file",
@@ -250,7 +254,7 @@ export class World {
           dialogue: [
             "Hello! Would you like some ice cream?",
             "Oh, I see... you're looking for healthy options! I have just the thing for you- a database that stores food products and their nutrition information!",
-            "Right-click or double-tap here to open the GitHub page.",
+            `${interactionHint} here to open the GitHub page.`,
           ],
           linkUrl: "https://github.com/TbrosN/grocery-store",
         },
@@ -260,7 +264,7 @@ export class World {
           dialogue: [
             "Hey! I built Squibble, an AI tool that makes creating narration-style TikTok videos effortless.",
             "Work with an AI agent to write a script, and let Squibble turn it into an engaging video, with a voiceover and visuals—no editing skills needed!",
-            "Right-click or double-tap here to open the GitHub page.",
+            `${interactionHint} here to open the GitHub page.`,
           ],
           linkUrl: "https://github.com/TbrosN/squibble",
         },
@@ -271,7 +275,7 @@ export class World {
             "Merhaba! Can I interest you in some kebab?",
             "Oh, I see... you want to cook something yourself! I have just the thing: meet Sousie, a mobile app that helps you design, edit, and cook recipes.",
             "It's built with Expo using a multi-agent workflow: I wrote a spec, and then had different agents for implentation and review.",
-            "Right-click or double-tap here to open the project!",
+            `${interactionHint} here to open the project!`,
           ],
           linkUrl: "https://github.com/TbrosN/sousie",
         },
