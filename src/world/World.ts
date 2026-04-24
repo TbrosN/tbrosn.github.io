@@ -93,7 +93,6 @@ export class World {
 
           // Update dialogue for subsequent interactions
           npc.dialogue.messages = [
-            message,
             `I think it turned out great! Want to see it? ${interactionHint}!`,
           ];
           npc.dialogue.currentIndex = 0;
